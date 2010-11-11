@@ -1,15 +1,24 @@
-set(CMAKE_CXX_COMPILER g++42)
-set(CMAKE_C_COMPILER gcc42)
-
-
-
 SET(CMAKE_BUILD_TYPE "Release")
 #SET(CMAKE_BUILD_TYPE "Debug")
 #SET(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
+SET(PREFIX /home/ccms/server)
+SET(OWNER "ccms")
+SET(GROUP "ccms")
+
 SET(CMAKE_USE_RELATIVE_PATH "TRUE")
 SET(CMAKE_SKIP_RPATH "TRUE")
 SET(CMAKE_VERBOSE_MAKEFILE TRUE)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -179,9 +188,9 @@ IF(UNIX)
 		/usr/local/include
 	)
 ELSE(UNIX)
-	INCLUDE_DIRECTORIES(
-		../../left/js/include
-	)
+	# INCLUDE_DIRECTORIES(
+		# ../../left/js/include
+	# )
 ENDIF(UNIX)
 
 
@@ -189,5 +198,7 @@ ENDIF(UNIX)
 
 
 
+SET(CMAKE_INSTALL_PREFIX ${PREFIX})
+SET(CMAKE_INSTALL_OWNER ${OWNER})
+SET(CMAKE_INSTALL_GROUP ${GROUP})
 
-SET(CMAKE_INSTALL_PREFIX ../../)

@@ -85,7 +85,7 @@ let system =
 system.startup = function()
 {
 	this.db = router.createService('sqlite3');
-	this.db.open("../db/system.sqlite");
+	this.db.open("../var/system.sqlite");
 	this.db.exec('PRAGMA encoding = "UTF-8"');
 	this.db.exec('PRAGMA journal_mode = MEMORY');
 	this.db.exec('PRAGMA temp_store = MEMORY');
