@@ -8,7 +8,7 @@ else
 	{
 		meth:function test(cronid)
 		{
-			warn('sessions: ' + orm.query('SELECT COUNT(*) FROM {Session}')[0].count);
+			//warn('sessions: ' + orm.query('SELECT COUNT(*) FROM {Session}')[0].count);
 			orm.exec("DELETE FROM {Session} WHERE dtime<$1 AND remember!=TRUE OR atime<$1::timestamp-INTERVAL '6 month' AND remember=TRUE", new Date());
 		},
 		period:1*1000,
