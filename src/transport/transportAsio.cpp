@@ -1367,8 +1367,7 @@ namespace ccms
 							connection->_fueAccumulerValue.insert(connection->_fueAccumulerValue.end(), begin, iter);
 							if(!connection->_fueAccumulerKey.empty() && !connection->_fueAccumulerValue.empty())
 							{
-								connection->_fueAccumulerValue = hexdecode(connection->_fueAccumulerValue);
-								connection->_paramsPost[connection->_fueAccumulerKey].push_back(connection->_fueAccumulerValue);
+								connection->_paramsPost[urldecode(connection->_fueAccumulerKey)].push_back(urldecode(connection->_fueAccumulerValue));
 							}
 							connection->_fueAccumulerKey.clear();
 							connection->_fueAccumulerValue.clear();
