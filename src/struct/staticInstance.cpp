@@ -1,0 +1,53 @@
+#include "stdafx.h"
+#include "struct/staticInstance.hpp"
+
+namespace ccms
+{
+	//////////////////////////////////////////////////////////////////////////
+	StaticInstance::StaticInstance()
+		: JsObject(true, "[object StaticInstance]")
+		, _parent(NULL)
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	StaticInstance::~StaticInstance()
+	{
+	}
+	
+	//////////////////////////////////////////////////////////////////////////
+	void StaticInstance::init()
+	{
+		if(isInited())
+		{
+			return;
+		}
+		Initializable::init();
+		return;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void StaticInstance::deinit()
+	{
+		if(!isInited())
+		{
+			return;
+		}
+
+		Initializable::deinit();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void StaticInstance::setParent(PointInstance *parent)
+	{
+		_parent = parent;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	std::string &StaticInstance::getFileName()
+	{
+		return _fileName;
+	}
+
+
+}

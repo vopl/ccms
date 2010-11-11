@@ -1,0 +1,10 @@
+﻿if(global.db)
+{
+	try
+	{
+		//global.db.exec("rollback");
+	}
+	catch(e)
+	{
+	}
+}

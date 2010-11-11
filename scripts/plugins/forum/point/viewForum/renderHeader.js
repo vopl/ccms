@@ -1,0 +1,1 @@
+﻿let target = arguments[0];return 	<>форум {target.map_title} <a href={request.plan[request.plan.length-2].path}>topics</a><br/>краткое описание {target.description}<br/></>

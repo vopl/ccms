@@ -1,0 +1,47 @@
+null
+
+pages
+	client
+	client2
+	admin
+	admin2
+
+simple
+	button
+	link
+
+	checkBox
+	comboBox
+	radioButton
+	radioGroup
+	colorPicker
+	datePicker
+	filePicker
+	timePicker
+	spinButton
+	
+	code
+	label
+	para
+	header
+	date
+	time
+	string
+	text
+	progress
+	image
+
+	tooltip
+
+
+
+
+complex
+	tabBox
+	form
+	list
+	menu
+	table
+	tree
+	groupBox
+	editor

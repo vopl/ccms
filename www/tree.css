@@ -1,0 +1,13 @@
+
+treechildren::-moz-tree-row(point)		{ background-color: #eeeeee; }
+treechildren::-moz-tree-row(controller)		{ background-color: #dddddd; }
+treechildren::-moz-tree-row(controllerNull)	{ background-color: #ffdddd; }
+
+treechildren::-moz-tree-row(pointProperty)	{ background-color: #ddddff; }
+treechildren::-moz-tree-row(controllerProperty)	{ background-color: #ccccff; }
+
+treechildren::-moz-tree-row(preTransit)		{ background-color: #aa99aa; }
+treechildren::-moz-tree-row(preThis)		{ background-color: #aa88aa; }
+treechildren::-moz-tree-row(postTransit)	{ background-color: #aa77aa; }
+treechildren::-moz-tree-row(postThis)		{ background-color: #aa66aa; }
+

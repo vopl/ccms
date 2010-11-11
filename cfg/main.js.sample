@@ -1,0 +1,36 @@
+let res = 
+{
+	server:
+	{
+		host:			'localhost',
+		port:			8080,
+		queueSize:		500,
+		mimeTypes:		exec('mimeTypes.js'),
+
+		cronInterval:		1,
+
+		keepaliveMax:		5,
+
+		headerbufGranula:	0x1000,
+		headerbufLimit:		0x10000,
+		bodybufGranula:		0x10000,
+		bodybufLimit:		0x800000,
+
+		outbufGranula:		0x40000,
+		
+		staticDiectory: absDir('../www'),
+		
+	},
+
+	//staticDiectory:'../www',
+
+	scriptDiectories:
+	[
+		absDir('../scripts'),
+	],
+
+	timeZoneSpec:absFile('date_time_zonespec.csv'),
+
+};
+
+return res;

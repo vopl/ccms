@@ -1,0 +1,1550 @@
+#include "stdafx.h"
+#include "transport/transportAsio.hpp"
+#include "transportBase.inc.hpp"
+#include "utils/string.hpp"
+#include "tokenizer.hpp"
+#include "utils/ncvt.h"
+
+
+
+namespace ccms
+{
+	//////////////////////////////////////////////////////////////////////////
+	Connection::Connection(
+		TransportAsio *transport,
+		SocketPtr socket, 
+		std::ostream &err)
+		: _transport(transport)
+		, _state(ecsReadHeader)
+		, _socket(socket)
+		, _inContentLength(0)
+		, _inContentType(ectNull)
+		, _bytesTransfered(0)
+		, _staticFileSize(0)
+		, Connection4Backend(err)
+	{
+	}
+
+	Connection::~Connection()
+	{
+		_transport->onConectionDestroy(this);
+		BOOST_FOREACH(TMDFiles::value_type &v1, _files)
+		{
+			BOOST_FOREACH(TDFiles::value_type &v2, v1.second)
+			{
+				if(!v2._nameServer.empty())
+				{
+					remove(v2._nameServer.data());
+				}
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	TransportAsio::TransportAsio(const char *host, unsigned short port, size_t	queueSize, ITransportBackend *backend)
+		: TransportBase<ConnectionPtr>(host, port, queueSize, backend)
+		, _io_service()
+		, _acceptor(_io_service)
+		, _cronTimer(_io_service)
+		, _keepaliveMax(5)
+		, _headerbufGranula(0x1000)
+		, _headerbufLimit(0x10000)
+		, _bodybufGranula(0x10000)
+		, _bodybufLimit(0x800000)
+		, _outbufGranula(0x40000)
+		, _cronInterval(60)
+
+	{
+
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	TransportAsio::~TransportAsio()
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::start()
+	{
+		if(!TransportBase<ConnectionPtr>::start()) return false;
+
+
+		try
+		{
+			boost::asio::ip::tcp::resolver resolver(_io_service);
+
+			char port[32];
+			sprintf(port, "%u", unsigned(_port));
+			boost::asio::ip::tcp::resolver::query query(_host, port);
+			boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+
+
+			_commonEnv["SERVER_ADDR"] = endpoint.address().to_string();
+			sprintf(port, "%u", unsigned(endpoint.port()));
+			_commonEnv["SERVER_PORT"] = port;
+
+
+			_acceptor.open(endpoint.protocol());
+			_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+			_acceptor.set_option(boost::asio::socket_base::enable_connection_aborted(true));
+			_acceptor.bind(endpoint);
+			_acceptor.listen();
+
+			makeAccept();
+
+
+			////////////////////// кроновый таймер запустится
+			handleCronTick(boost::system::error_code());
+
+
+
+			_io_service.run();
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+			stop();
+			return false;
+		}
+		_acceptor.close();
+		return true;
+	}
+
+
+	bool TransportAsio::stop()
+	{
+		bool res = TransportBase<ConnectionPtr>::stop();
+
+		if(res)
+		{
+			_io_service.stop();
+		}
+
+		return res;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::makeAccept()
+	{
+		SocketPtr socket(new boost::asio::ip::tcp::socket(_io_service));
+
+		_acceptor.async_accept(*socket,
+			boost::bind(&TransportAsio::handleAccept, this,
+			socket,
+			boost::asio::placeholders::error));
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::handleAccept(SocketPtr socket, const boost::system::error_code& e)
+	{
+		//socket->io_control(boost::asio::socket_base::non_blocking_io(true));
+
+		if(_stop) return;
+
+		makeAccept();
+
+		if(e)
+		{
+			std::cerr<<"TransportAsio::handleAccept: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			return;
+		}
+
+		ConnectionPtr connection(new Connection(this, socket, std::cerr));
+		makeRead(TimerPtr(), connection, _headerbufGranula);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::makeRead(TimerPtr timer, ConnectionPtr connection, size_t granula)
+	{
+		if(connection->_netBuf.size() < granula)
+		{
+			connection->_netBuf.resize(granula);
+		}
+
+		connection->_socket->async_read_some(
+			boost::asio::buffer(
+			&connection->_netBuf[0], 
+			granula), 
+			boost::bind(&TransportAsio::handleRead, this,
+			timer,
+			connection,
+			boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred)
+			);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::handleRead(TimerPtr timer, ConnectionPtr connection, const boost::system::error_code& e, std::size_t bytes_transferred)
+	{
+		if(_stop) return;
+
+		if(timer)
+		{
+			timer->cancel();
+			timer.reset();
+		}
+
+
+		switch(e.value())
+		{
+		case 0:
+			break;
+		case boost::asio::error::operation_aborted:
+			//std::cerr<<"TransportAsio::handleRead: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			{
+				boost::system::error_code ec;
+				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				connection->_socket->close(ec);
+			}
+			return;
+		case boost::asio::error::connection_aborted:
+		case boost::asio::error::connection_refused:
+		case boost::asio::error::connection_reset:
+		case boost::asio::error::eof:
+			//std::cerr<<"TransportAsio::handleRead: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			{
+				boost::system::error_code ec;
+				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				connection->_socket->close(ec);
+			}
+			return;
+		default:
+			std::cerr<<"TransportAsio::handleRead: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			{
+				boost::system::error_code ec;
+				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				connection->_socket->close(ec);
+			}
+			return;
+		}
+
+		switch(connection->_state)
+		{
+		case ecsReadHeader:
+			{
+				size_t lastDataBufProcessed = connection->_dataBuf.size();
+				connection->_dataBuf.insert(
+					connection->_dataBuf.end(), 
+					connection->_netBuf.begin(),
+					connection->_netBuf.begin()+bytes_transferred);
+
+				//найти конец заголовка
+				size_t lookStart = (lastDataBufProcessed>=3 ? lastDataBufProcessed-3 : 0);
+				size_t lookStop = connection->_dataBuf.size();
+
+				static const char CRLF2[] = "\r\n\r\n";
+
+				DDataBuf::iterator lookBegin = connection->_dataBuf.begin()+lookStart;
+				DDataBuf::iterator lookEnd = connection->_dataBuf.begin()+lookStop;
+				DDataBuf::iterator crlf2Iter = std::search(lookBegin, lookEnd, CRLF2, CRLF2+4);
+
+				if(lookEnd != crlf2Iter)
+				{
+					//заголовок найден
+					processReadedHeader(connection, crlf2Iter+4);
+					return;
+				}
+
+				//заголовок не завершен
+				if(connection->_dataBuf.size() > _headerbufLimit)
+				{
+					//превышение лимита буфера - слишком большой заголовок
+					std::cerr<<"TransportAsio::handleRead: header is too large"<<std::endl;
+					return;
+				}
+
+				//читать дальше
+				makeRead(TimerPtr(), connection, _headerbufGranula);
+				return;
+			}
+
+			break;
+		case ecsReadBody:
+			processReadedBody(connection, bytes_transferred);
+			break;
+		default:
+			assert(0);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::makeWrite(ConnectionPtr connection)
+	{
+		if(_stop) return;
+
+		switch(connection->_state)
+		{
+		case ecsWriteHeader:
+			if(connection->_bytesTransfered < connection->_outHeaders.size())
+			{
+				boost::asio::async_write(*connection->_socket, 
+					boost::asio::buffer(
+					&connection->_outHeaders[connection->_bytesTransfered], 
+					connection->_outHeaders.size() - connection->_bytesTransfered), 
+					boost::bind(&TransportAsio::handleWrite, this,
+					connection,
+					boost::asio::placeholders::error,
+					boost::asio::placeholders::bytes_transferred)
+					);
+				return;
+			}
+			connection->_state = ecsWriteBody;
+			connection->_bytesTransfered = 0;
+			connection->_netBuf.clear();
+			//break;
+		case ecsWriteBody:
+
+			if(connection->_staticFile)
+			{
+				if(connection->_bytesTransfered < connection->_staticFileSize)
+				{
+					size_t inBuffer = connection->_netBuf.size();
+					size_t spaceSend = std::min((size_t)_outbufGranula, connection->_staticFileSize - connection->_bytesTransfered);
+					assert(spaceSend >= inBuffer);
+					size_t spaceRead = spaceSend - inBuffer;
+
+					connection->_netBuf.resize(spaceSend);
+					if(spaceRead)
+					{
+						connection->_staticFile->read(&connection->_netBuf[inBuffer], spaceRead);
+						spaceRead = connection->_staticFile->gcount();
+						spaceSend = connection->_netBuf.size();
+					}
+					if(spaceSend)
+					{
+						boost::asio::async_write(*connection->_socket, 
+							boost::asio::buffer(
+							&connection->_netBuf[0], 
+							connection->_netBuf.size()), 
+							boost::bind(&TransportAsio::handleWrite, this,
+							connection,
+							boost::asio::placeholders::error,
+							boost::asio::placeholders::bytes_transferred)
+							);
+						return;
+					}
+
+				}
+
+				connection->_netBuf.clear();
+				connection->_staticFile.reset();
+			}
+			else
+			{
+				if(connection->_bytesTransfered < connection->_outBody.size())
+				{
+					boost::asio::async_write(*connection->_socket, 
+						boost::asio::buffer(
+						&connection->_outBody[connection->_bytesTransfered], 
+						connection->_outBody.size() - connection->_bytesTransfered), 
+						boost::bind(&TransportAsio::handleWrite, this,
+						connection,
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred)
+						);
+					return;
+				}
+			}
+			connection->_state = ecsComplete;
+			processCompletedConnection(connection);
+			break;
+		default:
+			assert(0);
+		}
+
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::handleWrite(ConnectionPtr connection, const boost::system::error_code& e, std::size_t bytes_transferred)
+	{
+		if(_stop) return;
+
+		switch(e.value())
+		{
+		case 0:
+			break;
+		case boost::asio::error::operation_aborted:
+		case boost::asio::error::connection_aborted:
+		case boost::asio::error::connection_refused:
+		case boost::asio::error::connection_reset:
+		case boost::asio::error::broken_pipe:
+			//std::cerr<<"TransportAsio::handleWrite: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			{
+				boost::system::error_code ec;
+				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				connection->_socket->close(ec);
+			}
+			return;
+		default:
+			std::cerr<<"TransportAsio::handleWrite: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			{
+				boost::system::error_code ec;
+				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				connection->_socket->close(ec);
+			}
+			return;
+		}
+
+		connection->_bytesTransfered += bytes_transferred;
+		switch(connection->_state)
+		{
+		case ecsWriteHeader:
+			makeWrite(connection);
+			break;
+		case ecsWriteBody:
+			if(connection->_staticFile)
+			{
+				connection->_netBuf.erase(connection->_netBuf.begin(), connection->_netBuf.begin()+bytes_transferred);
+			}
+			makeWrite(connection);
+			break;
+		default:
+			assert(0);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::handleKeepaliveTimeout(TimerPtr timer, ConnectionPtr connection, const boost::system::error_code& e)
+	{
+		timer->cancel();
+
+		if(_stop) return;
+		if(boost::asio::error::operation_aborted == e)
+		{
+			return;
+		}
+
+		if(e) 
+		{ 
+			std::cerr<<"TransportAsio::handleKeepaliveTimeout: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			return; 
+		}
+
+		//std::cout<<"TransportAsio::handleKeepaliveTimeout, "<<GetCurrentThreadId()<<", "<<connection->_socket->native()<<std::endl;
+		//connection->_socket->cancel();
+		boost::system::error_code ec;
+		//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+		connection->_socket->close(ec);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::handleCronTick(const boost::system::error_code& e)
+	{
+		if(e) 
+		{ 
+			std::cerr<<"TransportAsio::handleCronTick: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
+			return; 
+		}
+
+		pushCronTick();
+
+		boost::system::error_code ec;
+		_cronTimer.expires_from_now(
+			boost::posix_time::seconds((long)_cronInterval),
+			ec); 
+		if(ec)
+		{
+			std::cerr<<"TransportAsio::handleCronTick cronTimer.expires_from_now failed"<<ec.message()<<"("<<ec.value()<<")"<<std::endl;
+		}
+		else
+		{
+			_cronTimer.async_wait(
+				boost::bind(&TransportAsio::handleCronTick, this,
+				boost::asio::placeholders::error));
+		}
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::processReadedHeader(ConnectionPtr connection, DDataBuf::iterator end)
+	{
+		DDataBuf::iterator begin = connection->_dataBuf.begin();
+
+		//распарсить заголовки в env
+		TEnvMap &env = connection->_env;
+		env = _commonEnv;
+
+		static const char DOT2SP[] = ": ";
+		static const char SP[] = " ";
+
+		tokenizer<DDataBuf> lines(begin, end, "\r\n");
+		tokenizer<DDataBuf>::iterator tok_iter = lines.begin();
+		tokenizer<DDataBuf>::iterator tok_end = lines.end();
+
+		if(tok_iter == tok_end)
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: empty header"<<std::endl;
+			return;
+		}
+		const IteratorPair<DDataBuf::iterator> &line = *tok_iter;
+		DDataBuf::iterator i1 = std::find(line._begin, line._end, ' ');
+		if(i1 == line._end)
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			return;
+		}
+		if(!trim(env["REQUEST_METHOD"].assign(line._begin, i1)))
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			return;
+		}
+		if(i1 == line._end)
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			return;
+		}
+		i1++;
+
+		static const char HTTP[] = "HTTP/";
+		DDataBuf::iterator i2 = std::search(i1, line._end, HTTP, HTTP+5);
+		if(i2 == line._end || i2 == i1)
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			return;
+		}
+		trim(connection->_protocolVersion.assign(i2+5, line._end));
+
+		if(!trim(connection->_requestPath.assign(i1, i2-1)))
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			return;
+		}
+		else
+		{
+			env["REQUEST_URI"].assign(i1, i2-1) = connection->_requestPath;
+			size_t pos = connection->_requestPath.find('?');
+			if(pos != std::string::npos)
+			{
+				if(!parsePramsGet(connection, connection->_requestPath.begin()+pos+1, connection->_requestPath.end()))
+				{
+					std::cerr<<"TransportAsio::processReadedHeader: unrecognized get params"<<std::endl;
+					return;
+				}
+
+				connection->_requestPath.erase(pos);
+			}
+			connection->_requestPath = hexdecode(connection->_requestPath);
+		}
+
+		static const char SPACES[] = " \t";
+		DDataBuf::iterator i3 = std::find_first_of(i2, line._end, SPACES, SPACES+2);
+		if(!trim(env["SERVER_PROTOCOL"].assign(i2+5, i3)))
+		{
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			return;
+		}
+
+		tok_iter++;
+
+		for(; tok_iter != tok_end; tok_iter++)
+		{
+			const IteratorPair<DDataBuf::iterator> &line = *tok_iter;
+			DDataBuf::iterator delim = std::search(line._begin, line._end, DOT2SP, DOT2SP+2);
+			if(delim == line._end)
+			{
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				return;
+			}
+
+			std::string key(line._begin, delim);
+			if(!trim(key))
+			{
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				return;
+			}
+			tolowerLatin(key);
+			std::string &value = env[key];
+			value.assign(delim+2, line._end);
+			if(!trim(value))
+			{
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				return;
+			}
+
+			if(key == "cookie")
+			{
+				if(!parseCookies(connection, value.begin(), value.end()))
+				{
+					std::cerr<<"TransportAsio::processReadedHeader: unrecognized cookies"<<std::endl;
+					return;
+				}
+
+			}
+
+		}
+
+		boost::asio::ip::tcp::endpoint rend = connection->_socket->remote_endpoint();
+		env["REMOTE_ADDR"] = rend.address().to_string();
+		char port[32];
+		sprintf(port, "%u", unsigned(rend.port()));
+		env["REMOTE_PORT"] = port;
+
+		TEnvMap::iterator iter;
+
+		// 		iter = env.find("host");
+		// 		if(env.end() != iter) env["SERVER_NAME"] = iter->second;
+
+		iter = env.find("content-type");
+		if(env.end() != iter)
+		{
+			std::string contentTypeLC = iter->second;
+			tolowerLatin(contentTypeLC);
+			std::string &contentType = iter->second;
+
+			if(0 == contentTypeLC.compare(0, 33, "application/x-www-form-urlencoded")) connection->_inContentType = ectFormUrlEncoded;
+			else if(0 == contentTypeLC.compare(0, 19, "multipart/form-data"))
+			{
+				size_t pos = contentTypeLC.find("boundary=");
+				if(pos != std::string::npos)
+				{
+					connection->_inBodyBoundary.assign(contentType.begin() + pos + 9, contentType.end());
+				}
+				connection->_inContentType = ectFormData;
+			}
+			else
+			{
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				return;
+			}
+
+		}
+
+		iter = env.find("content-length");
+		if(env.end() != iter)
+		{
+			connection->_inContentLength = _atost(iter->second.data());
+			if(connection->_inContentLength > _bodybufLimit)
+			{
+				std::cerr<<"TransportAsio::onCompleteProbe: body is too large"<<std::endl;
+				return;
+			}
+			if(connection->_inContentType == ectNull)
+			{
+				connection->_inContentType = ectFictive;
+			}
+		}
+
+		iter = env.find("connection");
+		if(env.end() != iter)
+		{
+			if(tolowerLatin(iter->second) == "keep-alive")
+			{
+				iter = env.find("keep-alive");
+				if(env.end() != iter)
+				{
+					connection->_keepaliveTimeout = _atost(iter->second.data());
+					if(connection->_keepaliveTimeout > _keepaliveMax) connection->_keepaliveTimeout = _keepaliveMax;
+				}
+				else
+				{
+					connection->_keepaliveTimeout = _keepaliveMax;
+				}
+			}
+		}
+		else
+		{
+			if(connection->_protocolVersion == "1.0")
+			{
+				connection->_keepaliveTimeout = 0;
+			}
+			else
+			{
+				connection->_keepaliveTimeout = _keepaliveMax;
+			}
+		}
+
+		//вырезать заголовки из тела запроса
+		connection->_dataBuf.erase(begin, end);
+		connection->_bytesTransfered = connection->_dataBuf.size();
+		connection->_netBuf.clear();
+
+		//отдать бакенду на пробу
+		connection->_state = ecsReadBody;
+
+		if(!_staticDirectory.empty())
+		{
+			connection->_staticPath = _staticDirectory+connection->_requestPath;
+			if(boost::filesystem::is_regular_file(connection->_staticPath))
+			{
+				onCompleteProbe_own(connection, true);
+				return;
+			}
+			connection->_staticPath.clear();
+		}
+		pushProbe(connection);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::processReadedBody(ConnectionPtr connection, std::size_t bytes_transferred)
+	{
+		connection->_bytesTransfered += bytes_transferred;
+
+		switch(connection->_inContentType)
+		{
+
+		case ectFictiveNoProcess:
+			{
+				if(connection->_bytesTransfered >= connection->_inContentLength)
+				{
+					onCompleteProcess(connection, true);
+					return;
+				}
+				size_t space2process = connection->_inContentLength - connection->_bytesTransfered;
+				makeRead(TimerPtr(), connection, std::min((size_t)_bodybufGranula, space2process));
+				return;
+			}
+			break;
+		case ectNull:
+		case ectFictive:
+			{
+				if(connection->_bytesTransfered >= connection->_inContentLength)
+				{
+					if(connection->_staticPath.empty())
+					{
+						pushProcess(connection);
+					}
+					else
+					{
+						processWriteStatic(connection);
+					}
+					return;
+				}
+				size_t space2process = connection->_inContentLength - connection->_bytesTransfered;
+				makeRead(TimerPtr(), connection, std::min((size_t)_bodybufGranula, space2process));
+				return;
+			}
+			break;
+		case ectFormData:
+		case ectFormUrlEncoded:
+			if(bytes_transferred)
+			{
+				if(!readBodyStep(connection, bytes_transferred))
+				{
+					std::cerr<<"TransportAsio::processReadedBody: readBodyStep failed"<<std::endl;
+					return;
+				}
+			}
+			if(connection->_bytesTransfered >= connection->_inContentLength)
+			{
+				if(!readBodyStop(connection))
+				{
+					std::cerr<<"TransportAsio::processReadedBody: readBodyStop failed"<<std::endl;
+					return;
+				}
+				if(connection->_staticPath.empty())
+				{
+					pushProcess(connection);
+				}
+				else
+				{
+					processWriteStatic(connection);
+				}
+				return;
+			}
+			else
+			{
+				size_t space2process = connection->_inContentLength - connection->_bytesTransfered;
+				makeRead(TimerPtr(), connection, std::min((size_t)_bodybufGranula, space2process));
+				return;
+			}
+			break;
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::processWriteStatic(ConnectionPtr connection)
+	{
+		connection->_staticFile.reset(new std::ifstream(connection->_staticPath.data(), std::ios::binary));
+
+		if(!*connection->_staticFile)
+		{
+			connection->_outStatus = 404;
+			connection->_outBody = "404 Not Found";
+
+			onCompleteProcess(connection, true);
+			return;
+		}
+
+		connection->_staticFile->seekg(0, std::ios::end);
+		connection->_staticFileSize = connection->_staticFile->tellg();
+		connection->_staticFile->seekg(0);
+
+
+		size_t dotPos = connection->_staticPath.find_last_of('.');
+		std::string mimeType;
+		if(dotPos == std::string::npos)
+		{
+			mimeType = "application/octet-stream";
+		}
+		else
+		{
+			mimeType = mimeTypeForExt(std::string(connection->_staticPath.begin()+dotPos+1, connection->_staticPath.end()));
+		}
+
+		connection->_outStatus = 200;
+		connection->_outHeaders += 
+			"Content-Type: " + mimeType+"\r\n";
+
+		onCompleteProcess(connection, true);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::processCompletedConnection(ConnectionPtr connection)
+	{
+		if(connection->_keepaliveTimeout)
+		{
+			ConnectionPtr newConnection(new Connection(this, connection->_socket, connection->_err));
+			connection->_socket.reset();
+
+			{
+				boost::asio::socket_base::bytes_readable command(true);
+				newConnection->_socket->io_control(command);
+				std::size_t bytes_readable = command.get();
+				if(bytes_readable)
+				{
+					makeRead(TimerPtr(), newConnection, _headerbufGranula);
+					return;
+				}
+			}
+
+			TimerPtr timer(new boost::asio::deadline_timer(newConnection->_socket->io_service()));
+
+			boost::system::error_code ec;
+			timer->expires_from_now(
+				boost::posix_time::seconds((long)connection->_keepaliveTimeout),
+				ec); 
+			if(ec)
+			{
+				std::cerr<<"TransportAsio::processCompletedConnection timer->expires_from_now failed"<<std::endl;
+				boost::system::error_code ec;
+				//newConnection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				newConnection->_socket->close(ec);
+				return;
+			}
+
+			timer->async_wait(
+				boost::bind(&TransportAsio::handleKeepaliveTimeout, this,
+				timer,
+				newConnection, 
+				boost::asio::placeholders::error));
+
+			makeRead(timer, newConnection, _headerbufGranula);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onFullQueue(ConnectionPtr connection)
+	{
+		_io_service.post(
+			boost::bind(
+			&TransportAsio::onFullQueue_own, 
+			this,
+			connection));
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onCompleteProbe(ConnectionPtr connection, bool res)
+	{
+		_io_service.post(
+			boost::bind(
+			&TransportAsio::onCompleteProbe_own, 
+			this,
+			connection,
+			res));
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onCompleteProcess(ConnectionPtr connection, bool res)
+	{
+		_io_service.post(
+			boost::bind(
+			&TransportAsio::onCompleteProcess_own, 
+			this,
+			connection,
+			res));
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onFullQueue_own(ConnectionPtr connection)
+	{
+		std::cerr<<"TransportAsio::onFullQueue"<<std::endl;
+		//assert(0);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onCompleteProbe_own(ConnectionPtr connection, bool res)
+	{
+		if(res)
+		{
+			if(connection->_inContentLength)
+			{
+				if(!connection->_staticPath.empty())
+				{
+					if(ectNull != connection->_inContentType)
+					{
+						connection->_inContentType = ectFictive;
+					}
+					connection->_dataBuf.clear();
+					connection->_netBuf.clear();
+				}
+
+				if(	connection->_inContentType == ectFormData ||
+					connection->_inContentType == ectFormUrlEncoded)
+				{
+					if(!readBodyInit(connection))
+					{
+						std::cerr<<"TransportAsio::onCompleteProbe: readBodyInit failed"<<std::endl;
+						return;
+					}
+				}
+			}
+
+			if(connection->_bytesTransfered >= connection->_inContentLength)
+			{
+				processReadedBody(connection, 0);
+			}
+			else
+			{
+				connection->_state = ecsReadBody;
+				makeRead(TimerPtr(), connection, std::min((size_t)_bodybufGranula, connection->_inContentLength - connection->_bytesTransfered));
+			}
+			return;
+		}
+		else
+		{
+			connection->_inContentType = ectFictiveNoProcess;
+			connection->_dataBuf.clear();
+			connection->_netBuf.clear();
+			if(connection->_bytesTransfered >= connection->_inContentLength)
+			{
+				processReadedBody(connection, 0);
+			}
+			else
+			{
+				connection->_state = ecsReadBody;
+				makeRead(TimerPtr(), connection, std::min((size_t)_bodybufGranula, connection->_inContentLength - connection->_bytesTransfered));
+			}
+			return;
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onCompleteProcess_own(ConnectionPtr connection, bool res)
+	{
+		if(res)
+		{
+			if(connection->_staticPath.empty() || connection->_staticFile)
+			{
+				if(!connection->_outStatus) connection->_outStatus = 500;
+				prepareHeaders(connection);
+				connection->_state = ecsWriteHeader;
+				connection->_bytesTransfered = 0;
+				makeWrite(connection);
+			}
+			else
+			{
+				processWriteStatic(connection);
+			}
+
+			return;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::onConectionDestroy(Connection *connection)
+	{
+		if(connection->_backendData)
+		{
+			pushCleanup(connection->_backendData);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::prepareHeaders(ConnectionPtr connection)
+	{
+		const char *statusText;
+		switch(connection->_outStatus)
+		{
+		case 100: statusText = "HTTP/1.1 100 Continue\r\n"; break;
+		case 101: statusText = "HTTP/1.1 101 Switching Protocols\r\n"; break;
+		case 200: statusText = "HTTP/1.1 200 OK\r\n"; break;
+		case 201: statusText = "HTTP/1.1 201 Created\r\n"; break;
+		case 202: statusText = "HTTP/1.1 202 Accepted\r\n"; break;
+		case 203: statusText = "HTTP/1.1 203 Non-Authoritative Information\r\n"; break;
+		case 204: statusText = "HTTP/1.1 204 No Content\r\n"; break;
+		case 206: statusText = "HTTP/1.1 206 Partial Content\r\n"; break;
+		case 300: statusText = "HTTP/1.1 300 Multiple Choices\r\n"; break;
+		case 301: statusText = "HTTP/1.1 301 Moved Permanently\r\n"; break;
+		case 302: statusText = "HTTP/1.1 302 Found\r\n"; break;
+		case 303: statusText = "HTTP/1.1 303 See Other\r\n"; break;
+		case 304: statusText = "HTTP/1.1 304 Not Modified\r\n"; break;
+		case 305: statusText = "HTTP/1.1 305 Use Proxy\r\n"; break;
+		case 307: statusText = "HTTP/1.1 307 Temporary Redirect\r\n"; break;
+		case 400: statusText = "HTTP/1.1 400 Bad Request\r\n"; break;
+		case 401: statusText = "HTTP/1.1 401 Unauthorized\r\n"; break;
+		case 402: statusText = "HTTP/1.1 402 Payment Required\r\n"; break;
+		case 403: statusText = "HTTP/1.1 403 Forbidden\r\n"; break;
+		case 404: statusText = "HTTP/1.1 404 Not Found\r\n"; break;
+		case 405: statusText = "HTTP/1.1 405 Method Not Allowed\r\n"; break;
+		case 406: statusText = "HTTP/1.1 406 Not Acceptable\r\n"; break;
+		case 407: statusText = "HTTP/1.1 407 Proxy Authentication Required\r\n"; break;
+		case 408: statusText = "HTTP/1.1 408 Request Timeout\r\n"; break;
+		case 409: statusText = "HTTP/1.1 409 Conflict\r\n"; break;
+		case 410: statusText = "HTTP/1.1 410 Gone\r\n"; break;
+		case 411: statusText = "HTTP/1.1 411 Length Required\r\n"; break;
+		case 412: statusText = "HTTP/1.1 412 Precondition Failed\r\n"; break;
+		case 413: statusText = "HTTP/1.1 413 Request Entity Too Large\r\n"; break;
+		case 414: statusText = "HTTP/1.1 414 Request-URI Too Long\r\n"; break;
+		case 415: statusText = "HTTP/1.1 415 Unsupported Media Type\r\n"; break;
+		case 416: statusText = "HTTP/1.1 416 Requested Range Not Satisfiable\r\n"; break;
+		case 417: statusText = "HTTP/1.1 417 Expectation Failed\r\n"; break;
+		default:
+		case 500: statusText = "HTTP/1.1 500 Internal Server Error\r\n"; break;
+		case 501: statusText = "HTTP/1.1 501 Not Implemented\r\n"; break;
+		case 502: statusText = "HTTP/1.1 502 Bad Gateway\r\n"; break;
+		case 503: statusText = "HTTP/1.1 503 Service Unavailable\r\n"; break;
+		case 504: statusText = "HTTP/1.1 504 Gateway Timeout\r\n"; break;
+		case 505: statusText = "HTTP/1.1 505 HTTP Version Not Supported\r\n"; break;
+		}
+		connection->_outHeaders.insert(0, statusText);
+
+		////////////////////////////
+		if(connection->_keepaliveTimeout)
+		{
+			connection->_outHeaders += "Connection: Keep-Alive\r\n";
+
+			size_t contentLength = connection->_staticFile?connection->_staticFileSize:connection->_outBody.size();
+			connection->_outHeaders += "Content-Length: " + _ntoa(contentLength)+ "\r\n";
+
+			//connection->_socket->set_option(boost::asio::socket_base::keep_alive(true));
+		}
+		else
+		{
+			connection->_outHeaders += "Connection: close\r\n";
+		}
+
+		////////////////////////////
+		connection->_outHeaders += "\r\n";
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	std::string TransportAsio::mimeTypeForExt(const std::string &ext)
+	{
+		std::map<std::string, std::string>::iterator iter = _mimeTypes.find(ext);
+		if(_mimeTypes.end() == iter)
+		{
+			return "application/octet-stream";
+		}
+
+		return iter->second;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::parsePramsGet(ConnectionPtr connection, std::string::iterator begin, std::string::iterator end)
+	{
+		tokenizer<std::string> tok(begin, end, "&");
+		tokenizer<std::string>::iterator tok_iter = tok.begin();
+		tokenizer<std::string>::iterator tok_end = tok.end();
+
+		for(; tok_iter!=tok_end; tok_iter++)
+		{
+			std::string::iterator eqIter = std::find(tok_iter->_begin, tok_iter->_end, '=');
+			if(tok_iter->_end == eqIter)
+			{//key
+				connection->_paramsGet[urldecode(std::string(tok_iter->_begin, tok_iter->_end))].push_back(std::string());
+			}
+			else
+			{//key=value
+				connection->_paramsGet[urldecode(std::string(tok_iter->_begin, eqIter))].push_back(urldecode(std::string(eqIter+1, tok_iter->_end)));
+			}
+		}
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::parseCookies(ConnectionPtr connection, std::string::iterator begin, std::string::iterator end)
+	{
+		tokenizer<std::string> tok(begin, end, "; ");
+		tokenizer<std::string>::iterator tok_iter = tok.begin();
+		tokenizer<std::string>::iterator tok_end = tok.end();
+
+		for(; tok_iter!=tok_end; tok_iter++)
+		{
+			std::string::iterator eqIter = std::find(tok_iter->_begin, tok_iter->_end, '=');
+			if(tok_iter->_end == eqIter)
+			{//key
+				connection->_cookies[std::string(tok_iter->_begin, tok_iter->_end)].push_back(std::string());
+			}
+			else
+			{//key=value
+				connection->_cookies[std::string(tok_iter->_begin, eqIter)].push_back(std::string(eqIter+1, tok_iter->_end));
+			}
+		}
+
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::readBodyInit(ConnectionPtr connection)
+	{
+		switch(connection->_inContentType)
+		{
+		case ectFormData:
+			{
+				static const char MM[] = "--";
+				connection->_inBodyBoundary.insert(connection->_inBodyBoundary.begin(), MM, MM+2);
+				connection->_fdState = efdsInit;
+				connection->_fdBuffer.clear();
+				readParamsStep_fdReset(connection);
+			}
+			break;
+		case ectFormUrlEncoded:
+			connection->_fueWaitKey = true;
+			connection->_fueAccumulerKey.clear();
+			connection->_fueAccumulerValue.clear();
+			break;
+		default:
+			assert(0);
+			return false;
+		}
+
+		if(!connection->_dataBuf.empty())
+		{
+			if(!readParamsStep(connection, connection->_dataBuf.begin(), connection->_dataBuf.end()))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::readBodyStep(ConnectionPtr connection, size_t butesTransfered)
+	{
+		assert(butesTransfered);
+		if(!readParamsStep(connection, connection->_netBuf.begin(), connection->_netBuf.begin()+butesTransfered))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::readBodyStop(ConnectionPtr connection)
+	{
+		switch(connection->_inContentType)
+		{
+		case ectFormData:
+			readParamsStep_fdReset(connection);
+			if(connection->_fdState != efdsComplete)
+			{
+				std::cerr<<"TransportAsio::readBodyStop uncomplete form data"<<std::endl;
+				return false;
+			}
+			break;
+		case ectFormUrlEncoded:
+			if(!connection->_fueAccumulerKey.empty() && !connection->_fueAccumulerValue.empty())
+			{
+				connection->_paramsPost[connection->_fueAccumulerKey].push_back(connection->_fueAccumulerValue);
+			}
+
+			connection->_fueWaitKey = true;
+			connection->_fueAccumulerKey.clear();
+			connection->_fueAccumulerValue.clear();
+			break;
+		default:
+			assert(0);
+			return false;
+		}
+		connection->_netBuf.clear();
+
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	template <class Iterator>
+	bool TransportAsio::readParamsStep(ConnectionPtr connection, Iterator begin, Iterator end)
+	{
+		switch(connection->_inContentType)
+		{
+		case ectFormData:
+			connection->_fdBuffer.insert(connection->_fdBuffer.end(), begin, end);
+
+			for(;;)
+			{
+				switch(connection->_fdState)
+				{
+				case efdsInit:
+					//boundary [размер]
+					if(connection->_fdBuffer.size() < connection->_inBodyBoundary.size())
+					{
+						//продолжать читать
+						return true;
+					}
+					if(!std::equal(connection->_inBodyBoundary.begin(), connection->_inBodyBoundary.end(), connection->_fdBuffer.begin()))
+					{
+						//первая граница не найдена
+						std::cerr<<"TransportAsio::readParamsStep: fd initial boundary out of format"<<std::endl;
+						return false;
+					}
+
+					//вытереть первую границу
+					connection->_fdBuffer.erase(connection->_fdBuffer.begin(), connection->_fdBuffer.begin()+connection->_inBodyBoundary.size());
+					connection->_fdState = efdsProcessHeader;
+
+					//break;
+				case efdsProcessHeader:
+
+					while(efdsProcessHeader == connection->_fdState)
+					{
+						//--\r\n конец, иначе в данные
+						if(	connection->_fdBuffer.size() >= 4 &&
+							connection->_fdBuffer[0] == '-' &&
+							connection->_fdBuffer[1] == '-' &&
+							connection->_fdBuffer[2] == '\r' &&
+							connection->_fdBuffer[3] == '\n')
+						{
+							connection->_fdBuffer.erase(connection->_fdBuffer.begin(), connection->_fdBuffer.begin()+4);
+							connection->_fdState = efdsComplete;
+							break;
+						}
+
+						//\r\n Key: Value [\r\n]
+						if(connection->_fdBuffer.size() < 4) //"\r\n\r\n"
+						{
+							//продолжать читать
+							return true;
+						}
+						if(	connection->_fdBuffer[0] != '\r' || 
+							connection->_fdBuffer[1] != '\n' )
+						{
+							//первым должен перевод строки
+							std::cerr<<"TransportAsio::readParamsStep: fd header out of format"<<std::endl;
+							return false;
+						}
+
+						//потом должно <ключ: значение> и перевод строки
+						static const char CRLF[] = "\r\n";
+						DataBuf::iterator iterLineEnd = std::search(connection->_fdBuffer.begin()+2, connection->_fdBuffer.end(), CRLF, CRLF+2);
+						if(connection->_fdBuffer.end() == iterLineEnd)
+						{
+							//продолжать читать
+							return true;
+						}
+
+						//заголовок найден
+						if(iterLineEnd == connection->_fdBuffer.begin() + 2)
+						{
+							//пустая линия - конец заголовка
+							connection->_fdState = efdsProcessBody;
+
+							//вытереть отработанную строку и перевод. Теперь в буфере начало данных
+							connection->_fdBuffer.erase(connection->_fdBuffer.begin(), iterLineEnd+2);
+							break;
+						}
+						else
+						{
+							//линия не пустая, взять ключ значение
+							static const char D2SP[] = ": ";
+							DataBuf::iterator iterD2sp = std::search(connection->_fdBuffer.begin()+2, iterLineEnd-2, D2SP, D2SP+2);
+							if(connection->_fdBuffer.end() == iterD2sp)
+							{
+								std::cerr<<"TransportAsio::readParamsStep: fd header line out of format"<<std::endl;
+								return false;
+							}
+							// 							std::string key(connection->_fdBuffer.begin()+2, iterD2sp);
+							// 							std::string value(iterD2sp+2, iterLineEnd);
+							// 							std::cout<<"Header data: "<<key<<"="<<value<<std::endl;
+
+							if(!readParamsStep_fdHeader(connection, 
+								connection->_fdBuffer.begin()+2, iterD2sp,
+								iterD2sp+2, iterLineEnd))
+							{
+								return false;
+							}
+
+							//вытереть отработанную строку, последний перевод строки оставить
+							connection->_fdBuffer.erase(connection->_fdBuffer.begin(), iterLineEnd);
+						}
+					}
+					break;
+				case efdsProcessBody:
+					// data [\r\nboundary]
+					{
+						if(connection->_fdBuffer.size() < connection->_inBodyBoundary.size()+2)
+						{
+							//мало данных, продолжать читать
+							return true;
+						}
+
+						DataBuf::iterator iterBoundary = std::search(
+							connection->_fdBuffer.begin(), 
+							connection->_fdBuffer.end(), 
+							connection->_inBodyBoundary.begin(),
+							connection->_inBodyBoundary.end());
+
+						if(	iterBoundary == connection->_fdBuffer.end() ||
+							iterBoundary - connection->_fdBuffer.begin() < 2 &&
+							'\r' != *(iterBoundary-2) &&
+							'\n' != *(iterBoundary-1))
+						{
+							//не она, выбрать доступные данные и читать дальше
+							DataBuf::iterator dataEnd = connection->_fdBuffer.end()-(1+connection->_inBodyBoundary.size());
+							// 							std::string data(connection->_fdBuffer.begin(), dataEnd);
+							// 							std::cout<<"fdd part["<<data<<"]"<<std::endl;
+							if(!readParamsStep_fdData(connection, connection->_fdBuffer.begin(), dataEnd, false))
+							{
+								return false;
+							}
+							connection->_fdBuffer.erase(connection->_fdBuffer.begin(), dataEnd);
+							return true;
+						}
+
+						//найдена граница, выбрать доступные данные и уйти на следующую итерацию
+						// 						std::string data(connection->_fdBuffer.begin(), iterBoundary-2);
+						// 						std::cout<<"fdd last["<<data<<"]"<<std::endl;
+						if(!readParamsStep_fdData(connection, connection->_fdBuffer.begin(), iterBoundary-2, true))
+						{
+							return false;
+						}
+						connection->_fdBuffer.erase(connection->_fdBuffer.begin(), iterBoundary+connection->_inBodyBoundary.size());
+						connection->_fdState = efdsProcessHeader;
+					}
+
+					break;
+				case efdsComplete:
+					if(	connection->_bytesTransfered < connection->_inContentLength ||
+						!connection->_fdBuffer.empty())
+					{
+						std::cerr<<"TransportAsio::readParamsStep: fd extra data after mime"<<std::endl;
+						return false;
+					}
+					return true;
+				}
+			}
+			break;
+		case ectFormUrlEncoded:
+			{
+				while(begin != end)
+				{
+					if(connection->_fueWaitKey)
+					{//key
+						Iterator iter = std::find(begin, end, '=');
+						if(end == iter)
+						{
+							connection->_fueAccumulerKey.insert(connection->_fueAccumulerKey.end(), begin, end);
+							begin = end;
+						}
+						else
+						{
+							connection->_fueAccumulerKey.insert(connection->_fueAccumulerKey.end(), begin, iter);
+							iter++;
+							begin = iter;
+							connection->_fueWaitKey = false;
+						}
+					}
+
+					if(!connection->_fueWaitKey)
+					{//value
+						Iterator iter = std::find(begin, end, '&');
+						if(end == iter)
+						{
+							connection->_fueAccumulerValue.insert(connection->_fueAccumulerValue.end(), begin, end);
+							begin = end;
+						}
+						else
+						{
+							connection->_fueAccumulerValue.insert(connection->_fueAccumulerValue.end(), begin, iter);
+							if(!connection->_fueAccumulerKey.empty() && !connection->_fueAccumulerValue.empty())
+							{
+								connection->_fueAccumulerValue = hexdecode(connection->_fueAccumulerValue);
+								connection->_paramsPost[connection->_fueAccumulerKey].push_back(connection->_fueAccumulerValue);
+							}
+							connection->_fueAccumulerKey.clear();
+							connection->_fueAccumulerValue.clear();
+							iter++;
+							begin = iter;
+							connection->_fueWaitKey = true;
+						}
+					}
+				}
+			}
+			break;
+		default:
+			assert(0);
+			return false;
+		}
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::readParamsStep_fdReset(ConnectionPtr connection)
+	{
+		connection->_fdName.clear();
+		connection->_fdFileName.clear();
+		connection->_fdContentType.clear();
+		connection->_fdFile.reset();
+		connection->_fdValue.clear();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::readParamsStep_fdHeader(ConnectionPtr connection, 
+		DataBuf::iterator keyBegin, 
+		DataBuf::iterator keyEnd,
+		DataBuf::iterator valueBegin,
+		DataBuf::iterator valueEnd)
+	{
+		tolowerLatin(keyBegin, keyEnd);
+
+		if(	keyEnd - keyBegin == 19 && 
+			std::equal(keyBegin, keyEnd, "content-disposition"))
+		{
+			//std::cerr<<"content-disposition"<<std::endl;
+			tokenizer<DataBuf> tok(valueBegin, valueEnd, "; ");
+			tokenizer<DataBuf>::iterator tok_iter = tok.begin();
+			tokenizer<DataBuf>::iterator tok_end = tok.end();
+
+			for(; tok_iter!=tok_end; tok_iter++)
+			{
+				const IteratorPair<DataBuf::iterator> &kv = *tok_iter;
+				DataBuf::iterator i1 = std::find(kv._begin, kv._end, '=');
+				if(i1 == kv._end)
+				{
+					// 					std::string data(kv._begin, kv._end);
+					// 					std::cerr<<"main: ["<<data<<"]"<<std::endl;
+					tolowerLatin(kv._begin, kv._end);
+					if(kv._end - kv._begin != 9 ||
+						!std::equal(kv._begin, kv._end, "form-data"))
+					{
+						std::cerr<<"TransportAsio::readParamsStep_fdHeader: content-disposition is not recognized"<<std::endl;
+						return false;
+					}
+				}
+				else
+				{
+					// 					std::string key(kv._begin, i1);
+					// 					std::string val(i1+1, kv._end);
+					// 					std::cerr<<"kv: ["<<key<<"] = ["<<val<<"]"<<std::endl;
+					tolowerLatin(kv._begin, i1);
+					if(i1 - kv._begin == 4 &&
+						std::equal(kv._begin, i1, "name"))
+					{
+						connection->_fdName.assign(i1+1, kv._end);
+						trim_quotes(connection->_fdName);
+					}
+					else if(i1 - kv._begin == 8 &&
+						std::equal(kv._begin, i1, "filename"))
+					{
+						connection->_fdFileName.assign(i1+1, kv._end);
+						trim_quotes(connection->_fdFileName);
+					}
+				}
+			}
+		}
+		else if(	keyEnd - keyBegin == 12 && 
+			std::equal(keyBegin, keyEnd, "content-type"))
+		{
+			// 			std::string data(valueBegin, valueEnd);
+			// 			std::cerr<<"content-type: ["<<data<<"]"<<std::endl;
+			connection->_fdContentType.assign(valueBegin, valueEnd);
+		}
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool TransportAsio::readParamsStep_fdData(ConnectionPtr connection, 
+		DataBuf::iterator dataBegin, 
+		DataBuf::iterator dataEnd,
+		bool isLast)
+	{
+		if(connection->_fdFileName.empty())
+		{//простой
+			connection->_fdValue.insert(connection->_fdValue.end(), dataBegin, dataEnd);
+
+			if(isLast)
+			{
+				connection->_paramsPost[connection->_fdName].push_back(connection->_fdValue);
+			}
+		}
+		else
+		{//файл
+			if(!connection->_fdFile)
+			{
+#ifdef WIN32
+				char dir[MAX_PATH-14];
+				char fil[MAX_PATH];
+				if(	!GetTempPathA(sizeof(dir), dir) ||
+					!GetTempFileNameA(dir, "ccms_ta_", 0, fil))
+					//if(tmpnam_s(buf, sizeof(buf)))
+				{
+					std::cerr<<"TransportAsio::readParamsStep_fdData: unable to obtail temporary file name"<<std::endl;
+					return false;
+				}
+#else
+				char fil[4096] = "/tmp/ccms_ta_XXXXXX";
+				if(mktemp(fil))
+				{
+					std::cerr<<"TransportAsio::readParamsStep_fdData unable to obtail temporary file name"<<std::endl;
+					return false;
+				}
+#endif
+				connection->_fdValue = fil;
+				connection->_fdFile.reset(new std::ofstream(fil, std::ios::binary));
+				if(!*connection->_fdFile)
+				{
+					std::cerr<<"TransportAsio::readParamsStep_fdData: unable to open temporary file"<<std::endl;
+					return false;
+				}
+			}
+			else
+			{
+				if(!*connection->_fdFile)
+				{
+					std::cerr<<"TransportAsio::readParamsStep_fdData: temporary file is closed"<<std::endl;
+					return false;
+				}
+			}
+
+			size_t dataLen = dataEnd - dataBegin;
+			if(dataLen)
+			{
+				if(!connection->_fdFile->write(&*dataBegin, dataLen))
+				{
+					std::cerr<<"TransportAsio::readParamsStep_fdData: unable to write in temporary file"<<std::endl;
+					return false;
+				}
+			}
+
+			if(isLast)
+			{
+				ParamFile pf;
+				pf._nameClient = connection->_fdFileName;
+				pf._nameServer = connection->_fdValue;
+				pf._contentType = connection->_fdContentType;
+				pf._size = connection->_fdFile->tellp();
+
+				connection->_fdFile.reset();
+				connection->_files[connection->_fdName].push_back(pf);
+			}
+		}
+
+
+		if(isLast)
+		{
+			readParamsStep_fdReset(connection);
+		}
+		return true;
+	}
+}
