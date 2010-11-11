@@ -593,12 +593,21 @@ INSTALL(TARGETS entry RUNTIME DESTINATION bin)
 
 INSTALL(CODE "configure_file(../../bin/ctl.sh.sample \${PREFIX}/bin/ctl.sh)")
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \${PREFIX}/bin/ctl.sh /etc/init.d/ccms)")
-INSTALL(FILES ../../cfg/main.js.sample DESTINATION cfg RENAME main.js)
+
+
+set(mainCfg "${CMAKE_INSTALL_PREFIX}/cfg/main.js")
+if (EXISTS ${mainCfg})
+	install(CODE "message(\"found old config ${mainCfg}, keep\")")
+else(EXISTS ${mainCfg})
+	install(CODE "message(\" not found config ${mainCfg}, create\")")
+	INSTALL(FILES ../../cfg/main.js.sample DESTINATION cfg RENAME main.js)
+endif(EXISTS ${mainCfg})
 	
 INSTALL(CODE
 	"EXECUTE_PROCESS(
 		COMMAND chown -R ${CMAKE_INSTALL_OWNER} ${CMAKE_INSTALL_PREFIX}
 		COMMAND chgrp -R ${CMAKE_INSTALL_GROUP} ${CMAKE_INSTALL_PREFIX}
+		COMMAND chmod -R ug=rwX ${CMAKE_INSTALL_PREFIX}
 		COMMAND chown root ${CMAKE_INSTALL_PREFIX}/bin/ctl.sh
 		COMMAND chgrp root ${CMAKE_INSTALL_PREFIX}/bin/ctl.sh
 		COMMAND chmod u=rwx ${CMAKE_INSTALL_PREFIX}/bin/ctl.sh

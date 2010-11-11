@@ -1,4 +1,4 @@
-﻿///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //различные утилы
 exec('lib/dump.js');
 exec('lib/escapers.js');
@@ -8,7 +8,7 @@ exec('lib/i18n.js');
 
 // база данных
 global.db = router.createService('pg');
-db.open('dbname=ccms user = ccms password = ccms');
+db.open(router.getConfig().dbConnectionString);
 //Valid values are DEBUG5, DEBUG4, DEBUG3, DEBUG2, DEBUG1, LOG, NOTICE, WARNING, ERROR, FATAL, and PANIC
 db.exec("SET client_min_messages='WARNING'");
 //db.verbose=true;

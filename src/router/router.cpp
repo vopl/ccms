@@ -2125,6 +2125,9 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 		jsRegisterMeth("createService", &Router::call_createService, 1);
 		jsRegisterMeth("createTemplate", &Router::call_createTemplate, 0);
+		
+		jsRegisterMeth("getConfig", &Router::call_getConfig, 1);
+		
 
 		_scripter.jsDefineInGlobal("router", mkp<Router>(this, ROOTNAME));
 
@@ -2654,6 +2657,22 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		return true;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	bool Router::call_getConfig(uintN argc, jsval *argv, jsval *rval)
+	{
+		if(argc)
+		{
+			char *s;
+			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &s))return false;
+			*rval = getConfigValue(s);
+			return true;
+		}
+		
+		*rval = OBJECT_TO_JSVAL(_config);
+		return true;
+	}
+	
+	
 	//////////////////////////////////////////////////////////////////////////
 	void Router::evalPossibleSuperPaths_impl(const Path &inh, TVPaths &supers, const PointInstancePtr &iter)
 	{

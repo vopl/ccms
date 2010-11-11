@@ -155,6 +155,9 @@ namespace ccms
 	public:
 		//createService('name')
 		bool call_createTemplate(uintN argc, jsval *argv, jsval *rval);
+		
+	public:
+		bool call_getConfig(uintN argc, jsval *argv, jsval *rval);
 
 	private:
 		void evalPossibleSuperPaths_impl(const Path &inh, TVPaths &supers, const PointInstancePtr &iter);

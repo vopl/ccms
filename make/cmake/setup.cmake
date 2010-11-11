@@ -1,6 +1,6 @@
-SET(CMAKE_BUILD_TYPE "Release")
+#SET(CMAKE_BUILD_TYPE "Release")
 #SET(CMAKE_BUILD_TYPE "Debug")
-#SET(CMAKE_BUILD_TYPE "RelWithDebInfo")
+SET(CMAKE_BUILD_TYPE "RelWithDebInfo")
 
 SET(PREFIX /home/ccms/server)
 SET(OWNER "ccms")

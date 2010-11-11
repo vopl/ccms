@@ -31,6 +31,7 @@ let res =
 
 	timeZoneSpec:absFile('date_time_zonespec.csv'),
 
+	dbConnectionString:'________ HERE DATABASE CONNECTION STRING!!! ________',
 };
 
 return res;
