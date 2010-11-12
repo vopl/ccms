@@ -56,5 +56,5 @@ if(dbr.length)
 }
 
 
-warn('unknown path for '+absFile()+", '"+pathIn.join('/')+"'");
+warn('unknown path for '+absFile()+", '"+pathPart+"'");
 return false;
