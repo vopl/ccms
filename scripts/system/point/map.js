@@ -1,6 +1,17 @@
-if(user.login != 'admin')
+let options = arguments[0];
+if(user.login != 'admin' || !options.childs)
 {
-	return {};
+	return null;
 }
 
-return {};
+let res={
+	point:this,
+	childs:{},
+};
+
+for(let cname in this.childs)
+{
+	res.childs[cname] = this.childs[cname].map(options);
+}
+
+return res;

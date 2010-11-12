@@ -1869,9 +1869,35 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 				return false;
 			}
 		}
+		
+		//////////////////////////////////
+		//дернуть access
+		JSBool access = JS_TRUE;
+		for(size_t i(0); i<executePlanJsos.size(); i++)
+		{
+			if(!executePlanJsos[i]->call_access(0, NULL, &jsv)) return false;
+			!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &access));
+			if(!access) break;
+		}
+		if(targetPoint)
+		{
+			if(!targetPoint->call_access(0, NULL, &jsv)) return false;
+			!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &access));
+		}
+		
+		if(!access)
+		{
+			// assert(!"access denied is not implemented");
+			// r->out<<"Content-Type: text/plain\r\n";
+			// r->out<<"Content-Type: text/plain\r\n";
+			std::cerr<<"access denied is not implemented, "<<__FILE__<<__LINE__<<std::endl;
+			return true;
+		}
 
-		EFilterInstanceProcessResult fpr;
+
+		//////////////////////////////////
 		//фильтры пре-транзитные для всех точек в массиве
+		EFilterInstanceProcessResult fpr;
 		for(size_t i(0); i<executePlanJsos.size(); i++)
 		{
 			if(!executePlanJsos[i]->executeFilters(efikPreTransit, fpr)) return false;

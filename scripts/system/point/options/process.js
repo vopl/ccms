@@ -1,3 +1,5 @@
+if(global.user.login!='admin') {print(ui.skin.accessDenied()); return}
+
 let doRedirect = false;
 
 if(request.params.saveToBase)

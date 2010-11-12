@@ -1,6 +1,6 @@
 ﻿function mkMap(map, path)
 {
-	if(!map.point) return <></>;
+	if(!map) return <></>;
 	
 	let res = <></>;
 	let title = map.title;
@@ -25,13 +25,12 @@
 
 return	<div>
 	{(function(){
-		if(!global.user)
+		if(global.user.login == 'anonymous')
 		{
 			return <>там слева можно авторизоваться</>
 		}
 		return "";
 	})()}<br/>
-	<a href = {router.getPoint('/forum').path}> {_('forum')}</a><br/>
 	
 	<b>
 		<ul>
@@ -39,4 +38,7 @@ return	<div>
 		</ul>
 	</b>
 	
+	<pre>
+		{dumps(this.map({childs:1, forum:1, forumTopic:1}), 2)};
+	</pre>
 </div>

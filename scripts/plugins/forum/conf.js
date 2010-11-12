@@ -13,7 +13,7 @@
 			module:'forum',
 			name:'view',
 			description:'manageForums description',
-			roles:['admin', 'user'],
+			roles:['admin', 'user', 'anonymous'],
 		},
 		{
 			module:'forum',

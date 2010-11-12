@@ -2,7 +2,7 @@ let options = arguments[0];
 
 if(!acl.hasRight('forum', 'view'))
 {
-	return {};
+	return null;
 }
 
 let res = {

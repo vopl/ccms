@@ -12,21 +12,31 @@
 			module:'user',
 			name:'login',
 			description:'login description',
+			roles:['admin', 'user', 'anonymous'],
+		},
+		{
+			module:'user',
+			name:'cabinet',
+			description:'manage description',
+			roles:['admin', 'user'],
 		},
 		{
 			module:'user',
 			name:'manage',
 			description:'manage description',
+			roles:['admin'],
 		},
 		{
 			module:'user',
 			name:'manageRoles',
 			description:'manageRoles description',
+			roles:['admin'],
 		},
 		{
 			module:'user',
 			name:'manageUsers',
 			description:'manageUsers description',
+			roles:['admin'],
 		},
 	],
 	
@@ -69,22 +79,41 @@
 	initializeImpl:function initializeImpl()
 	{
 		//внедрить операции
-		let adminRoleOperations = acl.setOperations(this.operations);
-
-		//внедрить роль админа и дать ей операции
-		let adminRole = acl.setRole(
-			{module:'user', name:'admin', description:'administrator role description'}, 
-			adminRoleOperations);
-
-		//внедрить админа
+		let operations = acl.setOperations(this.operations);
+		
+		//разделить операции по ролям
+		let roles = {};
+		for(let operIdx=0; operIdx<operations.length; operIdx++)
+		{
+			let oper = this.operations[operIdx];
+			let doper = operations[operIdx];
+			for each(let rname in oper.roles)
+			{
+				if(!roles[rname]) roles[rname] = {drole:undefined, operations:[]};
+				roles[rname].operations.push(doper);
+			}
+		}
+		
+	
+		//создать роли
+		for(let rname in roles)
+		{
+			roles[rname].drole = acl.setRole(
+				{module:'user', name:rname}, 
+				roles[rname].operations);
+		
+		}
+		
+		//внедрить админу роль админа форума
 		let admin = acl.setUser(
-			{login:'admin', password:'admin', create_date:new Date(), status:'ok'}, 
-			[adminRole]);
+			{login:'admin'}, 
+			[roles['admin'].drole]);
 
-		//внедрить анонима
-		let admin = acl.setUser(
-			{login:'anonymous', password:'', create_date:new Date(), status:'internal'}, 
-			[]);
+		
+		//внедрить анониму роль анонима форума
+		let anomymous = acl.setUser(
+			{login:'anonymous'}, 
+			[roles['anonymous'].drole]);
 	},
 	
 	uninstallImpl:function uninstallImpl()

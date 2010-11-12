@@ -4,7 +4,7 @@ var res=
 	{
 		process:{file:'./process.js'},
 		render:{file:'./render.asp'},
-		//map:{file:'./map.js'},
+		map:{file:'./map.js'},
 	},
 
 	childs:

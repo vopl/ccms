@@ -70,6 +70,8 @@ namespace ccms
 		bool call_resolveStatic(uintN argc, jsval *argv, jsval *rval);
 		bool call_resolveSelf(uintN argc, jsval *argv, jsval *rval);
 
+		bool call_access(uintN argc, jsval *argv, jsval *rval);
+		
 		bool call_mapConfig(uintN argc, jsval *argv, jsval *rval);
 		bool call_map(uintN argc, jsval *argv, jsval *rval);
 

@@ -27,6 +27,8 @@ namespace ccms
 		jsRegisterMeth("resolveChild", &Point::call_resolveChild, 2);
 		jsRegisterMeth("resolveSelf", &Point::call_resolveSelf, 2);
 
+		jsRegisterMeth("access", &Point::call_access, 0);
+		
 		jsRegisterMeth("map", &Point::call_map, 0);
 		jsRegisterMeth("mapConfig", &Point::call_mapConfig, 0);
 
@@ -561,6 +563,24 @@ namespace ccms
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	bool Point::call_access(uintN argc, jsval *argv, jsval *rval)
+	{
+		//если есть свойство то дернуть его
+		{
+			TMProperties::Assoc::iterator iter = _properties.assoc.find("access");
+			if(_properties.assoc.end() != iter)
+			{
+				return iter->second->call_render(argc, argv, rval);
+			}
+		}
+		
+		//по умолчанию все разрешить
+		*rval = JSVAL_TRUE;
+		return true;
+	}
+
+	
 	//////////////////////////////////////////////////////////////////////////
 	bool Point::call_map(uintN argc, jsval *argv, jsval *rval)
 	{
