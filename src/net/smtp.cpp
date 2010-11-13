@@ -304,7 +304,7 @@ namespace ccms{namespace net{
 
 			if(!res)
 			{
-				JS_ReportError(ecx()->_jsCx, "Smtp.send unexpected response: %s", buf);
+				JS_ReportError(ecx()->_jsCx, "Smtp.send unexpected response: %s (wait %s, %s, %s)", buf, code0?code0:"NULL", code1?code1:"NULL", code2?code2:"NULL");
 				return false;
 			}
 		}
