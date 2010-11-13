@@ -1481,10 +1481,31 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 				return false;
 			}
 
-			bool res;
+			bool res = true;
 			std::string staticPath;
-			if(!buildExecutePlan(Path(connection->_requestPath), executePlan, executePlanData, res, connection->_staticPath))
+			Request *r(new Request(connection));
+			if(!r->initForHeaders())
 			{
+				JSExceptionReporter(false);
+				res = false;
+			}
+
+			if(res && !r->jsRegisterProp("plan", executePlan, true))
+			{
+				(JSExceptionReporter)false;
+				res = false;
+			}
+			if(res && !r->jsRegisterProp("planData", executePlanData, true))
+			{
+				(JSExceptionReporter)false;
+				return false;
+			}
+
+			ConnectionData *connectionData = new ConnectionData;
+			connectionData->_request = r;
+			if(res && !buildExecutePlan(Path(connection->_requestPath), executePlan, executePlanData, res, connection->_staticPath, connectionData->_points))
+			{
+				delete connectionData;
 				JSExceptionReporter(false);
 				res = false;
 			}
@@ -1498,15 +1519,27 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 					"<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1>"
 					"<p>The requested URL " + connection->_requestPath + " was not found on this server.</p></body></html>";
 
+				delete connectionData;
 				return false;
 			}
 
 			if(!connection->_staticPath.empty())
 			{
+				delete connectionData;
 				return true;
 			}
 
-			connection->_backendData = new ConnectionData(executePlan, executePlanData);
+			_scripter.jsDefineInGlobal("request", r);
+			if(!executeForHeaders(r, connectionData->_points))
+			{
+				_scripter.jsDefineInGlobal("request");
+				delete connectionData;
+				return false;
+			}
+			_scripter.jsDefineInGlobal("request");
+
+
+			connection->_backendData = connectionData;
 			return true;
 		}
 
@@ -1528,29 +1561,17 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			return false;
 		}
 
-		Request *r(new Request(connection));
-		if(!r->init())
+		Request *r = cd->_request.get();
+		if(!r->initForBody())
 		{
 			(JSExceptionReporter)false;
 			return false;
 		}
-
-		if(!r->jsRegisterProp("plan", cd->_executePlan, true))
-		{
-			(JSExceptionReporter)false;
-			return false;
-		}
-		if(!r->jsRegisterProp("planData", cd->_executePlanData, true))
-		{
-			(JSExceptionReporter)false;
-			return false;
-		}
-
 		_scripter.jsDefineInGlobal("request", r);
 
 		bool res = true;
 		ecx()->_scripter->requestStart(r);
-		res = execute(cd->_executePlan, cd->_executePlanData, r);
+		res = executeForBody(r, cd->_points);
 		ecx()->_scripter->requestStop();
 
 		r->out.flush();
@@ -1588,7 +1609,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		JSObject *executePlan, 
 		JSObject *executePlanData, 
 		bool &res,
-		std::string &staticPath)
+		std::string &staticPath,
+		std::vector<PointPtr> &points)
 	{
 		if(!_root)
 		{
@@ -1612,6 +1634,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		Path accumuledPath;
 		Point *lastPoint = _root.get();
 		JSObject *lastResObject = executePlanRootEntry;
+		points.resize(path.size()+1);
+		points[0] = lastPoint;
 		//BOOST_FOREACH(std::string &pathPart, r->path)
 		for(size_t i(0); i<path.size()+1; i++)
 		{
@@ -1780,12 +1804,16 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 				NULL, NULL, JSPROP_ENUMERATE)) return false;
 
 			jsv = OBJECT_TO_JSVAL(newResObject);
+			size_t planIndex = i<path.size()?nextIndex:nextIndex-1;
 			if(!JS_SetElement(
 				ecx()->_jsCx, 
 				executePlan, 
-				i<path.size()?nextIndex:nextIndex-1,
+				planIndex,
 				&jsv))
 				return false;
+			while(planIndex >= points.size()) points.push_back(NULL);
+			points[planIndex] = lastPoint;
+
 			if(i<path.size())
 			{
 				nextIndex++;
@@ -1806,149 +1834,71 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Router::execute(JSObject *executePlan, JSObject *executePlanData, Request *r)
+	bool Router::executeForHeaders(Request *r, const std::vector<PointPtr> &points)
 	{
-		jsuint len;
-		if(!JS_GetArrayLength(ecx()->_jsCx, executePlan, &len)) return false;
-		if(!len)
-		{
-			JS_ReportError(ecx()->_jsCx, "Router.execute: executePlan is empty");
-			return false;
-		}
-
-		jsval jsv;
-		std::vector<Point *> executePlanJsos(len-1);
-		for(jsuint i(0); i<len-1; i++)
-		{
-			if(!JS_GetElement(ecx()->_jsCx, executePlan, i, &jsv)) return false;
-			if(!JSVAL_IS_OBJECT(jsv) || JSVAL_IS_NULL(jsv))
-			{
-				JS_ReportError(ecx()->_jsCx, "Router.execute: executePlan element %d is not a Object", i);
-				return false;
-			}
-
-			JSObject *ejso = JSVAL_TO_OBJECT(jsv);
-			if(!JS_GetProperty(ecx()->_jsCx, ejso, "point", &jsv)) return false;
-
-			executePlanJsos[i] = dynamic_cast<Point *>(JsObject::thisObj(JSVAL_TO_OBJECT(jsv)));
-			if(!executePlanJsos[i])
-			{
-				JS_ReportError(ecx()->_jsCx, "Router.execute: executePlan element %d has no valid point attribute", i);
-				return false;
-			}
-		}
-
-		Point *targetPoint = NULL;
-		Static *targetStatic = NULL;
-
-
-		if(!JS_GetElement(ecx()->_jsCx, executePlan, len-1, &jsv)) return false;
-		if(!JSVAL_IS_OBJECT(jsv) || JSVAL_IS_NULL(jsv))
-		{
-			JS_ReportError(ecx()->_jsCx, "Router.execute: executePlan final item is not a Object");
-			return false;
-		}
-
-		JSObject *ejso = JSVAL_TO_OBJECT(jsv);
-		if(!JS_GetProperty(ecx()->_jsCx, ejso, "point", &jsv)) return false;
-
-		if(JSVAL_IS_OBJECT(jsv))
-		{
-			targetPoint = dynamic_cast<Point *>(JsObject::thisObj(JSVAL_TO_OBJECT(jsv)));
-		}
-		if(!targetPoint)
-		{
-			if(!JS_GetProperty(ecx()->_jsCx, ejso, "static", &jsv)) return false;
-			if(JSVAL_IS_OBJECT(jsv))
-			{
-				targetStatic = dynamic_cast<Static *>(JsObject::thisObj(JSVAL_TO_OBJECT(jsv)));
-			}
-			if(!targetStatic)
-			{
-				JS_ReportError(ecx()->_jsCx, "Router.execute: executePlan final item is not a Point or Static");
-				return false;
-			}
-		}
-		
-		//////////////////////////////////
-		//дернуть access
-		JSBool access = JS_TRUE;
-		for(size_t i(0); i<executePlanJsos.size(); i++)
-		{
-			if(!executePlanJsos[i]->call_access(0, NULL, &jsv)) return false;
-			!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &access));
-			if(!access) break;
-		}
-		if(targetPoint)
-		{
-			if(!targetPoint->call_access(0, NULL, &jsv)) return false;
-			!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &access));
-		}
-		
-		if(!access)
-		{
-			// assert(!"access denied is not implemented");
-			// r->out<<"Content-Type: text/plain\r\n";
-			// r->out<<"Content-Type: text/plain\r\n";
-			std::cerr<<"access denied is not implemented, "<<__FILE__<<__LINE__<<std::endl;
-			return true;
-		}
-
-
 		//////////////////////////////////
 		//фильтры пре-транзитные для всех точек в массиве
 		EFilterInstanceProcessResult fpr;
-		for(size_t i(0); i<executePlanJsos.size(); i++)
+		for(size_t i(0); i<points.size(); i++)
 		{
-			if(!executePlanJsos[i]->executeFilters(efikPreTransit, fpr)) return false;
-			if(efiprComplete == fpr) return true;
-		}
-		if(targetPoint)
-		{
-			if(!targetPoint->executeFilters(efikPreTransit, fpr)) return false;
+			if(!points[i]->executeFilters(efikPreTransit, fpr)) return false;
 			if(efiprComplete == fpr) return true;
 		}
 
 		//фильтры пре-собственные для последней точки в массиве
-		if(targetPoint)
+		if(!points.back()->executeFilters(efikPreThis, fpr)) return false;
+		if(efiprComplete == fpr) return true;
+
+
+
+
+
+		//////////////////////////////////
+		//дернуть access
+		JSBool access = JS_TRUE;
+		for(size_t i(0); i<points.size(); i++)
 		{
-			if(!targetPoint->executeFilters(efikPreThis, fpr)) return false;
-			if(efiprComplete == fpr) return true;
+			jsval jsv;
+			if(!points[i]->call_access(0, NULL, &jsv)) return false;
+			if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &access)) return false;
+			if(!access) break;
 		}
 
-		//контроллер последней точки
-		if(targetPoint)
+		if(!access)
 		{
-			if(!targetPoint->call_process(0, NULL, &jsv)) return false;
-		}
-		else
-		{
-			//отдать статик
-			r->setStaticPath(targetStatic->getFileName());
-		}
+			r->_connection->_outStatus = 403;
+			r->_connection->_outHeaders = "Content-Type: text/html; charset=utf-8\r\n";
 
-		//фильтры пост-собственные для последней точки в массиве
-		if(targetPoint)
-		{
-			if(!targetPoint->executeFilters(efikPostThis, fpr)) return false;
-			if(efiprComplete == fpr) return true;
-		}
-
-		//фильтры пост-транзитные для всех точек в массиве
-		if(targetPoint)
-		{
-			if(!targetPoint->executeFilters(efikPostTransit, fpr)) return false;
-			if(efiprComplete == fpr) return true;
-		}
-		for(size_t i(executePlanJsos.size()); i>0; i--)
-		{
-			if(!executePlanJsos[i-1]->executeFilters(efikPostTransit, fpr)) return false;
-			if(efiprComplete == fpr) return true;
+			r->_connection->_outBody = ""
+				"<html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1>"
+				"<p>You don't have permission to access " + r->_connection->_requestPath + " on this server.</p></body></html>";
+			return false;
 		}
 
 		return true;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	bool Router::executeForBody(Request *r, const std::vector<PointPtr> &points)
+	{
+		jsval jsv;
+		//контроллер последней точки
+		if(!points.back()->call_process(0, NULL, &jsv)) return false;
+
+		//фильтры пост-собственные для последней точки в массиве
+		EFilterInstanceProcessResult fpr;
+		if(!points.back()->executeFilters(efikPostThis, fpr)) return false;
+		if(efiprComplete == fpr) return true;
+
+		//фильтры пост-транзитные для всех точек в массиве
+		for(size_t i(points.size()); i>0; i--)
+		{
+			if(!points[i-1]->executeFilters(efikPostTransit, fpr)) return false;
+			if(efiprComplete == fpr) return true;
+		}
+
+		return true;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	Scripter &Router::getScripter()

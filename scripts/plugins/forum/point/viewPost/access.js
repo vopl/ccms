@@ -1,0 +1,1 @@
+return acl.hasRight('forum', 'viewPost');

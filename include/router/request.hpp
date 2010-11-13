@@ -29,7 +29,8 @@ namespace ccms
 		Request(Connection4Backend *connection);
 		~Request();
 
-		bool init();
+		bool initForHeaders();
+		bool initForBody();
 
 	public:
 		void setStatusCode(size_t code);
@@ -53,6 +54,7 @@ namespace ccms
 	};
 
 
+	typedef JsPtr<Request> RequestPtr;
 
 
 

@@ -584,6 +584,17 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool Point::call_map(uintN argc, jsval *argv, jsval *rval)
 	{
+		jsval jsv;
+		if(!call_access(0, NULL, &jsv)) return false;
+		JSBool b;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &b)) return false;
+
+		if(!b)
+		{
+			*rval = JSVAL_NULL;
+			return true;
+		}
+
 		//если есть свойство то дернуть его
 		{
 			TMProperties::Assoc::iterator iter = _properties.assoc.find("map");

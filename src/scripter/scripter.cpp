@@ -590,8 +590,8 @@ namespace ccms
 #endif
 		ecx_rw()->_request = NULL;
 
-		JS_MaybeGC(ecx()->_jsCx);
-		//JS_GC(ecx()->_jsCx);
+		//JS_MaybeGC(ecx()->_jsCx);
+		JS_GC(ecx()->_jsCx);
 
 	}
 

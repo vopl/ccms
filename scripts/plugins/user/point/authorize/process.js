@@ -24,6 +24,11 @@ try
 				case 'ok':
 					router.cd.session.userId = user.id;
 					global.user = user;
+
+					if(!acl.hasRight('user', 'login'))
+					{
+						this.msg=_('forbidden');
+					}
 					
 					if(request.params.remember)
 					{

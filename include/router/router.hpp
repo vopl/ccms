@@ -9,6 +9,7 @@
 
 #include "router/crontab.hpp"
 #include "router/plugins.hpp"
+#include "router/request.hpp"
 #include "i18n/i18n.hpp"
 
 #include "scripter/scripter.hpp"
@@ -92,8 +93,10 @@ namespace ccms
 			JSObject *executePlan, 
 			JSObject *executePlanData, 
 			bool &res,
-			std::string &staticPath);
-		bool execute(JSObject *executePlan, JSObject *executePlanData, Request *r);
+			std::string &staticPath,
+			std::vector<PointPtr> &points);
+		bool executeForHeaders(Request *r, const std::vector<PointPtr> &points);
+		bool executeForBody(Request *r, const std::vector<PointPtr> &points);
 
 		Scripter &getScripter();
 		PointInstancePtr getRootPointInstance();
@@ -194,22 +197,8 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	struct ConnectionData
 	{
-		JSObject *_executePlan;
-		JSObject *_executePlanData;
-		ConnectionData(JSObject *executePlan, JSObject *executePlanData)
-			: _executePlan(executePlan)
-			, _executePlanData(executePlanData)
-		{
-			JS_AddRoot(ecx()->_jsCx, &_executePlan);
-			JS_AddRoot(ecx()->_jsCx, &_executePlanData);
-		}
-
-		~ConnectionData()
-		{
-			JS_RemoveRoot(ecx()->_jsCx, &_executePlan);
-			JS_RemoveRoot(ecx()->_jsCx, &_executePlanData);
-		}
-
+		RequestPtr _request;
+		std::vector<PointPtr> _points;
 	};
 
 }

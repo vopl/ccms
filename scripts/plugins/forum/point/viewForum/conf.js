@@ -6,6 +6,7 @@ var res=
 
 	properties:
 	{
+		access:{file:'access.js'},
 		resolveChild:{file:'./resolveChild.js'},
 
 		process:{file:'./process.js'},

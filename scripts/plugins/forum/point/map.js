@@ -1,10 +1,5 @@
 let options = arguments[0];
 
-if(!acl.hasRight('forum', 'view'))
-{
-	return null;
-}
-
 let res = {
 	point:this,
 	title:this.properties.title(),

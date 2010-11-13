@@ -4,6 +4,7 @@ exec('lib/dump.js');
 exec('lib/escapers.js');
 exec('lib/uniq.js');
 exec('lib/i18n.js');
+exec('lib/stdext.js');
 
 
 // база данных

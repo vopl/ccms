@@ -1,0 +1,1 @@
+return user.login=='admin';

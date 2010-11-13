@@ -66,7 +66,7 @@ namespace ccms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Request::init()
+	bool Request::initForHeaders()
 	{
 		//добавить методы, параметры
 		if(!jsRegisterMeth("setStatusCode", &Request::call_setStatusCode, 1)) return false;
@@ -86,6 +86,22 @@ namespace ccms
 		if(!paramsGet) return false;
 		if(!jsRegisterProp("paramsGet", paramsGet, true)) return false;
 
+		JSObject *env = makeParams(_connection->_env);
+		if(!env) return false;
+		if(!jsRegisterProp("env", env, true)) return false;
+
+		if(!jsRegisterProp("params", params, true)) return false;
+
+		return true;
+	}
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Request::initForBody()
+	{
+		JSObject *params = JSVAL_TO_OBJECT(getProperty("params"));
+		
+
 		JSObject *paramsPost = makeParams(_connection->_paramsPost, params);
 		if(!paramsPost) return false;
 		if(!jsRegisterProp("paramsPost", paramsPost, true)) return false;
@@ -93,11 +109,7 @@ namespace ccms
 		JSObject *files = makeParams(_connection->_files, params);
 		if(!files) return false;
 		if(!jsRegisterProp("files", files, true)) return false;
-		if(!jsRegisterProp("params", params, true)) return false;
 
-		JSObject *env = makeParams(_connection->_env);
-		if(!env) return false;
-		if(!jsRegisterProp("env", env, true)) return false;
 
 		return true;
 	}

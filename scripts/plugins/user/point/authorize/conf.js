@@ -7,7 +7,7 @@ var res=
 		renderUser:{file:'./renderUser.js'},
 		renderEmpty:{file:'./renderEmpty.js'},
 
-		title:{value:'qwerty', executable:false},
+		title:{value:'авторизация', executable:false},
 
 		waitConfirm:{file:'waitConfirm.js'},
 

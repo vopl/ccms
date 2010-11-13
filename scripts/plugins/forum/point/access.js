@@ -1,0 +1,1 @@
+return this.childs.viewForum.access();
