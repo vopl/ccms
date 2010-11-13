@@ -1836,6 +1836,13 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::executeForHeaders(Request *r, const std::vector<PointPtr> &points)
 	{
+		//а тут ниче нету...
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Router::executeForBody(Request *r, const std::vector<PointPtr> &points)
+	{
 		//////////////////////////////////
 		//фильтры пре-транзитные для всех точек в массиве
 		EFilterInstanceProcessResult fpr;
@@ -1872,21 +1879,14 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			r->_connection->_outBody = ""
 				"<html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1>"
 				"<p>You don't have permission to access " + r->_connection->_requestPath + " on this server.</p></body></html>";
-			return false;
+			return true;
 		}
 
-		return true;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	bool Router::executeForBody(Request *r, const std::vector<PointPtr> &points)
-	{
 		jsval jsv;
 		//контроллер последней точки
 		if(!points.back()->call_process(0, NULL, &jsv)) return false;
 
 		//фильтры пост-собственные для последней точки в массиве
-		EFilterInstanceProcessResult fpr;
 		if(!points.back()->executeFilters(efikPostThis, fpr)) return false;
 		if(efiprComplete == fpr) return true;
 
