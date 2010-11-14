@@ -60,6 +60,11 @@ namespace ccms
 
 		bool call_printHelper(jsval val, jsval *rval);
 
+		//ui.mkBlockEntry(content, priority)
+		//ui.mkBlockEntry(content)
+		//ui.mkBlockEntry()
+		bool call_mkBlockEntry(uintN argc, jsval *argv, jsval *rval);
+
 	public:
 		bool call_hookPlace(uintN argc, jsval *argv, jsval *rval);
 		bool call_hookInvoke(uintN argc, jsval *argv, jsval *rval);

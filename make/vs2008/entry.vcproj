@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="entry"
 	ProjectGUID="{741C9585-917F-44C3-BE38-41F4EC51BF4E}"
 	RootNamespace="entry"
@@ -441,6 +441,10 @@
 			<Filter
 				Name="ui"
 				>
+				<File
+					RelativePath="..\..\src\ui\blockEntry.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\src\ui\hookPoint.cpp"
 					>
@@ -2371,6 +2375,10 @@
 			<Filter
 				Name="ui"
 				>
+				<File
+					RelativePath="..\..\include\ui\blockEntry.hpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\include\ui\hookPoint.hpp"
 					>

@@ -96,5 +96,3 @@ warn('startup');
 // let end = new Date();
 // dumpe(res);
 // warn(cnt / (end.getTime() - beg.getTime())*1000);
-
-dumpe(ui, 2);

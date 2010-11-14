@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ui/ui.hpp"
 #include "ui/hookPoint.hpp"
+#include "ui/blockEntry.hpp"
 #include "router/router.hpp"
 #include "utils/crc32.hpp"
 
@@ -34,6 +35,8 @@ namespace ccms
 		jsRegisterProp("skin", &Ui::xetter_skin, true);
 
 		jsRegisterMeth("print", &Ui::call_print, 0);
+
+		jsRegisterMeth("mkBlockEntry", &Ui::call_mkBlockEntry, 0);
 
 		jsRegisterMeth("hookPlace", &Ui::call_hookPlace, 0);
 		jsRegisterMeth("hookInvoke", &Ui::call_hookInvoke, 0);
@@ -364,6 +367,33 @@ namespace ccms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	bool Ui::call_mkBlockEntry(uintN argc, jsval *argv, jsval *rval)
+	{
+		if(0 != argc && 1 != argc && 2 != argc)
+		{
+			JS_ReportError(ecx()->_jsCx, "ui.mkBlockEntry must be called with 0, 1 or 2 args");
+		}
+
+		BlockEntry *be = new BlockEntry;
+		if(0 == argc)
+		{
+		}
+		else if(1 == argc)
+		{
+			if(!be->xetter_content(argv+0, false)) return false;
+		}
+		else if(2 == argc)
+		{
+			if(!be->xetter_content(argv+0, false)) return false;
+			if(!be->xetter_priority(argv+1, false)) return false;
+		}
+
+		*rval = be->thisJsval();
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	Path &Ui::getPathRoot()
 	{
 		if(_pathRoot.empty())
@@ -488,7 +518,6 @@ namespace ccms
 
 		return res;
 	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
