@@ -9,3 +9,4 @@ if(global.db)
 
 
 exec('system/shutdown.js');
+

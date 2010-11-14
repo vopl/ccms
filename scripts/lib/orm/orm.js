@@ -150,4 +150,10 @@ orm.exec = function exec(sql)
 	
 	return arr;
 }
+
+orm.getImpl = function getImpl()
+{
+	return impl;
+}
+
 return orm;

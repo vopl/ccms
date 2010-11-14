@@ -9,11 +9,6 @@ exec('lib/stdext.js');
 
 
 
-
-
-
-
-
 // база данных
 global.db = router.createService('pg');
 db.open(router.getConfig().dbConnectionString);
@@ -96,3 +91,5 @@ warn('startup');
 // let end = new Date();
 // dumpe(res);
 // warn(cnt / (end.getTime() - beg.getTime())*1000);
+
+

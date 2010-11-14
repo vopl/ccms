@@ -493,6 +493,7 @@ impl.getPraparedStatement = function getPraparedStatement(sql, key)
 	{
 		let db = this.iface.db;
 		praparedStatements[key] = db.prepare(sql);
+		
 	}
 	return praparedStatements[key];
 }

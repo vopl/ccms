@@ -830,7 +830,7 @@ namespace ccms
 		};
 
 		//тут создать объект statement, зарядить его именем stmt и вернуть
-		PgStatementPtr p = mkp(new PgStatement(mkp(this, ROOTNAME), stmt, sql, _verbose), ROOTNAME);
+		PgStatement *p = new PgStatement(mkp(this, ROOTNAME), stmt, sql, _verbose);
 
 		*rval = p->thisJsval();
 		return true;

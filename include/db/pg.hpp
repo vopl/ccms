@@ -34,7 +34,7 @@ namespace ccms
 		bool call_describe(uintN argc, jsval *argv, jsval *rval);
 		bool xetter_sql(jsval *vp, bool isGet);
 	};
-	typedef JsPtr<PgStatement> PgStatementPtr;
+	//typedef JsPtr<PgStatement> PgStatementPtr;
 
 
 	//////////////////////////////////////////////////////////////////////////

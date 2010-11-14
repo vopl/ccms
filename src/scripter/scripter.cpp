@@ -510,9 +510,28 @@ namespace ccms
 			//JS_EndRequest(_cxMain);
 		}
 
+
 		if(_global)
 		{
-			(JSExceptionReporter)JS_DeleteProperty(_cxMain, _global, "global");
+			JSIdArray *ids = JS_Enumerate(_cxMain, _global);
+			if(ids)
+			{
+				for(jsint i(0); i<ids->length; i++)
+				{
+					jsval jsv;
+					JS_IdToValue(_cxMain, ids->vector[i], &jsv);
+					char *s;
+					JS_ConvertArguments(_cxMain, 1, &jsv, "s", &s);
+
+					JSBool found;
+					(JSExceptionReporter)JS_SetPropertyAttributes(_cxMain, _global, s, JSPROP_ENUMERATE, &found);
+
+					(JSExceptionReporter)JS_DeletePropertyById(_cxMain, _global, ids->vector[i]);
+				}
+				JS_DestroyIdArray(_cxMain, ids);
+			}
+
+			JS_SetGlobalObject(_cxMain, NULL);
 			_global = NULL;
 		}
 
