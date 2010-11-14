@@ -73,6 +73,9 @@ namespace ccms
 		bool currentSkin(Point *&p);
 		bool currentBlocks(const char *placeName, jsval &rval);
 
+		JSObject *mkEmptyBlocks();
+		JSObject *mkNamedFlags(JSObject *names);
+
 	private:
 		class Hook
 		{

@@ -50,7 +50,7 @@ try
 				default:
 					if(/waitConfirm:/.test(user.status))
 					{
-						ui.blocks.center = this.properties.waitConfirm();
+						ui.blocks.center.push(this.properties.waitConfirm());
 						ui.print();
 						return;
 					}
@@ -76,6 +76,6 @@ catch(e)
 {
 	warn(e);
 }
-ui.blocks.center = this.render();
+ui.blocks.center.push(this.render());
 ui.print();
 

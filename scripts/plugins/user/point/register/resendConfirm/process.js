@@ -57,18 +57,18 @@ if(request.params.send)
 		
 		
 			
-			ui.blocks.center = this.properties.renderSended();
+			ui.blocks.center.push(this.properties.renderSended());
 			ui.print();
 			return;
 		}
 	}
-	ui.blocks.center = this.properties.renderBad();
+	ui.blocks.center.push(this.properties.renderBad());
 	ui.print();
 	return;
 }
 else
 {
-	ui.blocks.center = this.render();
+	ui.blocks.center.push(this.render());
 	ui.print();
 	return;
 }

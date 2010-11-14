@@ -5,5 +5,5 @@ if(topic)
 	request.setStatusCode(303);
 	request.pushHeader('Location', request.params.backUrl?request.params.backUrl:request.plan[request.plan.length-2].path);
 }
-ui.blocks.center = this.render();
+ui.blocks.center.push(this.render());
 ui.print();

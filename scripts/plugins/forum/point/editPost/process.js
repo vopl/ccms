@@ -24,12 +24,12 @@ if(request.params.save)
 }
 else if(request.planData.mode && request.planData.mode == 'add')
 {
-	ui.blocks.center = this.render({});
+	ui.blocks.center.push(this.render({}));
 	ui.print();
 }
 else
 {
-	ui.blocks.center = this.render(mostPost);
+	ui.blocks.center.push(this.render(mostPost));
 	ui.print();
 }
 

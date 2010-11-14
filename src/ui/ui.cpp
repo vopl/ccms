@@ -23,7 +23,12 @@ namespace ccms
 		jsRegisterProp("layoutName", &Ui::xetter_layoutName, false);
 		jsRegisterProp("skinName", &Ui::xetter_skinName, false);
 
-		(JSExceptionReporter)JS_SetReservedSlot(ecx()->_jsCx, _js, es_blocks, OBJECT_TO_JSVAL(JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL)));
+		JSObject *blocks = mkEmptyBlocks();
+		if(!blocks)
+		{
+			JSExceptionReporter(false);
+		}
+		(JSExceptionReporter)JS_SetReservedSlot(ecx()->_jsCx, _js, es_blocks, OBJECT_TO_JSVAL(blocks));
 		jsRegisterProp("blocks", &Ui::xetter_blocks, true);
 
 		jsRegisterProp("skin", &Ui::xetter_skin, true);
@@ -83,7 +88,9 @@ namespace ccms
 		_currentLayoutPoint.reset();
 		if(!JS_SetReservedSlot(ecx()->_jsCx, _js, es_skinName, JSVAL_VOID)) return false;
 
-		if(!JS_SetReservedSlot(ecx()->_jsCx, _js, es_blocks, OBJECT_TO_JSVAL(JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL)))) return false;
+		JSObject *blocks = mkEmptyBlocks();
+		if(!blocks) return false;
+		if(!JS_SetReservedSlot(ecx()->_jsCx, _js, es_blocks, OBJECT_TO_JSVAL(blocks))) return false;
 
 		return true;
 	}
@@ -187,7 +194,10 @@ namespace ccms
 				return false;
 			}
 
-			return JS_GetProperty(ecx()->_jsCx, layoutsPoint->thisJsobj(), "childs", vp)?true:false;
+			if(!JS_GetProperty(ecx()->_jsCx, layoutsPoint->thisJsobj(), "childs", vp)) return false;
+
+			//*vp = OBJECT_TO_JSVAL(mkNamedFlags(JSVAL_TO_OBJECT(*vp)));
+			return true;
 		}
 
 		JS_ReportError(ecx()->_jsCx, "Ui.layouts is read only");
@@ -208,7 +218,10 @@ namespace ccms
 				return false;
 			}
 
-			return JS_GetProperty(ecx()->_jsCx, skinsPoint->thisJsobj(), "childs", vp)?true:false;
+			if(!JS_GetProperty(ecx()->_jsCx, skinsPoint->thisJsobj(), "childs", vp)) return false;
+
+			//*vp = OBJECT_TO_JSVAL(mkNamedFlags(JSVAL_TO_OBJECT(*vp)));
+			return true;
 		}
 
 		JS_ReportError(ecx()->_jsCx, "Ui.skins is read only");
@@ -229,7 +242,10 @@ namespace ccms
 				return false;
 			}
 
-			return JS_GetProperty(ecx()->_jsCx, placesPoint->thisJsobj(), "childs", vp)?true:false;
+			if(!JS_GetProperty(ecx()->_jsCx, placesPoint->thisJsobj(), "childs", vp)) return false;
+
+			//*vp = OBJECT_TO_JSVAL(mkNamedFlags(JSVAL_TO_OBJECT(*vp)));
+			return true;
 		}
 
 		JS_ReportError(ecx()->_jsCx, "Ui.places is read only");
@@ -418,6 +434,61 @@ namespace ccms
 		assert(0);
 		return true;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	JSObject *Ui::mkEmptyBlocks()
+	{
+		JSObject *res = JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL);
+		if(!res) return res;
+
+		jsval jsv;
+		if(!xetter_places(&jsv, true)) return NULL;
+		JSObject *places = JSVAL_TO_OBJECT(jsv);
+
+		JSIdArray *ids = JS_Enumerate(ecx()->_jsCx, places);
+		if(!ids) return NULL;
+
+		for(jsint i(0); i<ids->length; i++)
+		{
+			jsv = OBJECT_TO_JSVAL(JS_NewArrayObject(ecx()->_jsCx, 0, NULL));
+			if(JSVAL_IS_NULL(jsv))
+			{
+				JS_DestroyIdArray(ecx()->_jsCx, ids);
+				return NULL;
+			}
+			if(!JS_DefinePropertyById(ecx()->_jsCx, res, ids->vector[i], jsv, NULL, NULL, JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY))
+			{
+				JS_DestroyIdArray(ecx()->_jsCx, ids);
+				return NULL;
+			}
+		}
+		JS_DestroyIdArray(ecx()->_jsCx, ids);
+
+		return res;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	JSObject *Ui::mkNamedFlags(JSObject *namesFrom)
+	{
+		JSObject *res = JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL);
+		if(!res) return res;
+
+		JSIdArray *ids = JS_Enumerate(ecx()->_jsCx, namesFrom);
+		if(!ids) return NULL;
+
+		for(jsint i(0); i<ids->length; i++)
+		{
+			if(!JS_DefinePropertyById(ecx()->_jsCx, res, ids->vector[i], JSVAL_TRUE, NULL, NULL, JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY))
+			{
+				JS_DestroyIdArray(ecx()->_jsCx, ids);
+				return NULL;
+			}
+		}
+		JS_DestroyIdArray(ecx()->_jsCx, ids);
+
+		return res;
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////

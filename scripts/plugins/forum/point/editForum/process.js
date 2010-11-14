@@ -16,16 +16,16 @@ else
 		let target = request.planData.forums[request.planData.forums.length-1];
 		if(('mode' in request.planData) && request.planData.mode == 'add')
 		{
-			ui.blocks.center = this.render({tree_pid:target.id});
+			ui.blocks.center.push(this.render({tree_pid:target.id}));
 		}
 		else
 		{
-			ui.blocks.center = this.render(target);
+			ui.blocks.center.push(this.render(target));
 		}
 	}
 	else
 	{
-		ui.blocks.center = this.render(orm.Forum.make({}));
+		ui.blocks.center.push(this.render(orm.Forum.make({})));
 	}
 }
 ui.print();

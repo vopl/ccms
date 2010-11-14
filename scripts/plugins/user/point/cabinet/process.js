@@ -1,9 +1,9 @@
 if(!acl.hasRight('user', 'cabinet'))
 {
-	ui.blocks.center = ui.skin.accessDenied(); 
+	ui.blocks.center.push(ui.skin.accessDenied()); 
 	ui.print();
 	return;
 }
 
-ui.blocks.center = this.render;
+ui.blocks.center.push(this.render);
 ui.print();

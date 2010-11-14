@@ -4,7 +4,7 @@ let target;
 if(request.planData.forums) target = request.planData.forums[request.planData.forums.length-1];
 if(!target)
 {
-	ui.blocks.center = this.render();
+	ui.blocks.center.push(this.render());
 	ui.print();
 	return;
 }
@@ -20,6 +20,6 @@ if(request.params.confirm)
 	return;
 }
 
-ui.blocks.center = this.render();
+ui.blocks.center.push(this.render());
 ui.print();
 

@@ -5,11 +5,11 @@ if(request.params.secret)
 	if(user)
 	{
 		orm.exec("UPDATE {User} SET status='ok' WHERE id=$1", user.id);
-		ui.blocks.center = this.properties.renderOk();
+		ui.blocks.center.push(this.properties.renderOk());
 	}
 	else
 	{
-		ui.blocks.center = this.render();
+		ui.blocks.center.push(this.render());
 	}
 }
 

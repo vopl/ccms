@@ -100,7 +100,7 @@ try
 
 			smtp.send(msg);
 		}
-		ui.blocks.center = this.properties.registerConfirmation.render(request.params.email);
+		ui.blocks.center.push(this.properties.registerConfirmation.render(request.params.email));
 		ui.print();
 		return;
 		
@@ -113,5 +113,5 @@ catch(e)
 	this.msg = String(e);
 }
 
-ui.blocks.center = this.render();
+ui.blocks.center.push(this.render());
 ui.print();
