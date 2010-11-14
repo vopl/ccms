@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "net/smtp.hpp"
 #include "utils/base64.h"
+#include "utils/ncvt.h"
 
 namespace ccms{namespace net{
 
@@ -224,9 +225,9 @@ namespace ccms{namespace net{
 			return false;
 		}
 
-		if(!read("220")) return false;
+		if(!read(220)) return false;
 		if(!write("EHLO ccms\r\n")) return false;
-		if(!read("250")) return false;
+		if(!read(250)) return false;
 
 
 
@@ -261,15 +262,15 @@ namespace ccms{namespace net{
 		if(login[0])
 		{
 			if(!write("AUTH LOGIN\r\n")) return false;
-			if(read("334"))
+			if(read(334))
 			{
 				std::string login64 = base64_encode(login)+"\r\n";
 				if(!write(login64.data())) return false;
-				if(!read("334")) return false;
+				if(!read(334)) return false;
 
 				std::string password64 = base64_encode(password)+"\r\n";;
 				if(!write(password64.data())) return false;
-				if(!read("235")) return false;
+				if(!read(235)) return false;
 			}
 		}
 
@@ -277,45 +278,113 @@ namespace ccms{namespace net{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Smtp::read(const char *code0, const char *code1, const char *code2)
+	bool Smtp::read(size_t code0, size_t code1, size_t code2)
 	{
 		char buf[4096];
 		size_t reply_length;
+		std::string lastLine;
+		bool lastLineFull = false;
 
-		try
+		size_t readedCode = 0;
+
+		for(;;)
 		{
-			reply_length = _socket.receive(boost::asio::buffer(buf, 4095));
+			try
+			{
+				//std::cerr<<"do read... ";
+				reply_length = _socket.receive(boost::asio::buffer(buf, 4095));
+				//std::cerr<<reply_length<<std::endl;
+				if(!reply_length)
+				{
+					continue;
+				}
+			}
+			catch(std::exception &e)
+			{
+				JS_ReportError(ecx()->_jsCx, "Smtp.send read: %s", e.what());
+				return false;
+			}
+			buf[reply_length] = 0;
+			//std::cerr<<"r["<<buf<<"]"<<std::endl;
+
+			char *begin = buf;
+			char *end = begin + reply_length;
+			while(begin!=end)
+			{
+				static const char CRLF[] = "\r\n";
+
+				//найти последний перевод строки
+				char *iter = std::search(begin, end, CRLF, CRLF+2);
+				if(end == iter)
+				{
+					//не найден, добавить к последней строке
+					if(lastLineFull)
+					{
+						lastLine.clear();
+						lastLineFull = false;
+					}
+					lastLine.insert(lastLine.end(), begin, end);
+					begin = end;
+				}
+				else
+				{
+					//найден
+					if(lastLineFull)
+					{
+						lastLine.clear();
+						lastLineFull = false;
+					}
+					lastLine.insert(lastLine.end(), begin, iter);
+					lastLineFull = true;
+					//std::cerr<<"lastLineFull["<<lastLine<<"]"<<std::endl;
+
+					begin = iter+2;
+				}
+			}
+
+			if(lastLineFull)
+			{
+				if(	(lastLine.size() == 3 ||
+					lastLine.size() > 4 && lastLine[3]==' ') &&
+					lastLine[0]>='1' && lastLine[0]<='5' &&
+					lastLine[1]>='0' && lastLine[1]<='9' &&
+					lastLine[2]>='0' && lastLine[2]<='9')
+				{
+					readedCode = _atost(lastLine.data());
+					break;
+				}
+			}
 		}
-		catch(std::exception &e)
+
+		if(!readedCode)
 		{
-			JS_ReportError(ecx()->_jsCx, "Smtp.send read: %s", e.what());
+			JS_ReportError(ecx()->_jsCx, "Smtp.send read: unrecognized response");
 			return false;
 		}
 
 		if(code0 || code1 || code2)
 		{
-			buf[reply_length] = 0;
-
 			bool res = false;
 
-			if(!res && code0 && !strncmp(code0, buf, strlen(code0))) res = true;
-			if(!res && code1 && !strncmp(code1, buf, strlen(code1))) res = true;
-			if(!res && code2 && !strncmp(code2, buf, strlen(code2))) res = true;
+			if(!res && code0 && code0 == readedCode) res = true;
+			if(!res && code1 && code1 == readedCode) res = true;
+			if(!res && code2 && code2 == readedCode) res = true;
 
 			if(!res)
 			{
-				JS_ReportError(ecx()->_jsCx, "Smtp.send unexpected response: %s (wait %s, %s, %s)", buf, code0?code0:"NULL", code1?code1:"NULL", code2?code2:"NULL");
+				JS_ReportError(ecx()->_jsCx, "Smtp.send read: unexpected response: %s (wait %d, %d, %d)", buf, code0, code1, code2);
 				return false;
 			}
 		}
-		
+
 
 		return true;
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	bool Smtp::write(const char *data)
 	{
+		//std::cerr<<"w["<<data<<"]"<<std::endl;
 		try
 		{
 			_socket.send(boost::asio::buffer(data, strlen(data)));
@@ -342,7 +411,7 @@ namespace ccms{namespace net{
 			if(!write("MAIL FROM: <")) return false;
 			if(!write(tok_iter->data())) return false;
 			if(!write(">\r\n")) return false;
-			if(!read("250")) return false;
+			if(!read(250)) return false;
 		}
 
 		tokens.assign(to, sep);
@@ -351,15 +420,15 @@ namespace ccms{namespace net{
 			if(!write("RCPT TO: <")) return false;
 			if(!write(tok_iter->data())) return false;
 			if(!write(">\r\n")) return false;
-			if(!read("250")) return false;
+			if(!read(250)) return false;
 		}
 
 		if(!write("DATA\r\n")) return false;
-		if(!read("354")) return false;
+		if(!read(354)) return false;
 
 		if(!write(data.data())) return false;
 		if(!write("\r\n.\r\n")) return false;
-		if(!read("250")) return false;
+		if(!read(250)) return false;
 
 		return true;
 	}
@@ -372,7 +441,7 @@ namespace ccms{namespace net{
 			if(_socket.is_open())
 			{
 				write("QUIT\r\n");
-				read();
+				//read();
 				_socket.close();
 			}
 		}

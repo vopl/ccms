@@ -40,7 +40,7 @@ namespace ccms {namespace net
 		bool doMsg(const std::string &from, const std::string &to, const std::string &data);
 		bool doStop();
 
-		bool read(const char *code0=NULL, const char *code1=NULL, const char *code2=NULL);
+		bool read(size_t code0=0, size_t code1=0, size_t code2=0);
 		bool write(const char *data);
 	};
 	typedef JsPtr<Smtp> SmtpPtr;

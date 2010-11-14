@@ -58,7 +58,7 @@ try
 		{
 			let confirmHref = 'http://'+request.env.host+'/user/register/confirm?secret='+confirmSecret;
 			let msg = new Mime.Part(
-				{	from:Mime.HeaderAddress('spamreceptor@mail.ru'),
+				{	from:router.getConfig().adminEmail,
 					to:request.params.email,
 					subject:'Подтверждение регистрации для '+request.params.login,
 					type:' multipart/related',
@@ -84,10 +84,10 @@ try
 
 
 			let smtp = new Net.Smtp();
-			smtp.host = 'localhost';
-			smtp.port = 25;
-			// smtp.login = 'peltup@bk.ru';
-			// smtp.password = 'sdf';
+			smtp.host = router.getConfig().smtp.host;
+			smtp.port = router.getConfig().smtp.port;
+			smtp.login = router.getConfig().smtp.login;
+			smtp.password = router.getConfig().smtp.password;
 
 
 			smtp.send(msg);

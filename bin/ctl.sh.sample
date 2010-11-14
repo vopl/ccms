@@ -91,7 +91,7 @@ function fstop() {
                                 rm -f $VP/$SNAME.lock
                                 echo Removing pid file...
                                 rm -f $VP/$SNAME.pid
-                                echo Main bot stopped successfully...
+                                echo "$LNAME stopped successfully..."
                                 fi
                         else
                         echo The "$LNAME" process not running!

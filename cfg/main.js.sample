@@ -32,6 +32,16 @@ let res =
 	timeZoneSpec:absFile('date_time_zonespec.csv'),
 
 	dbConnectionString:'________ HERE DATABASE CONNECTION STRING!!! ________',
+	
+	smtp:
+	{
+		host:'________ HERE SMTP HOST!!! ________',
+		port:'________ HERE SMTP PORT!!! ________',
+		//login:'________ HERE SMTP LOGIN!!! ________',
+		//password:'________ HERE SMTP PASSWORD!!! ________',
+	},
+	
+	adminEmail:'________ HERE ADMINISTRATOR EMAIL!!! ________',
 };
 
 return res;
