@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePoint::DrawablePoint(double x_, double y_)
-		: DrawableBase("[object DrawablePoint]")
+		: DrawableBase("DrawablePoint")
 		, _impl(new ::Magick::DrawablePoint(x_, y_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePoint::DrawablePoint(const DrawablePoint &from)
-		: DrawableBase("[object DrawablePoint]")
+		: DrawableBase("DrawablePoint")
 		, _impl(new ::Magick::DrawablePoint(from.getImpl().x(), from.getImpl().y()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -96,7 +96,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePointConstructor::DrawablePointConstructor()
-		: JsObject(true, "[object DrawablePointConstructor]")
+		: JsObject(true, "DrawablePointConstructor")
 	{
 	}
 

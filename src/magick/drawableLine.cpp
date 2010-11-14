@@ -5,7 +5,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableLine::DrawableLine(double startX, double startY, double endX, double endY)
-		: DrawableBase("[object DrawableLine]")
+		: DrawableBase("DrawableLine")
 		, _impl(new ::Magick::DrawableLine(startX, startY, endX, endY))
 	{
 		(JSExceptionReporter)registerJs();
@@ -13,7 +13,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableLine::DrawableLine(const DrawableLine &from)
-		: DrawableBase("[object DrawableLine]")
+		: DrawableBase("DrawableLine")
 		, _impl(new ::Magick::DrawableLine(from.getImpl().startX(), from.getImpl().startY(), from.getImpl().endX(), from.getImpl().endY()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -130,7 +130,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableLineConstructor::DrawableLineConstructor()
-		: JsObject(true, "[object DrawableLineConstructor]")
+		: JsObject(true, "DrawableLineConstructor")
 	{
 	}
 

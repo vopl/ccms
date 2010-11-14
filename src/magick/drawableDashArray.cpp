@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableDashArray::DrawableDashArray(const double* dasharray_)
-		: DrawableBase("[object DrawableDashArray]")
+		: DrawableBase("DrawableDashArray")
 		, _impl(new ::Magick::DrawableDashArray(dasharray_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableDashArray::DrawableDashArray(const DrawableDashArray &from)
-		: DrawableBase("[object DrawableDashArray]")
+		: DrawableBase("DrawableDashArray")
 		, _impl(new ::Magick::DrawableDashArray(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -118,7 +118,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableDashArrayConstructor::DrawableDashArrayConstructor()
-		: JsObject(true, "[object DrawableDashArrayConstructor]")
+		: JsObject(true, "DrawableDashArrayConstructor")
 	{
 	}
 

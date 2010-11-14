@@ -9,7 +9,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	Ui::Ui()
-		: JsObject(true, "[object Ui]")
+		: JsObject(true, "Ui")
 	{
 		jsRegisterProp("layouts", &Ui::xetter_layouts, true);
 		jsRegisterProp("skins", &Ui::xetter_skins, true);
@@ -37,6 +37,7 @@ namespace ccms
 		jsRegisterMeth("print", &Ui::call_print, 0);
 
 		jsRegisterMeth("mkBlockEntry", &Ui::call_mkBlockEntry, 0);
+		jsRegisterMeth("pushBlock", &Ui::call_pushBlock, 2);
 
 		jsRegisterMeth("hookPlace", &Ui::call_hookPlace, 0);
 		jsRegisterMeth("hookInvoke", &Ui::call_hookInvoke, 0);
@@ -372,6 +373,7 @@ namespace ccms
 		if(0 != argc && 1 != argc && 2 != argc)
 		{
 			JS_ReportError(ecx()->_jsCx, "ui.mkBlockEntry must be called with 0, 1 or 2 args");
+			return false;
 		}
 
 		BlockEntry *be = new BlockEntry;
@@ -391,6 +393,50 @@ namespace ccms
 		*rval = be->thisJsval();
 		return true;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Ui::call_pushBlock(uintN argc, jsval *argv, jsval *rval)
+	{
+		if(argc <2 || argc>3)
+		{
+			JS_ReportError(ecx()->_jsCx, "ui.pushBlock must be called with 2-3 args");
+			return false;
+		}
+
+		jsval jsv;
+		if(!xetter_blocks(&jsv, true)) return false;
+
+		JSObject *blocks = JSVAL_TO_OBJECT(jsv);
+
+		jsid blockNameId;
+		if(!JS_ValueToId(ecx()->_jsCx, argv[0], &blockNameId)) return false;
+
+		if(!JS_GetPropertyById(ecx()->_jsCx, blocks, blockNameId, &jsv)) return false;
+
+		if(!JSVAL_IS_OBJECT(jsv) || JSVAL_IS_NULL(jsv))
+		{
+			const char *s="unknown";
+			(JSExceptionReporter)JS_ConvertArguments(ecx()->_jsCx, 1, argv+0, "s", &s);
+			JS_ReportError(ecx()->_jsCx, "ui.pushBlock bad block name: %s", s);
+			return false;
+		}
+
+		JSObject *block = JSVAL_TO_OBJECT(jsv);
+		if(!JS_IsArrayObject(ecx()->_jsCx, block))
+		{
+			JS_ReportError(ecx()->_jsCx, "ui.pushBlock block is not a array!!!");
+			return false;
+		}
+
+		jsval blockEntry;
+		if(!call_mkBlockEntry(argc-1, argv+1, &blockEntry)) return false;
+
+		if(!JS_CallFunctionName(ecx()->_jsCx, block, "push", 1, &blockEntry, &jsv)) return false;
+
+		*rval = jsv;
+		return true;
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////

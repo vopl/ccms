@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableEllipse::DrawableEllipse(double originX_, double originY_, double radiusX_, double radiusY_, double arcStart_, double arcEnd_)
-		: DrawableBase("[object DrawableEllipse]")
+		: DrawableBase("DrawableEllipse")
 		, _impl(new ::Magick::DrawableEllipse(originX_, originY_, radiusX_, radiusY_, arcStart_, arcEnd_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableEllipse::DrawableEllipse(const DrawableEllipse &from)
-		: DrawableBase("[object DrawableEllipse]")
+		: DrawableBase("DrawableEllipse")
 		, _impl(new ::Magick::DrawableEllipse(from.getImpl().originX(), from.getImpl().originY(), from.getImpl().radiusX(), from.getImpl().radiusY(), from.getImpl().arcStart(), from.getImpl().arcEnd()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -170,7 +170,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableEllipseConstructor::DrawableEllipseConstructor()
-		: JsObject(true, "[object DrawableEllipseConstructor]")
+		: JsObject(true, "DrawableEllipseConstructor")
 	{
 	}
 

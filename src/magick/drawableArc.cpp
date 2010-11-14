@@ -5,7 +5,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableArc::DrawableArc(double startX, double startY, double endX, double endY, double startDegrees, double endDegrees)
-		: DrawableBase("[object DrawableArc]")
+		: DrawableBase("DrawableArc")
 		, _impl(new ::Magick::DrawableArc(startX, startY, endX, endY, startDegrees, endDegrees))
 	{
 		(JSExceptionReporter)registerJs();
@@ -13,7 +13,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableArc::DrawableArc(const DrawableArc &from)
-		: DrawableBase("[object DrawableArc]")
+		: DrawableBase("DrawableArc")
 		, _impl(new ::Magick::DrawableArc(from.getImpl().startX(), from.getImpl().startY(), from.getImpl().endX(), from.getImpl().endY(), from.getImpl().startDegrees(), from.getImpl().endDegrees()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -166,7 +166,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableArcConstructor::DrawableArcConstructor()
-		: JsObject(true, "[object DrawableArcConstructor]")
+		: JsObject(true, "DrawableArcConstructor")
 	{
 	}
 

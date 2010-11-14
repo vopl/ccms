@@ -7,7 +7,7 @@ namespace ccms{namespace net{
 
 	//////////////////////////////////////////////////////////////////////////
 	Smtp::Smtp()
-		: JsObject(true, "[object Smtp]")
+		: JsObject(true, "Smtp")
 		, _io_service()
 		, _resolver(_io_service)
 		, _socket(_io_service)
@@ -456,7 +456,7 @@ namespace ccms{namespace net{
 
 	//////////////////////////////////////////////////////////////////////////
 	SmtpConstructor::SmtpConstructor()
-		: JsObject(true, "[object SmtpConstructor]")
+		: JsObject(true, "SmtpConstructor")
 	{
 	}
 

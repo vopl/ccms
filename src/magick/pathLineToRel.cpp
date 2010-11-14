@@ -7,7 +7,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathLineToRel::PathLineToRel(const ::Magick::CoordinateList &from)
-		: PathBase("[object PathLineToRel]")
+		: PathBase("PathLineToRel")
 		, _impl(new ::Magick::PathLinetoRel(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathLineToRel::PathLineToRel(const PathLineToRel &from)
-		: PathBase("[object PathLineToRel]")
+		: PathBase("PathLineToRel")
 		, _impl(new ::Magick::PathLinetoRel(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -63,7 +63,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathLineToRelConstructor::PathLineToRelConstructor()
-		: JsObject(true, "[object PathLineToRelConstructor]")
+		: JsObject(true, "PathLineToRelConstructor")
 	{
 
 	}

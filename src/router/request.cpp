@@ -53,7 +53,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	Request::Request(Connection4Backend *connection)
-		: JsObject(true, "[object Request]")
+		: JsObject(true, "Request")
 		, _connection(connection)
 		, out(connection->_outBody)
 		, err(connection->_err)

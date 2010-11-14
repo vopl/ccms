@@ -7,7 +7,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	Filter::Filter(Point *parent, FilterInstancePtr instance)
-		: JsObject(true, "[object Filter]")
+		: JsObject(true, "Filter")
 		, _parent(parent)
 		, _instance(instance)
 	{

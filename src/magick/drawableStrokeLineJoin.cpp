@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeLineJoin::DrawableStrokeLineJoin(::Magick::LineJoin from)
-		: DrawableBase("[object DrawableStrokeLineJoin]")
+		: DrawableBase("DrawableStrokeLineJoin")
 		, _impl(new ::Magick::DrawableStrokeLineJoin(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeLineJoin::DrawableStrokeLineJoin(const DrawableStrokeLineJoin &from)
-		: DrawableBase("[object DrawableStrokeLineJoin]")
+		: DrawableBase("DrawableStrokeLineJoin")
 		, _impl(new ::Magick::DrawableStrokeLineJoin(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeLineJoinConstructor::DrawableStrokeLineJoinConstructor()
-		: JsObject(true, "[object DrawableStrokeLineJoinConstructor]")
+		: JsObject(true, "DrawableStrokeLineJoinConstructor")
 	{
 	}
 

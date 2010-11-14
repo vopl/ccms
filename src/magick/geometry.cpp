@@ -11,7 +11,7 @@ namespace ccms {namespace magick{
 		int32 yOff_,
 		bool xNegative_,
 		bool yNegative_)
-		: JsObject(true, "[object Geometry]")
+		: JsObject(true, "Geometry")
 		, _impl(new ::Magick::Geometry(width_, height_, xOff_, yOff_, xNegative_, yNegative_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -19,7 +19,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Geometry::Geometry(const char * geometry_)
-		: JsObject(true, "[object Geometry]")
+		: JsObject(true, "Geometry")
 		, _impl(new ::Magick::Geometry(geometry_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -27,7 +27,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Geometry::Geometry(const Geometry &geometry_)
-		: JsObject(true, "[object Geometry]")
+		: JsObject(true, "Geometry")
 		, _impl(new ::Magick::Geometry(geometry_.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -35,7 +35,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Geometry::Geometry(const ::Magick::Geometry &geometry_)
-		: JsObject(true, "[object Geometry]")
+		: JsObject(true, "Geometry")
 		, _impl(new ::Magick::Geometry(geometry_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -43,7 +43,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Geometry::Geometry()
-		: JsObject(true, "[object Geometry]")
+		: JsObject(true, "Geometry")
 		, _impl(new ::Magick::Geometry)
 	{
 		(JSExceptionReporter)registerJs();
@@ -306,7 +306,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	GeometryConstructor::GeometryConstructor()
-		: JsObject(true, "[object GeometryConstructor]")
+		: JsObject(true, "GeometryConstructor")
 	{
 
 	}

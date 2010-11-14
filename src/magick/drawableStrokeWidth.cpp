@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeWidth::DrawableStrokeWidth(double width_)
-		: DrawableBase("[object DrawableStrokeWidth]")
+		: DrawableBase("DrawableStrokeWidth")
 		, _impl(new ::Magick::DrawableStrokeWidth(width_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeWidth::DrawableStrokeWidth(const DrawableStrokeWidth &from)
-		: DrawableBase("[object DrawableStrokeWidth]")
+		: DrawableBase("DrawableStrokeWidth")
 		, _impl(new ::Magick::DrawableStrokeWidth(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeWidthConstructor::DrawableStrokeWidthConstructor()
-		: JsObject(true, "[object DrawableStrokeWidthConstructor]")
+		: JsObject(true, "DrawableStrokeWidthConstructor")
 	{
 	}
 

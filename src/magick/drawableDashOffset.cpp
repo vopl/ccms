@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableDashOffset::DrawableDashOffset(const double offset_)
-		: DrawableBase("[object DrawableDashOffset]")
+		: DrawableBase("DrawableDashOffset")
 		, _impl(new ::Magick::DrawableDashOffset(offset_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableDashOffset::DrawableDashOffset(const DrawableDashOffset &from)
-		: DrawableBase("[object DrawableDashOffset]")
+		: DrawableBase("DrawableDashOffset")
 		, _impl(new ::Magick::DrawableDashOffset(from.getImpl().offset()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -77,7 +77,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableDashOffsetConstructor::DrawableDashOffsetConstructor()
-		: JsObject(true, "[object DrawableDashOffsetConstructor]")
+		: JsObject(true, "DrawableDashOffsetConstructor")
 	{
 	}
 

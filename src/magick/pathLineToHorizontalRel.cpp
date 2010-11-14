@@ -7,7 +7,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathLineToHorizontalRel::PathLineToHorizontalRel(double from)
-		: PathBase("[object PathLineToHorizontalRel]")
+		: PathBase("PathLineToHorizontalRel")
 		, _impl(new ::Magick::PathLinetoHorizontalRel(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathLineToHorizontalRel::PathLineToHorizontalRel(const PathLineToHorizontalRel &from)
-		: PathBase("[object PathLineToHorizontalRel]")
+		: PathBase("PathLineToHorizontalRel")
 		, _impl(new ::Magick::PathLinetoHorizontalRel(from.getImpl().x()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -63,7 +63,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathLineToHorizontalRelConstructor::PathLineToHorizontalRelConstructor()
-		: JsObject(true, "[object PathLineToHorizontalRelConstructor]")
+		: JsObject(true, "PathLineToHorizontalRelConstructor")
 	{
 
 	}

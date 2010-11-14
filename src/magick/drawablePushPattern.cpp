@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePushPattern::DrawablePushPattern(const char *id_, int32 x_, int32 y_, uint32 width_, uint32 height_)
-		: DrawableBase("[object DrawablePushPattern]")
+		: DrawableBase("DrawablePushPattern")
 		, _impl(new ::Magick::DrawablePushPattern(id_, x_, y_, width_, height_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePushPattern::DrawablePushPattern(const DrawablePushPattern &from)
-		: DrawableBase("[object DrawablePushPattern]")
+		: DrawableBase("DrawablePushPattern")
 		, _impl(new ::Magick::DrawablePushPattern(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -60,7 +60,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePushPatternConstructor::DrawablePushPatternConstructor()
-		: JsObject(true, "[object DrawablePushPatternConstructor]")
+		: JsObject(true, "DrawablePushPatternConstructor")
 	{
 	}
 

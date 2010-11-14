@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableScaling::DrawableScaling(double x_, double y_)
-		: DrawableBase("[object DrawableScaling]")
+		: DrawableBase("DrawableScaling")
 		, _impl(new ::Magick::DrawableScaling(x_, y_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableScaling::DrawableScaling(const DrawableScaling &from)
-		: DrawableBase("[object DrawableScaling]")
+		: DrawableBase("DrawableScaling")
 		, _impl(new ::Magick::DrawableScaling(from.getImpl().x(), from.getImpl().y()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -96,7 +96,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableScalingConstructor::DrawableScalingConstructor()
-		: JsObject(true, "[object DrawableScalingConstructor]")
+		: JsObject(true, "DrawableScalingConstructor")
 	{
 	}
 

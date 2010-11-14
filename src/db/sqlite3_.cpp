@@ -49,7 +49,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	Sqlite3Statement::Sqlite3Statement(Sqlite3Ptr db, sqlite3_stmt *handle)
-		: JsObject(true, "[object Sqlite3Statement]")
+		: JsObject(true, "Sqlite3Statement")
 		, _db(db)
 		, _handle(handle)
 	{
@@ -308,7 +308,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	Sqlite3::Sqlite3()
-		: JsObject(true, "[object Sqlite3]")
+		: JsObject(true, "Sqlite3")
 		, _handle(NULL)
 	{
 		jsRegisterMeth("open", &Sqlite3::call_open, 1);

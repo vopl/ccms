@@ -17,7 +17,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	Template::Template()
-		: JsObject(true, "[object Template]")
+		: JsObject(true, "Template")
 		, _state(ets_null)
 		, _topObject(JSVAL_NULL)
 		, _clenchContainer(NULL)

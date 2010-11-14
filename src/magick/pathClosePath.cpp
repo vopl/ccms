@@ -5,7 +5,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathClosePath::PathClosePath()
-		: PathBase("[object PathClosePath]")
+		: PathBase("PathClosePath")
 		, _impl(new ::Magick::PathClosePath)
 	{
 		(JSExceptionReporter)registerJs();
@@ -53,7 +53,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathClosePathConstructor::PathClosePathConstructor()
-		: JsObject(true, "[object PathClosePathConstructor]")
+		: JsObject(true, "PathClosePathConstructor")
 	{
 
 	}

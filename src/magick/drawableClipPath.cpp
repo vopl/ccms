@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableClipPath::DrawableClipPath(const char *from)
-		: DrawableBase("[object DrawableClipPath]")
+		: DrawableBase("DrawableClipPath")
 		, _impl(new ::Magick::DrawableClipPath(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableClipPath::DrawableClipPath(const DrawableClipPath &from)
-		: DrawableBase("[object DrawableClipPath]")
+		: DrawableBase("DrawableClipPath")
 		, _impl(new ::Magick::DrawableClipPath(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableClipPathConstructor::DrawableClipPathConstructor()
-		: JsObject(true, "[object DrawableClipPathConstructor]")
+		: JsObject(true, "DrawableClipPathConstructor")
 	{
 	}
 

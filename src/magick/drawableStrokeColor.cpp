@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeColor::DrawableStrokeColor()
-		: DrawableBase("[object DrawableStrokeColor]")
+		: DrawableBase("DrawableStrokeColor")
 		, _impl(new ::Magick::DrawableStrokeColor(::Magick::Color()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeColor::DrawableStrokeColor(Color *from)
-		: DrawableBase("[object DrawableStrokeColor]")
+		: DrawableBase("DrawableStrokeColor")
 		, _impl(new ::Magick::DrawableStrokeColor(from->getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -23,7 +23,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeColor::DrawableStrokeColor(const DrawableStrokeColor &from)
-		: DrawableBase("[object DrawableStrokeColor]")
+		: DrawableBase("DrawableStrokeColor")
 		, _impl(new ::Magick::DrawableStrokeColor(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -107,7 +107,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeColorConstructor::DrawableStrokeColorConstructor()
-		: JsObject(true, "[object DrawableStrokeColorConstructor]")
+		: JsObject(true, "DrawableStrokeColorConstructor")
 	{
 	}
 

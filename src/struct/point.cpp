@@ -20,7 +20,7 @@ namespace ccms
 		, _superInstance(superInstance?superInstance:instance->getSuper())
 		, _path(path)
 
-		, JsObject(true, "[object Point]")
+		, JsObject(true, "Point")
 	{
 		jsRegisterMeth("resolve", &Point::call_resolve, 2);
 		jsRegisterMeth("resolveStatic", &Point::call_resolveStatic, 2);

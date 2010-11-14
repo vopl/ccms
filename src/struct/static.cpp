@@ -7,7 +7,7 @@ namespace ccms
 	Static::Static(JsObject *parent, StaticInstancePtr instance)
 		: _parent(parent)
 		, _instance(instance)
-		, JsObject(true, "[object Static]")
+		, JsObject(true, "Static")
 	{
 
 	}

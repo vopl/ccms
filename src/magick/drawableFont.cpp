@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFont::DrawableFont(const char *font_)
-		: DrawableBase("[object DrawableFont]")
+		: DrawableBase("DrawableFont")
 		, _impl(new ::Magick::DrawableFont(font_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFont::DrawableFont(const char *family_, ::Magick::StyleType style_, uint32 weight_, ::Magick::StretchType stretch_)
-		: DrawableBase("[object DrawableFont]")
+		: DrawableBase("DrawableFont")
 		, _impl(new ::Magick::DrawableFont(family_, style_, weight_, stretch_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -22,7 +22,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFont::DrawableFont(const DrawableFont &from)
-		: DrawableBase("[object DrawableFont]")
+		: DrawableBase("DrawableFont")
 		, _impl(new ::Magick::DrawableFont(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -87,7 +87,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFontConstructor::DrawableFontConstructor()
-		: JsObject(true, "[object DrawableFontConstructor]")
+		: JsObject(true, "DrawableFontConstructor")
 	{
 	}
 

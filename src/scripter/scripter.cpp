@@ -469,6 +469,8 @@ namespace ccms
 		_preprocessor.setup("<%", "<%=", "%>");
 		//g_instances[_cxMain] = this;
 
+		JsObject::initClass();
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////

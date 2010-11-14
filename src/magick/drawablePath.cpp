@@ -7,7 +7,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePath::DrawablePath(const ::Magick::VPathList &from)
-		: DrawableBase("[object DrawablePath]")
+		: DrawableBase("DrawablePath")
 		, _impl(new ::Magick::DrawablePath(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePath::DrawablePath(const DrawablePath &from)
-		: DrawableBase("[object DrawablePath]")
+		: DrawableBase("DrawablePath")
 		, _impl(new ::Magick::DrawablePath(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -61,7 +61,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePathConstructor::DrawablePathConstructor()
-		: JsObject(true, "[object DrawablePathConstructor]")
+		: JsObject(true, "DrawablePathConstructor")
 	{
 	}
 

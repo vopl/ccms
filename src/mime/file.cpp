@@ -6,7 +6,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	File::File()
-		: JsObject(true, "[object File]")
+		: JsObject(true, "File")
 	{
 	}
 
@@ -128,7 +128,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	FileConstructor::FileConstructor()
-		: JsObject(true, "[object FileConstructor]")
+		: JsObject(true, "FileConstructor")
 	{
 	}
 

@@ -6,7 +6,7 @@
 namespace ccms{namespace mime{
 	//////////////////////////////////////////////////////////////////////////
 	HeaderText::HeaderText()
-		: HeaderBase("[object HeaderText]")
+		: HeaderBase("HeaderText")
 	{
 
 	}
@@ -44,7 +44,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	HeaderTextConstructor::HeaderTextConstructor()
-		: JsObject(true, "[object HeaderTextConstructor]")
+		: JsObject(true, "HeaderTextConstructor")
 	{
 	}
 

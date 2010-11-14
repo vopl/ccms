@@ -57,7 +57,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	FilterInstance::FilterInstance()
-		: WithMaps<FilterInstance>(true, "[object FilterInstance]")
+		: WithMaps<FilterInstance>(true, "FilterInstance")
 		, _parent(NULL)
 		, _kind(efikUnknown)
 	{

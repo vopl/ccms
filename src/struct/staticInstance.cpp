@@ -5,7 +5,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	StaticInstance::StaticInstance()
-		: JsObject(true, "[object StaticInstance]")
+		: JsObject(true, "StaticInstance")
 		, _parent(NULL)
 	{
 	}

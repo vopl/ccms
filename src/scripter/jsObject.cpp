@@ -2,6 +2,7 @@
 #include "scripter/jsObject.hpp"
 #include "router/execContext.hpp"
 #include "scripter/newPropsCollector.hpp"
+#include "scripter/scripter.hpp"
 #include "scripter/profiler.hpp"
 
 namespace ccms
@@ -20,11 +21,70 @@ namespace ccms
 		NULL, // JSReserveSlotsOp    reserveSlots;
 	};
 
+	JSPropertySpec classObjProps[]=
+	{
+		{"cppClass", 0, JSPROP_PERMANENT|JSPROP_READONLY, JsObject::_cppObjectGetterClass, NULL},
+		{},
+	};
+	JSFunctionSpec classObjFuncs[]=
+	{
+		JS_FS_END
+	};
+
+	bool JsObject::initClass()
+	{
+		JSObject *classObj = JS_InitClass(
+			ecx()->_jsCx, 
+			ecx()->_scripter->_global, 
+			NULL,
+			&jsObject_class,
+			&JsObject::_cppObjectCtor,
+			0,
+			classObjProps,
+			classObjFuncs,
+			NULL,
+			NULL);
+
+		if(!classObj) return false;
+		//if(!JS_DefineProperty(ecx()->_jsCx, ecx()->_scripter->_global, "CppObject", OBJECT_TO_JSVAL(classObj), NULL, NULL, JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY)) return false;
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	JSBool JsObject::_cppObjectGetterClass(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
+	{
+		JsObject *this_ = thisObj(obj);
+
+		if(this_)
+		{
+			*vp = STRING_TO_JSVAL(JS_NewStringCopyN(cx, this_->_strVal.c_str(), this_->_strVal.size()));
+			return true;
+		}
+
+		*vp = JSVAL_VOID;
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	JSBool JsObject::_cppObjectCtor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+	{
+		JS_ReportError(cx, "JsObject::_cppObjectCtor forbidden");
+		return JS_FALSE;
+	}
+
+
+
 	//////////////////////////////////////////////////////////////////////////
 	void JsObject::deleterJs(JSContext *cx, JSObject *obj)
 	{
 		ecx()->_npc->reset(cx, obj);
-		thisObj(obj)->vdeleterJs();
+		JsObject *this_ = thisObj(obj);
+
+		if(this_)
+		{
+			this_->vdeleterJs();
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -77,7 +137,8 @@ namespace ccms
 		JsObject *this_ = thisObj(obj);
 		if(this_)
 		{
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyN(cx, this_->_strVal.c_str(), this_->_strVal.size()));
+			std::string v = "[object "+this_->_strVal+"]";
+			*vp = STRING_TO_JSVAL(JS_NewStringCopyN(cx, v.c_str(), v.size()));
 		}
 		else
 		{
@@ -90,7 +151,12 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	JSBool JsObject::enumerateOp(JSContext *cx, JSObject *obj)
 	{
-		return thisObj(obj)->onEnumerate();
+		JsObject *this_ = thisObj(obj);
+		if(this_)
+		{
+			return this_->onEnumerate();
+		}
+		return JS_TRUE;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -235,7 +301,7 @@ namespace ccms
 	//static std::map<std::string, std::set<JsObject *> > _objects;
 	JsObject::JsObject(bool doJsCreate, const char *strVal)
 		: _js(NULL)
-		, _strVal(strVal?strVal:"[object CppObject]")
+		, _strVal(strVal?strVal:"CppObject")
 		, _useCounter(0)
 	{
 		//_objects[strVal].insert(this);
@@ -487,7 +553,8 @@ namespace ccms
 #endif
 			//////////////////////////////////////////////////////////////////////////
 
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyN(cx, this_->_strVal.c_str(), this_->_strVal.size()));
+			std::string v = "[object "+this_->_strVal+"]";
+			*vp = STRING_TO_JSVAL(JS_NewStringCopyN(cx, v.c_str(), v.size()));
 			return JS_TRUE;
 		}
 
@@ -504,20 +571,21 @@ namespace ccms
 			js = JS_GetParent(ecx()->_jsCx, callee);
 		}
 
-		if(!js)
+		while(js)
 		{
-			return NULL;
+			JSClass *cls = JS_GetClass(js);
+			if(cls == &jsObject_class)
+			//if(cls->flags & JSCLASS_HAS_PRIVATE)
+			{
+				JsObject *this_ = (JsObject *)JS_GetPrivate(ecx()->_jsCx, js);
+				if(this_)
+				{
+					assert(this_->_js == js || !this_->_js);
+					return this_;
+				}
+			}
+			js = JS_GetPrototype(ecx()->_jsCx, js);
 		}
-
-		JSClass *cls = JS_GetClass(js);
-		if(cls == &jsObject_class)
-		//if(cls->flags & JSCLASS_HAS_PRIVATE)
-		{
-			JsObject *this_ = (JsObject *)JS_GetPrivate(ecx()->_jsCx, js);
-			assert(this_->_js == js || !this_->_js);
-			return this_;
-		}
-
 		return NULL;
 	}
 

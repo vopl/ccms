@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePointSize::DrawablePointSize(double pointSize_)
-		: DrawableBase("[object DrawablePointSize]")
+		: DrawableBase("DrawablePointSize")
 		, _impl(new ::Magick::DrawablePointSize(pointSize_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePointSize::DrawablePointSize(const DrawablePointSize &from)
-		: DrawableBase("[object DrawablePointSize]")
+		: DrawableBase("DrawablePointSize")
 		, _impl(new ::Magick::DrawablePointSize(from.getImpl().pointSize()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -79,7 +79,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePointSizeConstructor::DrawablePointSizeConstructor()
-		: JsObject(true, "[object DrawablePointSizeConstructor]")
+		: JsObject(true, "DrawablePointSizeConstructor")
 	{
 	}
 

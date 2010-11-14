@@ -191,23 +191,31 @@ global.dumpw = function(val, deep, indent, writer)
 				return;
 			}
 			
+			
 			var strVal;
-			if(val.toString)
+			if(val instanceof CppObject)
 			{
-				strVal = val.toString();
+				strVal = "CppObject of "+val.cppClass;
 			}
 			else
 			{
-				try
+				if(val.toString)
 				{
-					strVal = ""+val;
+					strVal = val.toString();
 				}
-				catch(e)
+				else
 				{
-					strVal = ""+e;
+					try
+					{
+						strVal = ""+val;
+					}
+					catch(e)
+					{
+						strVal = ""+e;
+					}
 				}
+				strVal = strVal.replace(/\[object (\w+)\]/, '$1');
 			}
-			strVal = strVal.replace(/\[object (\w+)\]/, '$1');
 			if('Object' == strVal)
 			{
 				strVal = '';

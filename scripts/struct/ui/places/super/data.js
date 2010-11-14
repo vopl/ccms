@@ -9,9 +9,9 @@ if(name in ui.blocks)
 	}
 	let res = src.map(function(entry)	
 		{
-			if('object' == typeof entry)
+			if(entry instanceof CppObject && 'BlockEntry' == entry.cppClass)
 			{
-				if('priority' in entry && 'content' in entry) return entry;
+				return entry;
 			}
 			return {
 				priority:0,

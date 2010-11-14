@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePopGraphicContext::DrawablePopGraphicContext()
-		: DrawableBase("[object DrawablePopGraphicContext]")
+		: DrawableBase("DrawablePopGraphicContext")
 		, _impl(new ::Magick::DrawablePopGraphicContext())
 	{
 		(JSExceptionReporter)registerJs();
@@ -52,7 +52,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePopGraphicContextConstructor::DrawablePopGraphicContextConstructor()
-		: JsObject(true, "[object DrawablePopGraphicContextConstructor]")
+		: JsObject(true, "DrawablePopGraphicContextConstructor")
 	{
 	}
 

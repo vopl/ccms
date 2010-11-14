@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextAntialias::DrawableTextAntialias(bool flag_)
-		: DrawableBase("[object DrawableTextAntialias]")
+		: DrawableBase("DrawableTextAntialias")
 		, _impl(new ::Magick::DrawableTextAntialias(flag_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextAntialias::DrawableTextAntialias(const DrawableTextAntialias &from)
-		: DrawableBase("[object DrawableTextAntialias]")
+		: DrawableBase("DrawableTextAntialias")
 		, _impl(new ::Magick::DrawableTextAntialias(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextAntialiasConstructor::DrawableTextAntialiasConstructor()
-		: JsObject(true, "[object DrawableTextAntialiasConstructor]")
+		: JsObject(true, "DrawableTextAntialiasConstructor")
 	{
 	}
 

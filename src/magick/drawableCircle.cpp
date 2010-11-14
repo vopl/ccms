@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCircle::DrawableCircle(double originX_, double originY_, double perimX_, double perimY_)
-		: DrawableBase("[object DrawableCircle]")
+		: DrawableBase("DrawableCircle")
 		, _impl(new ::Magick::DrawableCircle(originX_, originY_, perimX_, perimY_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCircle::DrawableCircle(const DrawableCircle &from)
-		: DrawableBase("[object DrawableCircle]")
+		: DrawableBase("DrawableCircle")
 		, _impl(new ::Magick::DrawableCircle(from.getImpl().originX(), from.getImpl().originY(), from.getImpl().perimX(), from.getImpl().perimY()))
 	{
 
@@ -133,7 +133,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCircleConstructor::DrawableCircleConstructor()
-		: JsObject(true, "[object DrawableCircleConstructor]")
+		: JsObject(true, "DrawableCircleConstructor")
 	{
 	}
 

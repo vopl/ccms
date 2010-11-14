@@ -10,7 +10,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	Part::Part()
-		: JsObject(true, "[object Part]")
+		: JsObject(true, "Part")
 		, _contentType(ectNull)
 	{
 		_content._raw = NULL;
@@ -514,7 +514,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	PartConstructor::PartConstructor()
-		: JsObject(true, "[object PartConstructor]")
+		: JsObject(true, "PartConstructor")
 	{
 	}
 

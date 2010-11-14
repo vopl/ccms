@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTranslation::DrawableTranslation(double x_, double y_)
-		: DrawableBase("[object DrawableTranslation]")
+		: DrawableBase("DrawableTranslation")
 		, _impl(new ::Magick::DrawableTranslation(x_, y_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTranslation::DrawableTranslation(const DrawableTranslation &from)
-		: DrawableBase("[object DrawableTranslation]")
+		: DrawableBase("DrawableTranslation")
 		, _impl(new ::Magick::DrawableTranslation(from.getImpl().x(), from.getImpl().y()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -96,7 +96,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTranslationConstructor::DrawableTranslationConstructor()
-		: JsObject(true, "[object DrawableTranslationConstructor]")
+		: JsObject(true, "DrawableTranslationConstructor")
 	{
 	}
 

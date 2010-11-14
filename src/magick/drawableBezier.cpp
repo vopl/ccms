@@ -7,14 +7,14 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableBezier::DrawableBezier(const ::Magick::CoordinateList &list)
-		: DrawableBase("[object DrawableBezier]")
+		: DrawableBase("DrawableBezier")
 		, _impl(new ::Magick::DrawableBezier(list))
 	{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableBezier::DrawableBezier(const DrawableBezier &from)
-		: DrawableBase("[object DrawableBezier]")
+		: DrawableBase("DrawableBezier")
 		, _impl(new ::Magick::DrawableBezier(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -60,7 +60,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableBezierConstructor::DrawableBezierConstructor()
-		: JsObject(true, "[object DrawableBezierConstructor]")
+		: JsObject(true, "DrawableBezierConstructor")
 	{
 	}
 

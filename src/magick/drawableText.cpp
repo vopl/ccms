@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableText::DrawableText(double x_, double y_, const char *text)
-		: DrawableBase("[object DrawableText]")
+		: DrawableBase("DrawableText")
 		, _impl(new ::Magick::DrawableText(x_, y_, text))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableText::DrawableText(const DrawableText &from)
-		: DrawableBase("[object DrawableText]")
+		: DrawableBase("DrawableText")
 		, _impl(new ::Magick::DrawableText(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -115,7 +115,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextConstructor::DrawableTextConstructor()
-		: JsObject(true, "[object DrawableTextConstructor]")
+		: JsObject(true, "DrawableTextConstructor")
 	{
 	}
 

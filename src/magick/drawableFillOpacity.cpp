@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFillOpacity::DrawableFillOpacity(double opacity_)
-		: DrawableBase("[object DrawableFillOpacity]")
+		: DrawableBase("DrawableFillOpacity")
 		, _impl(new ::Magick::DrawableFillOpacity(opacity_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFillOpacity::DrawableFillOpacity(const DrawableFillOpacity &from)
-		: DrawableBase("[object DrawableFillOpacity]")
+		: DrawableBase("DrawableFillOpacity")
 		, _impl(new ::Magick::DrawableFillOpacity(from.getImpl().opacity()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFillOpacityConstructor::DrawableFillOpacityConstructor()
-		: JsObject(true, "[object DrawableFillOpacityConstructor]")
+		: JsObject(true, "DrawableFillOpacityConstructor")
 	{
 	}
 

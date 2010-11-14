@@ -7,7 +7,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(double x_, double y_, const char *filename_)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(x_, y_, filename_))
 		, _image(NULL)
 	{
@@ -17,7 +17,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(double x_, double y_, Image *image_)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(x_, y_, image_->getImpl()))
 		, _image(image_)
 	{
@@ -27,7 +27,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(double x_, double y_, double width_, double height_, const char *filename_)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(x_, y_, width_, height_, filename_))
 		, _image(NULL)
 	{
@@ -37,7 +37,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(double x_, double y_, double width_, double height_, Image *image_)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(x_, y_, width_, height_, image_->getImpl()))
 		, _image(image_)
 	{
@@ -47,7 +47,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(double x_, double y_, double width_, double height_, const char *filename_, ::Magick::CompositeOperator composition_)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(x_, y_, width_, height_, filename_, composition_))
 		, _image(NULL)
 	{
@@ -57,7 +57,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(double x_, double y_, double width_, double height_, Image *image_, ::Magick::CompositeOperator composition_)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(x_, y_, width_, height_, image_->getImpl(), composition_))
 		, _image(image_)
 	{
@@ -67,7 +67,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImage::DrawableCompositeImage(const DrawableCompositeImage &from)
-		: DrawableBase("[object DrawableCompositeImage]")
+		: DrawableBase("DrawableCompositeImage")
 		, _impl(new ::Magick::DrawableCompositeImage(from.getImpl()))
 		, _image(from._image)
 	{
@@ -285,7 +285,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableCompositeImageConstructor::DrawableCompositeImageConstructor()
-		: JsObject(true, "[object DrawableCompositeImageConstructor]")
+		: JsObject(true, "DrawableCompositeImageConstructor")
 	{
 	}
 

@@ -8,7 +8,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	I18n::I18n(bool collectUsage)
-		: JsObject(true, "[object I18n]")
+		: JsObject(true, "I18n")
 		, _collectUsage(collectUsage)
 		, _confs(JSVAL_VOID)
 	{

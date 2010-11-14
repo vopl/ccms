@@ -6,7 +6,7 @@
 namespace ccms{namespace mime{
 	//////////////////////////////////////////////////////////////////////////
 	HeaderComplex::HeaderComplex()
-		: HeaderBase("[object HeaderComplex]")
+		: HeaderBase("HeaderComplex")
 	{
 
 	}
@@ -108,7 +108,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	HeaderComplexConstructor::HeaderComplexConstructor()
-		: JsObject(true, "[object HeaderComplexConstructor]")
+		: JsObject(true, "HeaderComplexConstructor")
 	{
 	}
 

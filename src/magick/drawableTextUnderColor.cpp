@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextUnderColor::DrawableTextUnderColor(Color *from)
-		: DrawableBase("[object DrawableTextUnderColor]")
+		: DrawableBase("DrawableTextUnderColor")
 		, _impl(new ::Magick::DrawableTextUnderColor(from->getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextUnderColor::DrawableTextUnderColor(const DrawableTextUnderColor &from)
-		: DrawableBase("[object DrawableTextUnderColor]")
+		: DrawableBase("DrawableTextUnderColor")
 		, _impl(new ::Magick::DrawableTextUnderColor(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -98,7 +98,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableTextUnderColorConstructor::DrawableTextUnderColorConstructor()
-		: JsObject(true, "[object DrawableTextUnderColorConstructor]")
+		: JsObject(true, "DrawableTextUnderColorConstructor")
 	{
 	}
 

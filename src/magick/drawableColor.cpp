@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableColor::DrawableColor(double x_, double y_, ::Magick::PaintMethod paintMethod_)
-		: DrawableBase("[object DrawableColor]")
+		: DrawableBase("DrawableColor")
 		, _impl(new ::Magick::DrawableColor(x_, y_, paintMethod_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableColor::DrawableColor(const DrawableColor &from)
-		: DrawableBase("[object DrawableColor]")
+		: DrawableBase("DrawableColor")
 		, _impl(new ::Magick::DrawableColor(from.getImpl().x(), from.getImpl().y(), from.getImpl().paintMethod()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -114,7 +114,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableColorConstructor::DrawableColorConstructor()
-		: JsObject(true, "[object DrawableColorConstructor]")
+		: JsObject(true, "DrawableColorConstructor")
 	{
 	}
 

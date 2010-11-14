@@ -7,7 +7,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathCurveToAbs::PathCurveToAbs(const ::Magick::PathCurveToArgsList &from)
-		: PathBase("[object PathCurveToAbs]")
+		: PathBase("PathCurveToAbs")
 		, _impl(new ::Magick::PathCurvetoAbs(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathCurveToAbs::PathCurveToAbs(const PathCurveToAbs &from)
-		: PathBase("[object PathCurveToAbs]")
+		: PathBase("PathCurveToAbs")
 		, _impl(new ::Magick::PathCurvetoAbs(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -63,7 +63,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathCurveToAbsConstructor::PathCurveToAbsConstructor()
-		: JsObject(true, "[object PathCurveToAbsConstructor]")
+		: JsObject(true, "PathCurveToAbsConstructor")
 	{
 
 	}

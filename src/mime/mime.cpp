@@ -14,7 +14,7 @@ namespace ccms{ namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	Mime::Mime()
-		: JsObject(true, "[object Mime]")
+		: JsObject(true, "Mime")
 	{
 		jsval jsv;
 

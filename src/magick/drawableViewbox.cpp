@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableViewbox::DrawableViewbox(uint32 x1_, uint32 y1_, uint32 x2_, uint32 y2_)
-		: DrawableBase("[object DrawableViewbox]")
+		: DrawableBase("DrawableViewbox")
 		, _impl(new ::Magick::DrawableViewbox(x1_, y1_, x2_, y2_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableViewbox::DrawableViewbox(const DrawableViewbox &from)
-		: DrawableBase("[object DrawableViewbox]")
+		: DrawableBase("DrawableViewbox")
 		, _impl(new ::Magick::DrawableViewbox(from.getImpl().x1(), from.getImpl().y1(), from.getImpl().x2(), from.getImpl().y2()))
 	{
 
@@ -133,7 +133,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableViewboxConstructor::DrawableViewboxConstructor()
-		: JsObject(true, "[object DrawableViewboxConstructor]")
+		: JsObject(true, "DrawableViewboxConstructor")
 	{
 	}
 

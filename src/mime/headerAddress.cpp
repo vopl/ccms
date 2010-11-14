@@ -6,7 +6,7 @@
 namespace ccms{namespace mime{
 	//////////////////////////////////////////////////////////////////////////
 	HeaderAddress::HeaderAddress()
-		: HeaderBase("[object HeaderAddress]")
+		: HeaderBase("HeaderAddress")
 	{
 
 	}
@@ -114,7 +114,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	HeaderAddressConstructor::HeaderAddressConstructor()
-		: JsObject(true, "[object HeaderAddressConstructor]")
+		: JsObject(true, "HeaderAddressConstructor")
 	{
 	}
 

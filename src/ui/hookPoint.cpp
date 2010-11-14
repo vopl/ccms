@@ -7,7 +7,7 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	static int hc=0;
 	HookPoint::HookPoint(Ui *ui, THookId id, jsval data)
-		: JsObject(true, "[object HookPoint]")
+		: JsObject(true, "HookPoint")
 		, _ui(ui)
 		, _id(id)
 	{

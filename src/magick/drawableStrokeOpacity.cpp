@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeOpacity::DrawableStrokeOpacity(double opacity_)
-		: DrawableBase("[object DrawableStrokeOpacity]")
+		: DrawableBase("DrawableStrokeOpacity")
 		, _impl(new ::Magick::DrawableStrokeOpacity(opacity_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeOpacity::DrawableStrokeOpacity(const DrawableStrokeOpacity &from)
-		: DrawableBase("[object DrawableStrokeOpacity]")
+		: DrawableBase("DrawableStrokeOpacity")
 		, _impl(new ::Magick::DrawableStrokeOpacity(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeOpacityConstructor::DrawableStrokeOpacityConstructor()
-		: JsObject(true, "[object DrawableStrokeOpacityConstructor]")
+		: JsObject(true, "DrawableStrokeOpacityConstructor")
 	{
 	}
 

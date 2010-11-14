@@ -93,6 +93,10 @@ namespace ccms
 	class JsObject
 	{
 	public:
+		static bool initClass();
+		static JSBool _cppObjectGetterClass(JSContext *cx, JSObject *obj, jsid id, jsval *vp);
+		static JSBool _cppObjectCtor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
 		//управление временем жизни
 		template<class T> static JsPtr<T> mkp(JSObject *p, const char *file, size_t line);
 		template<class T> static JsPtr<T> mkp(JsObject *p, const char *file, size_t line);

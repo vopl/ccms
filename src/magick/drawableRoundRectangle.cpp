@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableRoundRectangle::DrawableRoundRectangle(double centerX_, double centerY_, double width_, double hight_, double cornerWidth_, double cornerHight_)
-		: DrawableBase("[object DrawableRoundRectangle]")
+		: DrawableBase("DrawableRoundRectangle")
 		, _impl(new ::Magick::DrawableRoundRectangle(centerX_, centerY_, width_, hight_, cornerWidth_, cornerHight_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableRoundRectangle::DrawableRoundRectangle(const DrawableRoundRectangle &from)
-		: DrawableBase("[object DrawableRoundRectangle]")
+		: DrawableBase("DrawableRoundRectangle")
 		, _impl(new ::Magick::DrawableRoundRectangle(from.getImpl().centerX(), from.getImpl().centerY(), from.getImpl().width(), from.getImpl().hight(), from.getImpl().cornerWidth(), from.getImpl().cornerHeight()))
 	{
 
@@ -169,7 +169,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableRoundRectangleConstructor::DrawableRoundRectangleConstructor()
-		: JsObject(true, "[object DrawableRoundRectangleConstructor]")
+		: JsObject(true, "DrawableRoundRectangleConstructor")
 	{
 	}
 

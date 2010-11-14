@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeAntialias::DrawableStrokeAntialias(bool flag_)
-		: DrawableBase("[object DrawableStrokeAntialias]")
+		: DrawableBase("DrawableStrokeAntialias")
 		, _impl(new ::Magick::DrawableStrokeAntialias(flag_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeAntialias::DrawableStrokeAntialias(const DrawableStrokeAntialias &from)
-		: DrawableBase("[object DrawableStrokeAntialias]")
+		: DrawableBase("DrawableStrokeAntialias")
 		, _impl(new ::Magick::DrawableStrokeAntialias(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeAntialiasConstructor::DrawableStrokeAntialiasConstructor()
-		: JsObject(true, "[object DrawableStrokeAntialiasConstructor]")
+		: JsObject(true, "DrawableStrokeAntialiasConstructor")
 	{
 	}
 

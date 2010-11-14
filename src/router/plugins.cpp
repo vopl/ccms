@@ -6,7 +6,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	Plugins::Plugins()
-		: JsObject(true, "[object Plugins]")
+		: JsObject(true, "Plugins")
 	{
 		JSObject *obj = JS_NewArrayObject(ecx()->_jsCx, 0, NULL);
 		

@@ -14,7 +14,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	L10n::L10n(I18nPtr i18n, jsval conf)
-		: JsObject(true, "[object L10n]")
+		: JsObject(true, "L10n")
 		, _i18n(i18n)
 		, _conf(conf)
 		, _confNumber(NULL)

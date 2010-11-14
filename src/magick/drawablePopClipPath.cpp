@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePopClipPath::DrawablePopClipPath()
-		: DrawableBase("[object DrawablePopClipPath]")
+		: DrawableBase("DrawablePopClipPath")
 		, _impl(new ::Magick::DrawablePopClipPath())
 	{
 		(JSExceptionReporter)registerJs();
@@ -52,7 +52,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePopClipPathConstructor::DrawablePopClipPathConstructor()
-		: JsObject(true, "[object DrawablePopClipPathConstructor]")
+		: JsObject(true, "DrawablePopClipPathConstructor")
 	{
 	}
 

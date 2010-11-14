@@ -7,14 +7,14 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePolygon::DrawablePolygon(const ::Magick::CoordinateList &list)
-		: DrawableBase("[object DrawablePolygon]")
+		: DrawableBase("DrawablePolygon")
 		, _impl(new ::Magick::DrawablePolygon(list))
 	{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePolygon::DrawablePolygon(const DrawablePolygon &from)
-		: DrawableBase("[object DrawablePolygon]")
+		: DrawableBase("DrawablePolygon")
 		, _impl(new ::Magick::DrawablePolygon(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -60,7 +60,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawablePolygonConstructor::DrawablePolygonConstructor()
-		: JsObject(true, "[object DrawablePolygonConstructor]")
+		: JsObject(true, "DrawablePolygonConstructor")
 	{
 	}
 

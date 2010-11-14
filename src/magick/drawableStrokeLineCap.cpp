@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeLineCap::DrawableStrokeLineCap(::Magick::LineCap from)
-		: DrawableBase("[object DrawableStrokeLineCap]")
+		: DrawableBase("DrawableStrokeLineCap")
 		, _impl(new ::Magick::DrawableStrokeLineCap(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeLineCap::DrawableStrokeLineCap(const DrawableStrokeLineCap &from)
-		: DrawableBase("[object DrawableStrokeLineCap]")
+		: DrawableBase("DrawableStrokeLineCap")
 		, _impl(new ::Magick::DrawableStrokeLineCap(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableStrokeLineCapConstructor::DrawableStrokeLineCapConstructor()
-		: JsObject(true, "[object DrawableStrokeLineCapConstructor]")
+		: JsObject(true, "DrawableStrokeLineCapConstructor")
 	{
 	}
 

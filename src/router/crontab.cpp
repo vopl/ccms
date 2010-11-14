@@ -5,7 +5,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	Crontab::Crontab()
-		: JsObject(true, "[object Crontab]")
+		: JsObject(true, "Crontab")
 		, _taskIdGen(1)
 	{
 		jsRegisterMeth("add", &Crontab::call_add, 1);

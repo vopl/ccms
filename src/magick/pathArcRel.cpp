@@ -7,7 +7,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathArcRel::PathArcRel(const ::Magick::PathArcArgsList &from)
-		: PathBase("[object PathArcRel]")
+		: PathBase("PathArcRel")
 		, _impl(new ::Magick::PathArcRel(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathArcRel::PathArcRel(const PathArcRel &from)
-		: PathBase("[object PathArcRel]")
+		: PathBase("PathArcRel")
 		, _impl(new ::Magick::PathArcRel(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -63,7 +63,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathArcRelConstructor::PathArcRelConstructor()
-		: JsObject(true, "[object PathArcRelConstructor]")
+		: JsObject(true, "PathArcRelConstructor")
 	{
 
 	}

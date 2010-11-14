@@ -1255,7 +1255,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 	//////////////////////////////////////////////////////////////////////////
 	Router::Router()
-		: JsObject(false, "[object Router]")
+		: JsObject(false, "Router")
 		, _scripter(eomStderrOnly)
 		, _config(NULL)
 	{

@@ -11,7 +11,7 @@ namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
 	PointInstance::PointInstance()
-		: WithMaps<PointInstance>(true, "[object PointInstance]")
+		: WithMaps<PointInstance>(true, "PointInstance")
 		, _parent(NULL)
 	{
 		jsRegisterMeth("setSuper", &PointInstance::call_setSuper, 1);

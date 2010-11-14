@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableRotation::DrawableRotation(double angle_)
-		: DrawableBase("[object DrawableRotation]")
+		: DrawableBase("DrawableRotation")
 		, _impl(new ::Magick::DrawableRotation(angle_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableRotation::DrawableRotation(const DrawableRotation &from)
-		: DrawableBase("[object DrawableRotation]")
+		: DrawableBase("DrawableRotation")
 		, _impl(new ::Magick::DrawableRotation(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableRotationConstructor::DrawableRotationConstructor()
-		: JsObject(true, "[object DrawableRotationConstructor]")
+		: JsObject(true, "DrawableRotationConstructor")
 	{
 	}
 

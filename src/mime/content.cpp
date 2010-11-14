@@ -6,7 +6,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	Content::Content()
-		: JsObject(true, "[object Content]")
+		: JsObject(true, "Content")
 	{
 	}
 	
@@ -109,7 +109,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	ContentConstructor::ContentConstructor()
-		: JsObject(true, "[object ContentConstructor]")
+		: JsObject(true, "ContentConstructor")
 	{
 	}
 	

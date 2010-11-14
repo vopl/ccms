@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableSkewX::DrawableSkewX(double angle_)
-		: DrawableBase("[object DrawableSkewX]")
+		: DrawableBase("DrawableSkewX")
 		, _impl(new ::Magick::DrawableSkewX(angle_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableSkewX::DrawableSkewX(const DrawableSkewX &from)
-		: DrawableBase("[object DrawableSkewX]")
+		: DrawableBase("DrawableSkewX")
 		, _impl(new ::Magick::DrawableSkewX(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableSkewXConstructor::DrawableSkewXConstructor()
-		: JsObject(true, "[object DrawableSkewXConstructor]")
+		: JsObject(true, "DrawableSkewXConstructor")
 	{
 	}
 

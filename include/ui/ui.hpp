@@ -65,6 +65,9 @@ namespace ccms
 		//ui.mkBlockEntry()
 		bool call_mkBlockEntry(uintN argc, jsval *argv, jsval *rval);
 
+		//ui.pushBlock('name', content, priority)
+		bool call_pushBlock(uintN argc, jsval *argv, jsval *rval);
+
 	public:
 		bool call_hookPlace(uintN argc, jsval *argv, jsval *rval);
 		bool call_hookInvoke(uintN argc, jsval *argv, jsval *rval);

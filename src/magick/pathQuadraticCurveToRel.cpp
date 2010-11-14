@@ -7,7 +7,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathQuadraticCurveToRel::PathQuadraticCurveToRel(const ::Magick::PathQuadraticCurvetoArgsList &from)
-		: PathBase("[object PathQuadraticCurveToRel]")
+		: PathBase("PathQuadraticCurveToRel")
 		, _impl(new ::Magick::PathQuadraticCurvetoRel(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -15,7 +15,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathQuadraticCurveToRel::PathQuadraticCurveToRel(const PathQuadraticCurveToRel &from)
-		: PathBase("[object PathQuadraticCurveToRel]")
+		: PathBase("PathQuadraticCurveToRel")
 		, _impl(new ::Magick::PathQuadraticCurvetoRel(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -63,7 +63,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	PathQuadraticCurveToRelConstructor::PathQuadraticCurveToRelConstructor()
-		: JsObject(true, "[object PathQuadraticCurveToRelConstructor]")
+		: JsObject(true, "PathQuadraticCurveToRelConstructor")
 	{
 
 	}

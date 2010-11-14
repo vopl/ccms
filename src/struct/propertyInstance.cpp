@@ -13,7 +13,7 @@ namespace ccms
 		, _fileMTime(0)
 		, _function(nullFunction)
 		, _parent(NULL)
-		, JsObject(true, "[object PropertyInstance]")
+		, JsObject(true, "PropertyInstance")
 	{
 		//////////////////////////////////////////////////////////////////////////
 		jsRegisterMeth("setKind",			&PropertyInstance::call_setKind, 1);

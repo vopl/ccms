@@ -6,7 +6,7 @@ namespace ccms{ namespace net{
 
 	//////////////////////////////////////////////////////////////////////////
 	Net::Net()
-		: JsObject(true, "[object Net]")
+		: JsObject(true, "Net")
 	{
 		jsval jsv;
 

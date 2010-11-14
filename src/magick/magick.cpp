@@ -11,7 +11,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Magick::Magick()
-		: JsObject(true, "[object Magick]")
+		: JsObject(true, "Magick")
 	{
 		jsval jsv;
 

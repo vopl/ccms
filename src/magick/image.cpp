@@ -37,7 +37,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Image::Image()
-		: JsObject(true, "[object Image]")
+		: JsObject(true, "Image")
 		, _attributes(NULL)
 	{
 		jsRegister();
@@ -45,7 +45,7 @@ namespace ccms{ namespace magick{
 
 
 	Image::Image(const ::Magick::Image &from)
-		: JsObject(true, "[object Image]")
+		: JsObject(true, "Image")
 		, _attributes(NULL)
 	{
 		IMTRY()
@@ -3521,7 +3521,7 @@ namespace ccms{ namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	ImageConstructor::ImageConstructor()
-		: JsObject(true, "[object ImageConstructor]")
+		: JsObject(true, "ImageConstructor")
 	{
 	}
 

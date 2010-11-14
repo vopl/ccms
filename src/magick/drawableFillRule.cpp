@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFillRule::DrawableFillRule(::Magick::FillRule from)
-		: DrawableBase("[object DrawableFillRule]")
+		: DrawableBase("DrawableFillRule")
 		, _impl(new ::Magick::DrawableFillRule(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFillRule::DrawableFillRule(const DrawableFillRule &from)
-		: DrawableBase("[object DrawableFillRule]")
+		: DrawableBase("DrawableFillRule")
 		, _impl(new ::Magick::DrawableFillRule(from.getImpl().fillRule()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableFillRuleConstructor::DrawableFillRuleConstructor()
-		: JsObject(true, "[object DrawableFillRuleConstructor]")
+		: JsObject(true, "DrawableFillRuleConstructor")
 	{
 	}
 

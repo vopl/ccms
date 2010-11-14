@@ -9,7 +9,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	Headers::Headers()
-		: JsObject(true, "[object Headers]")
+		: JsObject(true, "Headers")
 	{
 		//JSObject *proto = JS_NewArrayObject(ecx()->_jsCx, 0, NULL);
 		//(JSExceptionReporter)JS_SetPrototype(ecx()->_jsCx, _js, proto);
@@ -309,7 +309,7 @@ namespace ccms{namespace mime{
 
 	//////////////////////////////////////////////////////////////////////////
 	HeadersConstructor::HeadersConstructor()
-		: JsObject(true, "[object HeadersConstructor]")
+		: JsObject(true, "HeadersConstructor")
 	{
 	}
 

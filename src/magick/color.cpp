@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Color::Color()
-		: JsObject(true, "[object Color]")
+		: JsObject(true, "Color")
 		, _impl(new ::Magick::Color)
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Color::Color(const ::Magick::Color &color)
-		: JsObject(true, "[object Color]")
+		: JsObject(true, "Color")
 		, _impl(new ::Magick::Color(color))
 	{
 		(JSExceptionReporter)registerJs();
@@ -22,7 +22,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Color::Color(const char * x11color_)
-		: JsObject(true, "[object Color]")
+		: JsObject(true, "Color")
 		, _impl(new ::Magick::Color(x11color_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -33,7 +33,7 @@ namespace ccms {namespace magick{
 		uint32 green_,
 		uint32 blue_,
 		uint32 alpha_)
-		: JsObject(true, "[object Color]")
+		: JsObject(true, "Color")
 		, _impl(new ::Magick::Color(red_, green_, blue_, alpha_))
 	{
 		(JSExceptionReporter)registerJs();
@@ -42,7 +42,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	Color::Color(const Color & color_)
-		: JsObject(true, "[object Color]")
+		: JsObject(true, "Color")
 		, _impl(new ::Magick::Color(color_.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -552,7 +552,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	ColorConstructor::ColorConstructor()
-		: JsObject(true, "[object ColorConstructor]")
+		: JsObject(true, "ColorConstructor")
 	{
 	}
 

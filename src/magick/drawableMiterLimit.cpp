@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableMiterLimit::DrawableMiterLimit(uint32 from)
-		: DrawableBase("[object DrawableMiterLimit]")
+		: DrawableBase("DrawableMiterLimit")
 		, _impl(new ::Magick::DrawableMiterLimit(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableMiterLimit::DrawableMiterLimit(const DrawableMiterLimit &from)
-		: DrawableBase("[object DrawableMiterLimit]")
+		: DrawableBase("DrawableMiterLimit")
 		, _impl(new ::Magick::DrawableMiterLimit(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableMiterLimitConstructor::DrawableMiterLimitConstructor()
-		: JsObject(true, "[object DrawableMiterLimitConstructor]")
+		: JsObject(true, "DrawableMiterLimitConstructor")
 	{
 	}
 

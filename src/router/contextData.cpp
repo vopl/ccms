@@ -48,7 +48,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	ContextData::ContextData(const void *carrier)
-		: JsObject(true, "[object ContextData]")
+		: JsObject(true, "ContextData")
 	{
 		char tmp[128];
 		sprintf(tmp, "%p", carrier);
@@ -159,7 +159,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	ContextData2::ContextData2(const char *key, const char *carrier)
-		: JsObject(true, "[object ContextData2]")
+		: JsObject(true, "ContextData2")
 		, _key(key)
 		, _carrierStr(JS_NewStringCopyZ(ecx()->_jsCx, carrier))
 		, _isInternalDel(false)

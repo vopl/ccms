@@ -8,7 +8,7 @@ namespace ccms{namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	ImageAttributes::ImageAttributes(Image *img)
-		: JsObject(true, "[object ImageAttributes]")
+		: JsObject(true, "ImageAttributes")
 		, _img(img)
 	{
 		(JSExceptionReporter)JS_SetReservedSlot(ecx()->_jsCx, _js, 0, img->thisJsval());

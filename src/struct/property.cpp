@@ -8,7 +8,7 @@ namespace ccms
 	Property::Property(JsObject *parent, PropertyInstancePtr instance)
 		: _parent(parent)
 		, _instance(instance)
-		, JsObject(true, "[object Property]")
+		, JsObject(true, "Property")
 	{
 
 		jsRegisterMeth("render", &Property::call_render, 0);

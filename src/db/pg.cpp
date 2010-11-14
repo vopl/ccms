@@ -565,7 +565,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	PgStatement::PgStatement(PgPtr db, const char *name, const char *sql, bool verbose)
-		: JsObject(true, "[object PgStatement]")
+		: JsObject(true, "PgStatement")
 		, _db(db)
 		, _name(name)
 		, _sql(sql)
@@ -687,7 +687,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	Pg::Pg()
-		: JsObject(true, "[object Pg]")
+		: JsObject(true, "Pg")
 		, _conn(NULL)
 		, _verbose(false)
 	{

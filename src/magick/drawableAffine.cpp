@@ -5,7 +5,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableAffine::DrawableAffine(double sx, double sy, double rx, double ry, double tx, double ty)
-		: DrawableBase("[object DrawableAffine]")
+		: DrawableBase("DrawableAffine")
 		, _impl(new ::Magick::DrawableAffine(sx, sy, rx, ry, tx, ty))
 	{
 		(JSExceptionReporter)registerJs();
@@ -13,7 +13,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableAffine::DrawableAffine(const DrawableAffine &from)
-		: DrawableBase("[object DrawableAffine]")
+		: DrawableBase("DrawableAffine")
 		, _impl(new ::Magick::DrawableAffine(from.getImpl().sx(), from.getImpl().sy(), from.getImpl().rx(), from.getImpl().ry(), from.getImpl().tx(), from.getImpl().ty()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -21,7 +21,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableAffine::DrawableAffine()
-		: DrawableBase("[object DrawableAffine]")
+		: DrawableBase("DrawableAffine")
 		, _impl(new ::Magick::DrawableAffine)
 	{
 		(JSExceptionReporter)registerJs();
@@ -174,7 +174,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableAffineConstructor::DrawableAffineConstructor()
-		: JsObject(true, "[object DrawableAffineConstructor]")
+		: JsObject(true, "DrawableAffineConstructor")
 	{
 	}
 

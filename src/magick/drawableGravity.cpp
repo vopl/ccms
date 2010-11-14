@@ -6,7 +6,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableGravity::DrawableGravity(::Magick::GravityType from)
-		: DrawableBase("[object DrawableGravity]")
+		: DrawableBase("DrawableGravity")
 		, _impl(new ::Magick::DrawableGravity(from))
 	{
 		(JSExceptionReporter)registerJs();
@@ -14,7 +14,7 @@ namespace ccms {namespace magick{
 
 	//////////////////////////////////////////////////////////////////////////
 	DrawableGravity::DrawableGravity(const DrawableGravity &from)
-		: DrawableBase("[object DrawableGravity]")
+		: DrawableBase("DrawableGravity")
 		, _impl(new ::Magick::DrawableGravity(from.getImpl()))
 	{
 		(JSExceptionReporter)registerJs();
@@ -78,7 +78,7 @@ namespace ccms {namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	DrawableGravityConstructor::DrawableGravityConstructor()
-		: JsObject(true, "[object DrawableGravityConstructor]")
+		: JsObject(true, "DrawableGravityConstructor")
 	{
 	}
 
