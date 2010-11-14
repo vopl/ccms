@@ -48,11 +48,19 @@ try
 		let confirmSecret = String(Math.random());
 		
 		//влить пользователя в базу
-		orm.exec("INSERT INTO {User} (login, password, email, status, create_date) VALUES($1, $2, $3, $4, NOW())", 
-			request.params.login, 
-			request.params.password, 
-			request.params.email, 
-			'waitConfirm:'+confirmSecret);
+		let roles = [].concat(
+			orm.Role.select('WHERE module=$1 AND name=$2', 'user', 'user'),
+			orm.Role.select('WHERE module=$1 AND name=$2', 'forum', 'user'));
+		
+		let user = acl.setUser(
+			{
+				login:request.params.login,
+				password:request.params.password,
+				email:request.params.email,
+				status:'waitConfirm:'+confirmSecret,
+				create_date:new Date(),
+			}, 
+			roles);
 			
 		//отправить письмо
 		{

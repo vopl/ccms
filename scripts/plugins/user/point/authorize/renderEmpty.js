@@ -30,6 +30,7 @@ if(!t)
 
 t = t.clone();
 t.msg = this.msg?<b>{this.msg}</b>:"";
+delete this.msg;
 t.login = request.params.login;
 t.password = request.params.password;
 t.remember = request.params.remember?"checked":"data-checked";
