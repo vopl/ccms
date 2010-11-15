@@ -274,6 +274,8 @@ SET(INCLUDE_UTILS
 	../../include/utils/initializable.hpp
 	../../include/utils/string.hpp
 	../../include/utils/mkgmtime.h
+	../../include/utils/httpDate.hpp
+	../../include/utils/deflate.hpp
 )
 SOURCE_GROUP(include\\utils FILES ${INCLUDE_UTILS})
 
@@ -283,6 +285,8 @@ SET(SRC_UTILS
 	../../src/utils/crc32.cpp
 	../../src/utils/dcvt.cpp
 	../../src/utils/mkgmtime.c
+	../../src/utils/httpDate.cpp
+	../../src/utils/deflate.cpp
 )
 SOURCE_GROUP(src\\utils FILES ${SRC_UTILS})
 

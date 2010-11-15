@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zdll.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
@@ -323,6 +323,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\utils\dcvt.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\deflate.cpp"
 					>
 				</File>
 				<File
@@ -2193,6 +2197,10 @@
 				</File>
 				<File
 					RelativePath="..\..\include\utils\dcvt.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\utils\deflate.hpp"
 					>
 				</File>
 				<File

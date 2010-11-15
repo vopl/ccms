@@ -1364,6 +1364,19 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	long Router::getConfigLong(const char *name)
+	{
+		jsval jsv = getConfigValue(name);
+		int32 v;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "i", &v))
+		{
+			(JSExceptionReporter)false;
+			return 0;
+		}
+		return v;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	bool Router::getConfigBool(const char *name)
 	{
 		jsval jsv = getConfigValue(name);

@@ -7,6 +7,11 @@
 #include <sys/stat.h>
 #include "utils/httpDate.hpp"
 #include "utils/crc32.hpp"
+#include "utils/deflate.hpp"
+
+
+
+
 
 namespace ccms
 {
@@ -19,6 +24,7 @@ namespace ccms
 		, _state(ecsReadHeader)
 		, _socket(socket)
 		, _inContentType(ectNull)
+		, _outContentEncoding(eceNone)
 		, _bytesTransfered(0)
 		, _staticFileSize(0)
 		, Connection4Backend(err)
@@ -54,7 +60,10 @@ namespace ccms
 		, _outbufGranula(0x40000)
 		, _cronInterval(60)
 		, _enableLastModified(true)
-		, _enableETag(false)
+		, _enableETag(true)
+		, _enableGzip(true)
+		, _enableDeflate(true)
+		, _deflateLevel(9)
 
 	{
 
@@ -666,6 +675,22 @@ namespace ccms
 		//отдать бакенду на пробу
 		connection->_state = ecsReadBody;
 
+		if(_enableDeflate || _enableGzip)
+		{
+			TEnvMap::iterator iter = connection->_env.find("accept-encoding");
+			if(connection->_env.end() != iter)
+			{
+				if(_enableGzip && std::string::npos != iter->second.find("gzip"))
+				{
+					connection->_outContentEncoding = eceGzip;
+				}
+				else if(_enableDeflate && std::string::npos != iter->second.find("deflate"))
+				{
+					connection->_outContentEncoding = eceDeflate;
+				}
+			}
+		}
+
 		if(!_staticDirectory.empty())
 		{
 			connection->_staticPath = _staticDirectory+connection->_requestPath;
@@ -676,6 +701,7 @@ namespace ccms
 			}
 			connection->_staticPath.clear();
 		}
+
 
 		pushProbe(connection);
 	}
@@ -867,6 +893,17 @@ namespace ccms
 		if(_enableETag)
 		{
 			connection->_outHeaders += "ETag: \"" + _ntoa(etag) + "\"\r\n";
+		}
+
+		////////////////////////////
+		//deflate не поточный!!
+		if(	connection->_outContentEncoding != eceNone && 
+			size && 
+			size<10*1024*1024)
+		{
+			connection->_outBody.resize(size);
+			connection->_staticFile->read((char *)connection->_outBody.data(), size);
+			connection->_staticFile.reset();
 		}
 
 
@@ -1096,20 +1133,42 @@ namespace ccms
 		}
 		connection->_outHeaders.insert(0, statusText);
 
+		bool encoded = false;
+		////////////////////////////
+		//deflate
+		if(connection->_outContentEncoding == eceDeflate && !connection->_outBody.empty())
+		{
+			if(deflateString(connection->_outBody, _deflateLevel))
+			{
+				connection->_outHeaders += "Content-Encoding: deflate\r\n";
+				encoded = true;
+			}
+		}
+		////////////////////////////
+		//gzip
+		if(!encoded && connection->_outContentEncoding == eceGzip && !connection->_outBody.empty())
+		{
+			if(gzipString(connection->_outBody, _deflateLevel))
+			{
+				connection->_outHeaders += "Content-Encoding: gzip\r\n";
+				encoded = true;
+			}
+		}
+
+
 		////////////////////////////
 		if(connection->_keepaliveTimeout)
 		{
 			connection->_outHeaders += "Connection: Keep-Alive\r\n";
-
-			size_t contentLength = connection->_staticFile?connection->_staticFileSize:connection->_outBody.size();
-			connection->_outHeaders += "Content-Length: " + _ntoa(contentLength)+ "\r\n";
-
-			//connection->_socket->set_option(boost::asio::socket_base::keep_alive(true));
 		}
 		else
 		{
-			connection->_outHeaders += "Connection: close\r\n";
+			connection->_outHeaders += "Connection: Close\r\n";
 		}
+
+		size_t contentLength = connection->_staticFile?connection->_staticFileSize:connection->_outBody.size();
+		connection->_outHeaders += "Content-Length: " + _ntoa(contentLength)+ "\r\n";
+
 
 		////////////////////////////
 		connection->_outHeaders += "\r\n";

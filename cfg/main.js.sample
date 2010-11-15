@@ -22,7 +22,11 @@ let res =
 
 
 		enableLastModified:	true,
-		enableETag:		false,
+		enableETag:		true,
+
+		enableGzip:		true,
+		enableDeflate:		true,
+		deflateLevel:		5,
 		
 	},
 

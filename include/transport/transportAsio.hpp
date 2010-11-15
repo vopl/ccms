@@ -39,6 +39,13 @@ namespace ccms
 		efdsComplete,
 	};
 
+	enum EContentEncoding
+	{
+		eceNone,
+		eceDeflate,
+		eceGzip,
+	};
+
 	struct Connection
 		: Connection4Backend
 	{
@@ -50,6 +57,7 @@ namespace ccms
 		EContentType		_inContentType;
 		std::string			_inBodyBoundary;
 
+		EContentEncoding	_outContentEncoding;
 
 		size_t				_bytesTransfered;
 		DDataBuf			_dataBuf;
@@ -107,8 +115,12 @@ namespace ccms
 
 		time_t		_cronInterval;
 
-		bool _enableETag;
-		bool _enableLastModified;
+		bool	_enableETag;
+		bool	_enableLastModified;
+		bool	_enableGzip;
+		bool	_enableDeflate;
+		int		_deflateLevel;
+
 
 
 	public:
@@ -134,6 +146,10 @@ namespace ccms
 
 		void set_enableETag(bool v){_enableETag = v;};
 		void set_enableLastModified(bool v){_enableLastModified = v;};
+
+		void set_enableGzip(bool v){_enableGzip = v;};
+		void set_enableDeflate(bool v){_enableDeflate = v;};
+		void set_deflateLevel(int v){_deflateLevel = v;};
 
 		virtual bool start();
 		virtual bool stop();

@@ -76,6 +76,10 @@ int main_(int argc, char* argv[])
 		t.set_enableETag(router->getConfigBool("server.enableETag"));
 
 
+		t.set_enableGzip(router->getConfigBool("server.enableGzip"));
+		t.set_enableDeflate(router->getConfigBool("server.enableDeflate"));
+		t.set_deflateLevel(router->getConfigLong("server.deflateLevel"));
+
 		std::string staticDiectory = router->getConfigString("server.staticDiectory");
 		if(staticDiectory != "undefined") t.set_staticDirectory(staticDiectory.data());
 

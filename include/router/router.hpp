@@ -76,6 +76,7 @@ namespace ccms
 		bool create(const char *fname);
 		jsval getConfigValue(const char *name, JSObject *obj=NULL);
 		std::string getConfigString(const char *name);
+		long getConfigLong(const char *name);
 		unsigned long getConfigUlong(const char *name);
 		bool getConfigBool(const char *name);
 		std::map<std::string, std::string> getConfigMapString(const char *name);
