@@ -4,8 +4,8 @@
 #include "utils/string.hpp"
 #include "tokenizer.hpp"
 #include "utils/ncvt.h"
-
-
+#include <sys/stat.h>
+#include "utils/httpDate.hpp"
 
 namespace ccms
 {
@@ -754,9 +754,41 @@ namespace ccms
 		}
 	}
 
+
+
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::processWriteStatic(ConnectionPtr connection)
 	{
+#ifdef WIN32
+		struct _stat st;
+		int err = _stat(connection->_staticPath.data(), &st);
+#else
+		struct ::stat st;
+		int err = ::stat(connection->_staticPath.data(), &st);
+#endif
+		if(err)
+		{
+			connection->_outStatus = 404;
+			connection->_outBody = "404 Not Found";
+
+			onCompleteProcess_own(connection, true);
+			return;
+		}
+
+
+		TEnvMap::iterator iter = connection->_env.find("if-modified-since");
+		if(connection->_env.end() != iter)
+		{
+			time_t mtimeBound = httpDate::parse(iter->second.data());
+			if(mtimeBound >= st.st_mtime)
+			{
+				connection->_outStatus = 304;
+				onCompleteProcess_own(connection, true);
+				return;
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		connection->_staticFile.reset(new std::ifstream(connection->_staticPath.data(), std::ios::binary));
 
 		if(!*connection->_staticFile)
@@ -764,7 +796,7 @@ namespace ccms
 			connection->_outStatus = 404;
 			connection->_outBody = "404 Not Found";
 
-			onCompleteProcess(connection, true);
+			onCompleteProcess_own(connection, true);
 			return;
 		}
 
@@ -788,7 +820,11 @@ namespace ccms
 		connection->_outHeaders += 
 			"Content-Type: " + mimeType+"\r\n";
 
-		onCompleteProcess(connection, true);
+		connection->_outHeaders += 
+			"Last-Modified: " + httpDate::make(st.st_mtime) + "\r\n";
+
+
+		onCompleteProcess_own(connection, true);
 	}
 
 
@@ -938,7 +974,7 @@ namespace ccms
 	{
 		if(res)
 		{
-			if(connection->_staticPath.empty() || connection->_staticFile)
+			if(connection->_staticPath.empty() || connection->_staticFile || connection->_outStatus)
 			{
 				if(!connection->_outStatus) connection->_outStatus = 500;
 				prepareHeaders(connection);

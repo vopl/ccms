@@ -213,6 +213,12 @@ namespace ccms
 		impl::_atoun(a, res);
 		return res;
 	}
+	inline time_t _atot(const char * a)
+	{
+		time_t res;
+		impl::_atoun(a, res);
+		return res;
+	}
 }
 
 #endif

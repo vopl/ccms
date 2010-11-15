@@ -326,6 +326,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\utils\httpDate.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\utils\mkgmtime.c"
 					>
 					<FileConfiguration
@@ -2189,6 +2193,10 @@
 				</File>
 				<File
 					RelativePath="..\..\include\utils\dcvt.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\utils\httpDate.hpp"
 					>
 				</File>
 				<File

@@ -138,7 +138,12 @@ struct tm * const	tmp;
 	/* Some gmtime() implementations are broken and will return
 	 * NULL for time_ts larger than 40 bits even on 64-bit platforms
 	 * so we'll just cap it at 40 bits */
+#ifdef WIN32
+	if(bits > 35) bits = 35;
+#else
 	if(bits > 40) bits = 40;
+#endif
+
 
 	for ( ; ; ) {
 		mytm = gmtime(&t);
