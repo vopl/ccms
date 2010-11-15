@@ -18,7 +18,11 @@ let res =
 
 		outbufGranula:		0x40000,
 		
-		staticDiectory: absDir('../www'),
+		staticDiectory: 	absDir('../www'),
+
+
+		enableLastModified:	true,
+		enableETag:		false,
 		
 	},
 

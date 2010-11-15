@@ -72,6 +72,10 @@ int main_(int argc, char* argv[])
 
 		t.set_outbufGranula(router->getConfigUlong("server.outbufGranula"));
 
+		t.set_enableLastModified(router->getConfigBool("server.enableLastModified"));
+		t.set_enableETag(router->getConfigBool("server.enableETag"));
+
+
 		std::string staticDiectory = router->getConfigString("server.staticDiectory");
 		if(staticDiectory != "undefined") t.set_staticDirectory(staticDiectory.data());
 

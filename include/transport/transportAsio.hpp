@@ -107,6 +107,10 @@ namespace ccms
 
 		time_t		_cronInterval;
 
+		bool _enableETag;
+		bool _enableLastModified;
+
+
 	public:
 		TransportAsio(
 			const char *host, 
@@ -127,6 +131,9 @@ namespace ccms
 
 		void set_outbufGranula(unsigned long v){_outbufGranula = v;};
 		void set_staticDirectory(const char *v){_staticDirectory = boost::filesystem::complete(v).normalize().string();};
+
+		void set_enableETag(bool v){_enableETag = v;};
+		void set_enableLastModified(bool v){_enableLastModified = v;};
 
 		virtual bool start();
 		virtual bool stop();

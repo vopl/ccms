@@ -1364,6 +1364,20 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	bool Router::getConfigBool(const char *name)
+	{
+		jsval jsv = getConfigValue(name);
+		JSBool v;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "b", &v))
+		{
+			(JSExceptionReporter)false;
+			return false;
+		}
+		return v?true:false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	std::map<std::string, std::string> Router::getConfigMapString(const char *name)
 	{
 		jsval jsv = getConfigValue(name);

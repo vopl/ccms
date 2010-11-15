@@ -53,6 +53,8 @@ namespace ccms
 		, _bodybufLimit(0x800000)
 		, _outbufGranula(0x40000)
 		, _cronInterval(60)
+		, _enableLastModified(true)
+		, _enableETag(false)
 
 	{
 
@@ -762,52 +764,68 @@ namespace ccms
 	{
 		/////////////////////
 		//время последнего изменения
+		time_t mtime = -1;
+		size_t size = 0;
+		unsigned etag;
+
+		if(_enableLastModified || _enableETag)
+		{
+
 #ifdef WIN32
-		struct _stat st;
-		int err = _stat(connection->_staticPath.data(), &st);
+			struct _stat st;
+			int err = _stat(connection->_staticPath.data(), &st);
 #else
-		struct ::stat st;
-		int err = ::stat(connection->_staticPath.data(), &st);
+			struct ::stat st;
+			int err = ::stat(connection->_staticPath.data(), &st);
 #endif
-		if(err)
-		{
-			connection->_outStatus = 404;
-			connection->_outBody = "404 Not Found";
-
-			onCompleteProcess_own(connection, true);
-			return;
-		}
-
-
-		TEnvMap::iterator iter = connection->_env.find("if-modified-since");
-		if(connection->_env.end() != iter)
-		{
-			time_t mtimeBound = httpDate::parse(iter->second.data());
-			if(mtimeBound >= st.st_mtime)
+			if(err)
 			{
-				connection->_outStatus = 304;
+				connection->_outStatus = 404;
+				connection->_outBody = "404 Not Found";
+
 				onCompleteProcess_own(connection, true);
 				return;
+			}
+
+			mtime = st.st_mtime;
+			size = st.st_size;
+		}
+
+		if(_enableLastModified)
+		{
+			TEnvMap::iterator iter = connection->_env.find("if-modified-since");
+			if(connection->_env.end() != iter)
+			{
+				time_t mtimeBound = httpDate::parse(iter->second.data());
+				if(mtimeBound >= mtime)
+				{
+					connection->_outStatus = 304;
+					onCompleteProcess_own(connection, true);
+					return;
+				}
 			}
 		}
 
 		///////////////////////////////
 		//контрольный хэш
-		unsigned etag = Crc32(connection->_staticPath.data(), connection->_staticPath.size());
-		etag += (unsigned)st.st_mtime;
-		etag = Crc32((char *)&etag, sizeof(etag));
-		etag += (unsigned)st.st_size;
-		etag = Crc32((char *)&etag, sizeof(etag));
-
-		iter = connection->_env.find("if-none-match");
-		if(connection->_env.end() != iter)
+		if(_enableETag)
 		{
-			unsigned alienTag = _atoui(trim_quotes(iter->second).data());
-			if(alienTag == etag)
+			etag = Crc32(connection->_staticPath.data(), connection->_staticPath.size());
+			etag += (unsigned)mtime;
+			etag = Crc32((char *)&etag, sizeof(etag));
+			etag += (unsigned)size;
+			etag = Crc32((char *)&etag, sizeof(etag));
+
+			TEnvMap::iterator iter = connection->_env.find("if-none-match");
+			if(connection->_env.end() != iter)
 			{
-				connection->_outStatus = 304;
-				onCompleteProcess_own(connection, true);
-				return;
+				unsigned alienTag = _atoui(trim_quotes(iter->second).data());
+				if(alienTag == etag)
+				{
+					connection->_outStatus = 304;
+					onCompleteProcess_own(connection, true);
+					return;
+				}
 			}
 		}
 
@@ -824,9 +842,7 @@ namespace ccms
 			return;
 		}
 
-		connection->_staticFile->seekg(0, std::ios::end);
-		connection->_staticFileSize = connection->_staticFile->tellg();
-		connection->_staticFile->seekg(0);
+		connection->_staticFileSize = size;
 
 
 		size_t dotPos = connection->_staticPath.find_last_of('.');
@@ -841,14 +857,17 @@ namespace ccms
 		}
 
 		connection->_outStatus = 200;
-		connection->_outHeaders += 
-			"Content-Type: " + mimeType+"\r\n";
+		connection->_outHeaders += "Content-Type: " + mimeType+"\r\n";
 
-		connection->_outHeaders += 
-			"Last-Modified: " + httpDate::make(st.st_mtime) + "\r\n";
+		if(_enableLastModified)
+		{
+			connection->_outHeaders += "Last-Modified: " + httpDate::make(mtime) + "\r\n";
+		}
 
-		connection->_outHeaders += 
-			"ETag: \"" + _ntoa(etag) + "\"\r\n";
+		if(_enableETag)
+		{
+			connection->_outHeaders += "ETag: \"" + _ntoa(etag) + "\"\r\n";
+		}
 
 
 		onCompleteProcess_own(connection, true);
