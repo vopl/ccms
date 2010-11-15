@@ -313,7 +313,6 @@ namespace ccms
 					if(connection->_staticFileSize > connection->_outCompressorStream->inProcessed() || connection->_outCompressorStream->inAvail())
 					{
 						//наполнить буфер
-						if(connection->_outCompressorStream->inAvail() < _outbufGranula*2)
 						{
 							bool finish = false;
 							size_t spaceRead = _outbufGranula*2 - connection->_outCompressorStream->inAvail();
@@ -327,27 +326,26 @@ namespace ccms
 
 							if(spaceRead)
 							{
-								std::cout<<"read "<<spaceRead<<std::endl;
 								char *newData = connection->_outCompressorStream->push(spaceRead, finish);
 								connection->_staticFile->read(newData, spaceRead);
 							}
 						}
 
 						//забрать пресованное
-						size_t inBuffer = connection->_netBuf.size();
-						size_t spaceSend = _outbufGranula;
-						assert(spaceSend >= inBuffer);
-						size_t spaceRead = spaceSend - inBuffer;
-
-						connection->_netBuf.resize(spaceSend);
-						if(spaceRead)
 						{
-							bool finishStub;
-							connection->_outCompressorStream->compress(&connection->_netBuf[inBuffer], spaceRead, finishStub);
-							std::cout<<"compress "<<spaceRead<<", finish "<<finishStub<<std::endl;
-							connection->_netBuf.resize(inBuffer + spaceRead);
-							//spaceSend = connection->_netBuf.size();
-							std::cout<<"send "<<spaceSend<<std::endl;
+							size_t inBuffer = connection->_netBuf.size();
+							size_t spaceSend = _outbufGranula;
+							assert(spaceSend >= inBuffer);
+							size_t spaceRead = spaceSend - inBuffer;
+
+							connection->_netBuf.resize(spaceSend);
+							if(spaceRead)
+							{
+								bool finishStub;
+								connection->_outCompressorStream->compress(&connection->_netBuf[inBuffer], spaceRead, finishStub);
+								connection->_netBuf.resize(inBuffer + spaceRead);
+								//spaceSend = connection->_netBuf.size();
+							}
 						}
 					}
 				}
@@ -373,7 +371,6 @@ namespace ccms
 
 				if(!connection->_netBuf.empty())
 				{
-					std::cout<<"------------------send "<<connection->_netBuf.size()<<std::endl;
 					boost::asio::async_write(*connection->_socket, 
 						boost::asio::buffer(
 						&connection->_netBuf[0], 
