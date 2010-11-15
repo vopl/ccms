@@ -791,6 +791,10 @@ namespace ccms
 			size = st.st_size;
 		}
 
+		time_t t1 = httpDate::parse("Sun, 06 Nov 1994 08:49:37 GMT");
+		time_t t2 = httpDate::parse("Sunday, 06-Nov-94 08:49:37 GMT");
+		time_t t3 = httpDate::parse("Sun Nov  6 08:49:37 1994");
+
 		if(_enableLastModified)
 		{
 			TEnvMap::iterator iter = connection->_env.find("if-modified-since");

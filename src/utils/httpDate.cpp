@@ -139,7 +139,7 @@ namespace ccms
 				stm.tm_hour = _atoi(what[3].str().data());
 				stm.tm_mday = _atoi(what[6].str().data());
 				stm.tm_mon = impl::mmonth[what[2]];
-				stm.tm_year = _atoi(what[7].str().data());
+				stm.tm_year = _atoi(what[7].str().data()) - 1900;
 				stm.tm_wday = impl::mwkday[what[1]];
 				stm.tm_yday;
 				stm.tm_isdst;
