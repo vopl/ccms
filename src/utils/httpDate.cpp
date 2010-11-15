@@ -89,11 +89,15 @@ namespace ccms
 		std::string make(time_t t)
 		{
 			tm stm;
+#ifdef WIN32
 			gmtime_s(&stm, &t);
+#else
+			gmtime_r(&t, &stm);
+#endif
 
 			char buf[128];
 
-			sprintf_s(buf, 
+			sprintf(buf, 
 				"%s, "
 				"%02d %s %04d "
 				"%02d:%02d:%02d GMT", 
