@@ -6,6 +6,7 @@
 #include "utils/ncvt.h"
 #include <sys/stat.h>
 #include "utils/httpDate.hpp"
+#include "utils/crc32.hpp"
 
 namespace ccms
 {
@@ -759,6 +760,8 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::processWriteStatic(ConnectionPtr connection)
 	{
+		/////////////////////
+		//время последнего изменения
 #ifdef WIN32
 		struct _stat st;
 		int err = _stat(connection->_staticPath.data(), &st);
@@ -787,6 +790,27 @@ namespace ccms
 				return;
 			}
 		}
+
+		///////////////////////////////
+		//контрольный хэш
+		unsigned etag = Crc32(connection->_staticPath.data(), connection->_staticPath.size());
+		etag += (unsigned)st.st_mtime;
+		etag = Crc32((char *)&etag, sizeof(etag));
+		etag += (unsigned)st.st_size;
+		etag = Crc32((char *)&etag, sizeof(etag));
+
+		iter = connection->_env.find("if-none-match");
+		if(connection->_env.end() != iter)
+		{
+			unsigned alienTag = _atoui(trim_quotes(iter->second).data());
+			if(alienTag == etag)
+			{
+				connection->_outStatus = 304;
+				onCompleteProcess_own(connection, true);
+				return;
+			}
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		connection->_staticFile.reset(new std::ifstream(connection->_staticPath.data(), std::ios::binary));
@@ -822,6 +846,9 @@ namespace ccms
 
 		connection->_outHeaders += 
 			"Last-Modified: " + httpDate::make(st.st_mtime) + "\r\n";
+
+		connection->_outHeaders += 
+			"ETag: \"" + _ntoa(etag) + "\"\r\n";
 
 
 		onCompleteProcess_own(connection, true);
