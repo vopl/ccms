@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include "utils/httpDate.hpp"
 #include "utils/crc32.hpp"
-#include "utils/deflate.hpp"
 
 
 
@@ -309,34 +308,82 @@ namespace ccms
 
 			if(connection->_staticFile)
 			{
-				if(connection->_bytesTransfered < connection->_staticFileSize)
+				if(connection->_outCompressorStream)
 				{
-					size_t inBuffer = connection->_netBuf.size();
-					size_t spaceSend = std::min((size_t)_outbufGranula, connection->_staticFileSize - connection->_bytesTransfered);
-					assert(spaceSend >= inBuffer);
-					size_t spaceRead = spaceSend - inBuffer;
-
-					connection->_netBuf.resize(spaceSend);
-					if(spaceRead)
+					if(connection->_staticFileSize > connection->_outCompressorStream->inProcessed() || connection->_outCompressorStream->inAvail())
 					{
-						connection->_staticFile->read(&connection->_netBuf[inBuffer], spaceRead);
-						spaceRead = connection->_staticFile->gcount();
-						spaceSend = connection->_netBuf.size();
-					}
-					if(spaceSend)
-					{
-						boost::asio::async_write(*connection->_socket, 
-							boost::asio::buffer(
-							&connection->_netBuf[0], 
-							connection->_netBuf.size()), 
-							boost::bind(&TransportAsio::handleWrite, this,
-							connection,
-							boost::asio::placeholders::error,
-							boost::asio::placeholders::bytes_transferred)
-							);
-						return;
-					}
+						//наполнить буфер
+						if(connection->_outCompressorStream->inAvail() < _outbufGranula*2)
+						{
+							bool finish = false;
+							size_t spaceRead = _outbufGranula*2 - connection->_outCompressorStream->inAvail();
+							size_t totalRead = spaceRead+connection->_outCompressorStream->inProcessed() + connection->_outCompressorStream->inAvail();
+							if(totalRead >= connection->_staticFileSize)
+							{
+								finish = true;
+								totalRead = connection->_staticFileSize;
+								spaceRead = totalRead - connection->_outCompressorStream->inProcessed() - connection->_outCompressorStream->inAvail();
+							}
 
+							if(spaceRead)
+							{
+								std::cout<<"read "<<spaceRead<<std::endl;
+								char *newData = connection->_outCompressorStream->push(spaceRead, finish);
+								connection->_staticFile->read(newData, spaceRead);
+							}
+						}
+
+						//забрать пресованное
+						size_t inBuffer = connection->_netBuf.size();
+						size_t spaceSend = _outbufGranula;
+						assert(spaceSend >= inBuffer);
+						size_t spaceRead = spaceSend - inBuffer;
+
+						connection->_netBuf.resize(spaceSend);
+						if(spaceRead)
+						{
+							bool finishStub;
+							connection->_outCompressorStream->compress(&connection->_netBuf[inBuffer], spaceRead, finishStub);
+							std::cout<<"compress "<<spaceRead<<", finish "<<finishStub<<std::endl;
+							connection->_netBuf.resize(inBuffer + spaceRead);
+							//spaceSend = connection->_netBuf.size();
+							std::cout<<"send "<<spaceSend<<std::endl;
+						}
+					}
+				}
+				else
+				{
+					if(connection->_bytesTransfered < connection->_staticFileSize)
+					{
+						size_t inBuffer = connection->_netBuf.size();
+						size_t spaceSend = std::min((size_t)_outbufGranula, connection->_staticFileSize - connection->_bytesTransfered);
+						assert(spaceSend >= inBuffer);
+						size_t spaceRead = spaceSend - inBuffer;
+
+						connection->_netBuf.resize(spaceSend);
+						if(spaceRead)
+						{
+							connection->_staticFile->read(&connection->_netBuf[inBuffer], spaceRead);
+							//spaceRead = connection->_staticFile->gcount();
+							//spaceSend = connection->_netBuf.size();
+						}
+					}
+				}
+
+
+				if(!connection->_netBuf.empty())
+				{
+					std::cout<<"------------------send "<<connection->_netBuf.size()<<std::endl;
+					boost::asio::async_write(*connection->_socket, 
+						boost::asio::buffer(
+						&connection->_netBuf[0], 
+						connection->_netBuf.size()), 
+						boost::bind(&TransportAsio::handleWrite, this,
+						connection,
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred)
+						);
+					return;
 				}
 
 				connection->_netBuf.clear();
@@ -896,14 +943,34 @@ namespace ccms
 		}
 
 		////////////////////////////
-		//deflate не поточный!!
-		if(	connection->_outContentEncoding != eceNone && 
-			size && 
-			size<10*1024*1024)
+		//deflate, gzip
+		if(	connection->_outContentEncoding != eceNone && size)
 		{
-			connection->_outBody.resize(size);
-			connection->_staticFile->read((char *)connection->_outBody.data(), size);
-			connection->_staticFile.reset();
+			if(size > 1024*1024)
+			{
+				//для больших - поточное сжатие, без keepAlive
+				connection->_keepaliveTimeout = 0;
+
+				if(eceGzip == connection->_outContentEncoding)
+				{
+					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(_deflateLevel));
+				}
+				else if(eceDeflate == connection->_outContentEncoding)
+				{
+					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(_deflateLevel));
+				}
+				else
+				{
+					assert(!"unknown compressor");
+				}
+			}
+			else
+			{
+				//для маленьких - через буфер тела
+				connection->_outBody.resize(size);
+				connection->_staticFile->read((char *)connection->_outBody.data(), size);
+				connection->_staticFile.reset();
+			}
 		}
 
 
@@ -1133,26 +1200,46 @@ namespace ccms
 		}
 		connection->_outHeaders.insert(0, statusText);
 
-		bool encoded = false;
-		////////////////////////////
-		//deflate
-		if(connection->_outContentEncoding == eceDeflate && !connection->_outBody.empty())
+		if(!connection->_outBody.empty())
 		{
-			if(deflateString(connection->_outBody, _deflateLevel))
+			bool encoded = false;
+			////////////////////////////
+			//deflate
+			if(connection->_outContentEncoding == eceDeflate && !connection->_outBody.empty())
 			{
-				connection->_outHeaders += "Content-Encoding: deflate\r\n";
-				encoded = true;
+				if(stringDeflate(connection->_outBody, _deflateLevel))
+				{
+					connection->_outHeaders += "Content-Encoding: deflate\r\n";
+					encoded = true;
+				}
 			}
+			////////////////////////////
+			//gzip
+			if(!encoded && connection->_outContentEncoding == eceGzip && !connection->_outBody.empty())
+			{
+				if(stringGzip(connection->_outBody, _deflateLevel))
+				{
+					connection->_outHeaders += "Content-Encoding: gzip\r\n";
+					encoded = true;
+				}
+			}
+			connection->_outHeaders += "Content-Length: " + _ntoa(connection->_outBody.size())+ "\r\n";
 		}
-		////////////////////////////
-		//gzip
-		if(!encoded && connection->_outContentEncoding == eceGzip && !connection->_outBody.empty())
+		else if(connection->_outCompressorStream)
 		{
-			if(gzipString(connection->_outBody, _deflateLevel))
-			{
-				connection->_outHeaders += "Content-Encoding: gzip\r\n";
-				encoded = true;
-			}
+			if(connection->_outContentEncoding == eceDeflate)
+					connection->_outHeaders += "Content-Encoding: deflate\r\n";
+			else if(connection->_outContentEncoding == eceGzip)
+					connection->_outHeaders += "Content-Encoding: gzip\r\n";
+			else
+				assert(!"unknown compressor!!!");
+
+			//нельзя keepAlive потомучто длина тела неизвесна
+			connection->_keepaliveTimeout = 0;
+		}
+		else if(connection->_staticFile)
+		{
+			connection->_outHeaders += "Content-Length: " + _ntoa(connection->_staticFileSize)+ "\r\n";
 		}
 
 
@@ -1165,10 +1252,6 @@ namespace ccms
 		{
 			connection->_outHeaders += "Connection: Close\r\n";
 		}
-
-		size_t contentLength = connection->_staticFile?connection->_staticFileSize:connection->_outBody.size();
-		connection->_outHeaders += "Content-Length: " + _ntoa(contentLength)+ "\r\n";
-
 
 		////////////////////////////
 		connection->_outHeaders += "\r\n";

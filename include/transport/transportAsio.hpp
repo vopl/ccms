@@ -3,6 +3,8 @@
 
 #include "transport/transportBase.hpp"
 
+#include "utils/deflate.hpp"
+
 namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
@@ -58,6 +60,7 @@ namespace ccms
 		std::string			_inBodyBoundary;
 
 		EContentEncoding	_outContentEncoding;
+		CompressorStreamPtr	_outCompressorStream;
 
 		size_t				_bytesTransfered;
 		DDataBuf			_dataBuf;
