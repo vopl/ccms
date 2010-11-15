@@ -149,12 +149,14 @@ SOURCE_GROUP(src\\i18n FILES ${SRC_I18N})
 SET(INCLUDE_UI
 	../../include/ui/hookPoint.hpp
 	../../include/ui/ui.hpp
+	../../include/ui/blockEntry.hpp
 )
 SOURCE_GROUP(include\\ui FILES ${INCLUDE_UI})
 
 SET(SRC_UI
 	../../src/ui/hookPoint.cpp
 	../../src/ui/ui.cpp
+	../../src/ui/blockEntry.cpp
 )
 SOURCE_GROUP(src\\ui FILES ${SRC_UI})
 
