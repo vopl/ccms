@@ -47,7 +47,6 @@ namespace ccms
 		EConnectionState	_state;
 		SocketPtr			_socket;
 
-		size_t				_inContentLength;
 		EContentType		_inContentType;
 		std::string			_inBodyBoundary;
 

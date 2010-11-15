@@ -46,6 +46,8 @@ namespace ccms
 	{
 		void			*_backendData;
 
+		size_t			_inContentLength;
+
 		time_t			_keepaliveTimeout;
 
 		std::string		_protocolVersion;
@@ -66,6 +68,7 @@ namespace ccms
 
 		Connection4Backend(std::ostream &err)
 			: _backendData(NULL)
+			, _inContentLength(0)
 			, _keepaliveTimeout(0)
 			, _outStatus(0)
 			, _err(err)

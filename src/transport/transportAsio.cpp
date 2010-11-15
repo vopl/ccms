@@ -17,7 +17,6 @@ namespace ccms
 		: _transport(transport)
 		, _state(ecsReadHeader)
 		, _socket(socket)
-		, _inContentLength(0)
 		, _inContentType(ectNull)
 		, _bytesTransfered(0)
 		, _staticFileSize(0)
@@ -674,6 +673,7 @@ namespace ccms
 			}
 			connection->_staticPath.clear();
 		}
+
 		pushProbe(connection);
 	}
 

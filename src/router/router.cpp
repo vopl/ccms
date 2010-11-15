@@ -1540,7 +1540,15 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 
 			connection->_backendData = connectionData;
-			return true;
+
+			if(connection->_inContentLength)
+			{//надо вычитать тело
+				return true;
+			}
+
+			//тело вычитывать не нужно, обработать сразу
+			process(connection);
+			return false;
 		}
 
 		return false;
@@ -1561,10 +1569,13 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			return false;
 		}
 
+
 		Request *r = cd->_request.get();
 		if(!r->initForBody())
 		{
 			(JSExceptionReporter)false;
+			cleanup(connection->_backendData);
+			connection->_backendData = NULL;
 			return false;
 		}
 		_scripter.jsDefineInGlobal("request", r);
@@ -1585,13 +1596,14 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		}
 		else
 		{
-			_scripter.jsDefineInGlobal("request");
 			(JSExceptionReporter)false;
-			return false;
+			res = false;
 		}
 
 		_scripter.jsDefineInGlobal("request");
 
+		cleanup(connection->_backendData);
+		connection->_backendData = NULL;
 		return res;
 	}
 
