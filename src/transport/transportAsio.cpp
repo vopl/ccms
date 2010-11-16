@@ -335,14 +335,72 @@ namespace ccms
 							size_t inBuffer = connection->_netBuf.size();
 							size_t spaceSend = _outbufGranula;
 
-							if(inBuffer < spaceSend)
+							//если в исходящем буфере меньше половины гранулы то добавить чанк
+							if(inBuffer < _outbufGranula/2)
 							{
-								connection->_netBuf.resize(spaceSend);
+								if(connection->_chunkSize.empty())
+								{
+									connection->_chunkSize = _htoa(_outbufGranula);
+								}
+
+								connection->_netBuf.resize(spaceSend + connection->_chunkSize.size() + 2 + 2 + 5);
 								size_t spaceRead = spaceSend - inBuffer;
-								bool finishStub;
-								connection->_outCompressorStream->compress(&connection->_netBuf[inBuffer], spaceRead, finishStub);
-								connection->_netBuf.resize(inBuffer + spaceRead);
-								//spaceSend = connection->_netBuf.size();
+								bool finish;
+								connection->_outCompressorStream->compress(&connection->_netBuf[inBuffer+connection->_chunkSize.size()+2], spaceRead, finish);
+
+								std::string newChunkSize = _htoa(spaceRead);
+
+								if(newChunkSize.size() > connection->_chunkSize.size())
+								{
+									//двинуть вперед
+									connection->_netBuf.insert(
+										connection->_netBuf.begin()+inBuffer,
+										newChunkSize.begin(), 
+										newChunkSize.begin()+ (newChunkSize.size() - connection->_chunkSize.size())
+										);
+								}
+								else if(newChunkSize.size() < connection->_chunkSize.size())
+								{
+									//двинуть назад
+									connection->_netBuf.erase(
+										connection->_netBuf.begin()+inBuffer,
+										connection->_netBuf.begin()+inBuffer + (connection->_chunkSize.size() - newChunkSize.size()));
+								}
+								else
+								{
+									//никуда не двигать
+								}
+
+								//положить размер чанка
+								std::copy(
+									newChunkSize.begin(),
+									newChunkSize.end(),
+									connection->_netBuf.begin()+inBuffer);
+
+								//положить перевод строки между заголовком и данными
+								const char CRLF[] = "\r\n";
+								std::copy(
+									CRLF,
+									CRLF+2,
+									connection->_netBuf.begin()+inBuffer+newChunkSize.size());
+
+								//положить перевод строки после данных
+								std::copy(
+									CRLF,
+									CRLF+2,
+									connection->_netBuf.begin()+inBuffer+newChunkSize.size()+2+spaceRead);
+
+								connection->_netBuf.resize(inBuffer + newChunkSize.size()+2+spaceRead+2);
+								
+								if(finish)
+								{
+									const char TERMINATOR[] = "0\r\n\r\n";
+									connection->_netBuf.insert(connection->_netBuf.end(),
+										TERMINATOR,
+										TERMINATOR+5);
+								}
+
+								connection->_chunkSize = _htoa(_outbufGranula);
 							}
 						}
 					}
@@ -955,9 +1013,7 @@ namespace ccms
 		{
 			if(size > 1024*1024)
 			{
-				//для больших - поточное сжатие, без keepAlive
-				connection->_keepaliveTimeout = 0;
-
+				//для больших - поточное сжатие, chunked
 				if(eceGzip == connection->_outContentEncoding)
 				{
 					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(connection->_outCompression));
@@ -1160,51 +1216,54 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::prepareHeaders(ConnectionPtr connection)
 	{
+		std::string first = "HTTP/" + connection->_protocolVersion + " ";
+		connection->_outHeaders.insert(0, first);
+
 		const char *statusText;
 		switch(connection->_outStatus)
 		{
-		case 100: statusText = "HTTP/1.1 100 Continue\r\n"; break;
-		case 101: statusText = "HTTP/1.1 101 Switching Protocols\r\n"; break;
-		case 200: statusText = "HTTP/1.1 200 OK\r\n"; break;
-		case 201: statusText = "HTTP/1.1 201 Created\r\n"; break;
-		case 202: statusText = "HTTP/1.1 202 Accepted\r\n"; break;
-		case 203: statusText = "HTTP/1.1 203 Non-Authoritative Information\r\n"; break;
-		case 204: statusText = "HTTP/1.1 204 No Content\r\n"; break;
-		case 206: statusText = "HTTP/1.1 206 Partial Content\r\n"; break;
-		case 300: statusText = "HTTP/1.1 300 Multiple Choices\r\n"; break;
-		case 301: statusText = "HTTP/1.1 301 Moved Permanently\r\n"; break;
-		case 302: statusText = "HTTP/1.1 302 Found\r\n"; break;
-		case 303: statusText = "HTTP/1.1 303 See Other\r\n"; break;
-		case 304: statusText = "HTTP/1.1 304 Not Modified\r\n"; break;
-		case 305: statusText = "HTTP/1.1 305 Use Proxy\r\n"; break;
-		case 307: statusText = "HTTP/1.1 307 Temporary Redirect\r\n"; break;
-		case 400: statusText = "HTTP/1.1 400 Bad Request\r\n"; break;
-		case 401: statusText = "HTTP/1.1 401 Unauthorized\r\n"; break;
-		case 402: statusText = "HTTP/1.1 402 Payment Required\r\n"; break;
-		case 403: statusText = "HTTP/1.1 403 Forbidden\r\n"; break;
-		case 404: statusText = "HTTP/1.1 404 Not Found\r\n"; break;
-		case 405: statusText = "HTTP/1.1 405 Method Not Allowed\r\n"; break;
-		case 406: statusText = "HTTP/1.1 406 Not Acceptable\r\n"; break;
-		case 407: statusText = "HTTP/1.1 407 Proxy Authentication Required\r\n"; break;
-		case 408: statusText = "HTTP/1.1 408 Request Timeout\r\n"; break;
-		case 409: statusText = "HTTP/1.1 409 Conflict\r\n"; break;
-		case 410: statusText = "HTTP/1.1 410 Gone\r\n"; break;
-		case 411: statusText = "HTTP/1.1 411 Length Required\r\n"; break;
-		case 412: statusText = "HTTP/1.1 412 Precondition Failed\r\n"; break;
-		case 413: statusText = "HTTP/1.1 413 Request Entity Too Large\r\n"; break;
-		case 414: statusText = "HTTP/1.1 414 Request-URI Too Long\r\n"; break;
-		case 415: statusText = "HTTP/1.1 415 Unsupported Media Type\r\n"; break;
-		case 416: statusText = "HTTP/1.1 416 Requested Range Not Satisfiable\r\n"; break;
-		case 417: statusText = "HTTP/1.1 417 Expectation Failed\r\n"; break;
+		case 100: statusText = "100 Continue\r\n"; break;
+		case 101: statusText = "101 Switching Protocols\r\n"; break;
+		case 200: statusText = "200 OK\r\n"; break;
+		case 201: statusText = "201 Created\r\n"; break;
+		case 202: statusText = "202 Accepted\r\n"; break;
+		case 203: statusText = "203 Non-Authoritative Information\r\n"; break;
+		case 204: statusText = "204 No Content\r\n"; break;
+		case 206: statusText = "206 Partial Content\r\n"; break;
+		case 300: statusText = "300 Multiple Choices\r\n"; break;
+		case 301: statusText = "301 Moved Permanently\r\n"; break;
+		case 302: statusText = "302 Found\r\n"; break;
+		case 303: statusText = "303 See Other\r\n"; break;
+		case 304: statusText = "304 Not Modified\r\n"; break;
+		case 305: statusText = "305 Use Proxy\r\n"; break;
+		case 307: statusText = "307 Temporary Redirect\r\n"; break;
+		case 400: statusText = "400 Bad Request\r\n"; break;
+		case 401: statusText = "401 Unauthorized\r\n"; break;
+		case 402: statusText = "402 Payment Required\r\n"; break;
+		case 403: statusText = "403 Forbidden\r\n"; break;
+		case 404: statusText = "404 Not Found\r\n"; break;
+		case 405: statusText = "405 Method Not Allowed\r\n"; break;
+		case 406: statusText = "406 Not Acceptable\r\n"; break;
+		case 407: statusText = "407 Proxy Authentication Required\r\n"; break;
+		case 408: statusText = "408 Request Timeout\r\n"; break;
+		case 409: statusText = "409 Conflict\r\n"; break;
+		case 410: statusText = "410 Gone\r\n"; break;
+		case 411: statusText = "411 Length Required\r\n"; break;
+		case 412: statusText = "412 Precondition Failed\r\n"; break;
+		case 413: statusText = "413 Request Entity Too Large\r\n"; break;
+		case 414: statusText = "414 Request-URI Too Long\r\n"; break;
+		case 415: statusText = "415 Unsupported Media Type\r\n"; break;
+		case 416: statusText = "416 Requested Range Not Satisfiable\r\n"; break;
+		case 417: statusText = "417 Expectation Failed\r\n"; break;
 		default:
-		case 500: statusText = "HTTP/1.1 500 Internal Server Error\r\n"; break;
-		case 501: statusText = "HTTP/1.1 501 Not Implemented\r\n"; break;
-		case 502: statusText = "HTTP/1.1 502 Bad Gateway\r\n"; break;
-		case 503: statusText = "HTTP/1.1 503 Service Unavailable\r\n"; break;
-		case 504: statusText = "HTTP/1.1 504 Gateway Timeout\r\n"; break;
-		case 505: statusText = "HTTP/1.1 505 HTTP Version Not Supported\r\n"; break;
+		case 500: statusText = "500 Internal Server Error\r\n"; break;
+		case 501: statusText = "501 Not Implemented\r\n"; break;
+		case 502: statusText = "502 Bad Gateway\r\n"; break;
+		case 503: statusText = "503 Service Unavailable\r\n"; break;
+		case 504: statusText = "504 Gateway Timeout\r\n"; break;
+		case 505: statusText = "505 HTTP Version Not Supported\r\n"; break;
 		}
-		connection->_outHeaders.insert(0, statusText);
+		connection->_outHeaders.insert(first.size(), statusText);
 
 
 
@@ -1247,9 +1306,7 @@ namespace ccms
 					connection->_outHeaders += "Content-Encoding: gzip\r\n";
 			else
 				assert(!"unknown compressor!!!");
-
-			//нельзя keepAlive потомучто длина тела неизвесна
-			connection->_keepaliveTimeout = 0;
+			connection->_outHeaders += "Transfer-Encoding: chunked\r\n";
 		}
 		else if(connection->_staticFile)
 		{

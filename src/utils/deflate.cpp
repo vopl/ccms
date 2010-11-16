@@ -126,8 +126,6 @@ namespace ccms
 
 		bool compress(const char *out, size_t &outSize, bool &finish)
 		{
-			finish = _finish;
-
 			if(_buf.empty())
 			{
 				_strm.next_in = NULL;
@@ -145,7 +143,7 @@ namespace ccms
 			_strm.next_out = (Bytef *)out;
 			_strm.avail_out = outSize;
 
-			int dres = deflate(&_strm, finish?Z_FINISH:Z_NO_FLUSH);
+			int dres = deflate(&_strm, _finish?Z_FINISH:Z_SYNC_FLUSH);
 			assert(Z_STREAM_ERROR != dres);
 
 			inAmount = _strm.total_in - inAmount;
@@ -156,6 +154,15 @@ namespace ccms
 
 			outAmount = _strm.total_out - outAmount;
 			outSize = outAmount;
+
+			if(_finish && !_strm.avail_in)
+			{
+				finish = true;
+			}
+			else
+			{
+				finish = false;
+			}
 
 			return Z_STREAM_ERROR != dres;
 		}

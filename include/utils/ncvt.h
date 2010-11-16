@@ -219,6 +219,42 @@ namespace ccms
 		impl::_atoun(a, res);
 		return res;
 	}
+
+
+
+
+	inline std::string _htoa(size_t h)
+	{
+		std::string res;
+		if(!h)
+		{
+			res = "0";
+		}
+		else
+		{
+			size_t h1 = h;
+			size_t digits = 0;
+			while(h1)
+			{
+				digits++;
+				h1 >>= 4;
+			}
+			res.resize(digits);
+
+			h1 = h;
+			while(h1)
+			{
+				unsigned char v = h1&0xf;
+				if(v < 10) v = v+'0';
+				else v = v-10+'A';
+
+				res[--digits] = v;
+				h1 >>= 4;
+			}
+		}
+
+		return res;
+	}
 }
 
 #endif

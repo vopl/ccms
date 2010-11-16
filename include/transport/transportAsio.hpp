@@ -62,6 +62,7 @@ namespace ccms
 		EContentEncoding	_outContentEncoding;
 		CompressorStreamPtr	_outCompressorStream;
 		int					_outCompression;
+		std::string			_chunkSize;
 
 		size_t				_bytesTransfered;
 		DDataBuf			_dataBuf;
