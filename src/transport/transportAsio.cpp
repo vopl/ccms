@@ -1013,18 +1013,26 @@ namespace ccms
 		{
 			if(size > 1024*1024)
 			{
-				//дл€ больших - поточное сжатие, chunked
-				if(eceGzip == connection->_outContentEncoding)
+				if(connection->_protocolVersion == "1.0")
 				{
-					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(connection->_outCompression));
-				}
-				else if(eceDeflate == connection->_outContentEncoding)
-				{
-					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(connection->_outCompression));
+					//в поточном варианте будет chunked, а он запрещен в HTTP/1.0
+					connection->_outContentEncoding = eceNone;
 				}
 				else
 				{
-					assert(!"unknown compressor");
+					//дл€ больших - поточное сжатие, chunked
+					if(eceGzip == connection->_outContentEncoding)
+					{
+						connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(connection->_outCompression));
+					}
+					else if(eceDeflate == connection->_outContentEncoding)
+					{
+						connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(connection->_outCompression));
+					}
+					else
+					{
+						assert(!"unknown compressor");
+					}
 				}
 			}
 			else
@@ -1217,7 +1225,6 @@ namespace ccms
 	void TransportAsio::prepareHeaders(ConnectionPtr connection)
 	{
 		std::string first = "HTTP/" + connection->_protocolVersion + " ";
-		connection->_outHeaders.insert(0, first);
 
 		const char *statusText;
 		switch(connection->_outStatus)
@@ -1263,9 +1270,9 @@ namespace ccms
 		case 504: statusText = "504 Gateway Timeout\r\n"; break;
 		case 505: statusText = "505 HTTP Version Not Supported\r\n"; break;
 		}
-		connection->_outHeaders.insert(first.size(), statusText);
 
-
+		first += statusText;
+		connection->_outHeaders.insert(0, first);
 
 		if(!connection->_outBody.empty())
 		{
