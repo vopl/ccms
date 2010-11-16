@@ -10,15 +10,23 @@ namespace ccms
 		if(data.empty()) return false;
 
 		z_stream strm = {};
+		gz_header hdr = {};
 
 		if(isGzip)
 		{
 			deflateInit2(&strm, level, Z_DEFLATED, 15+16, 8, Z_DEFAULT_STRATEGY);
+
+ 			hdr.os = 255;
+			hdr.hcrc = true;
+			deflateSetHeader(&strm, &hdr);
+
 		}
 		else
 		{
 			deflateInit(&strm, level);
 		}
+
+
 
 		strm.next_in = (Bytef *)data.data();
 		strm.avail_in = data.size();
@@ -64,14 +72,21 @@ namespace ccms
 		std::vector<char> _buf;
 		bool _finish;
 		z_stream _strm;
+		gz_header _hdr;
 	public:
 		CompressorZlib(int level, bool isGzip)
 			: _strm()
+			, _hdr()
 			, _finish(false)
 		{
 			if(isGzip)
 			{
 				deflateInit2(&_strm, level, Z_DEFLATED, 15+16, 8, Z_DEFAULT_STRATEGY);
+
+				_hdr.os = 255;
+				_hdr.hcrc = true;
+				deflateSetHeader(&_strm, &_hdr);
+
 			}
 			else
 			{

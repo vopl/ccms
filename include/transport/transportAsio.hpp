@@ -103,7 +103,8 @@ namespace ccms
 
 		typedef boost::shared_ptr<boost::asio::deadline_timer> TimerPtr;
 
-		std::map<std::string, std::string> _mimeTypes;
+		std::map<std::string, std::string> _extMimeTypes;
+		std::map<std::string, int> _extCompress;
 
 		unsigned long _keepaliveMax;
 
@@ -122,7 +123,6 @@ namespace ccms
 		bool	_enableLastModified;
 		bool	_enableGzip;
 		bool	_enableDeflate;
-		int		_deflateLevel;
 
 
 
@@ -134,7 +134,8 @@ namespace ccms
 			ITransportBackend *be);
 		~TransportAsio();
 
-		void set_mimeTypes(const std::map<std::string, std::string> &v){_mimeTypes = v;};
+		void set_mimeTypes(const std::map<std::string, std::string> &v){_extMimeTypes = v;};
+		void set_compress(const std::map<std::string, int> &v){_extCompress = v;};
 		void set_cronInterval(time_t v){_cronInterval = v;};
 
 		void set_keepaliveMax(unsigned long v){_keepaliveMax = v;};
@@ -152,7 +153,6 @@ namespace ccms
 
 		void set_enableGzip(bool v){_enableGzip = v;};
 		void set_enableDeflate(bool v){_enableDeflate = v;};
-		void set_deflateLevel(int v){_deflateLevel = v;};
 
 		virtual bool start();
 		virtual bool stop();
@@ -193,6 +193,7 @@ namespace ccms
 	private:
 		void prepareHeaders(ConnectionPtr connection);
 		std::string mimeTypeForExt(const std::string &ext);
+		int compressForExt(const std::string &ext);
 
 	private:
 

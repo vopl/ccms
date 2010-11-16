@@ -5,7 +5,9 @@ let res =
 		host:			'localhost',
 		port:			8080,
 		queueSize:		500,
+
 		mimeTypes:		exec('mimeTypes.js'),
+		compress:		exec('compress.js'),
 
 		cronInterval:		1,
 
@@ -26,7 +28,6 @@ let res =
 
 		enableGzip:		true,
 		enableDeflate:		true,
-		deflateLevel:		5,
 		
 	},
 

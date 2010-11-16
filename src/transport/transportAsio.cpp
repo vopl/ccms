@@ -62,8 +62,6 @@ namespace ccms
 		, _enableETag(true)
 		, _enableGzip(true)
 		, _enableDeflate(true)
-		, _deflateLevel(9)
-
 	{
 
 	}
@@ -917,13 +915,21 @@ namespace ccms
 
 		size_t dotPos = connection->_staticPath.find_last_of('.');
 		std::string mimeType;
+		int compress = -1;
 		if(dotPos == std::string::npos)
 		{
 			mimeType = "application/octet-stream";
 		}
 		else
 		{
-			mimeType = mimeTypeForExt(std::string(connection->_staticPath.begin()+dotPos+1, connection->_staticPath.end()));
+			std::string ext = std::string(connection->_staticPath.begin()+dotPos+1, connection->_staticPath.end());
+			mimeType = mimeTypeForExt(ext);
+			compress = compressForExt(ext);
+		}
+
+		if(-1 > compress || 9 < compress || 0 == compress)
+		{
+			connection->_outContentEncoding = eceNone;
 		}
 
 		connection->_outStatus = 200;
@@ -950,11 +956,11 @@ namespace ccms
 
 				if(eceGzip == connection->_outContentEncoding)
 				{
-					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(_deflateLevel));
+					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(compress));
 				}
 				else if(eceDeflate == connection->_outContentEncoding)
 				{
-					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(_deflateLevel));
+					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(compress));
 				}
 				else
 				{
@@ -968,6 +974,32 @@ namespace ccms
 				connection->_staticFile->read((char *)connection->_outBody.data(), size);
 				connection->_staticFile.reset();
 			}
+		}
+
+		if(	connection->_outContentEncoding != eceNone && connection->_outBody.size())
+		{
+			bool encoded = false;
+			////////////////////////////
+			//deflate
+			if(connection->_outContentEncoding == eceDeflate && !connection->_outBody.empty())
+			{
+				if(stringDeflate(connection->_outBody, compress))
+				{
+					connection->_outHeaders += "Content-Encoding: deflate\r\n";
+					encoded = true;
+				}
+			}
+			////////////////////////////
+			//gzip
+			if(!encoded && connection->_outContentEncoding == eceGzip && !connection->_outBody.empty())
+			{
+				if(stringGzip(connection->_outBody, compress))
+				{
+					connection->_outHeaders += "Content-Encoding: gzip\r\n";
+					encoded = true;
+				}
+			}
+
 		}
 
 
@@ -1199,27 +1231,6 @@ namespace ccms
 
 		if(!connection->_outBody.empty())
 		{
-			bool encoded = false;
-			////////////////////////////
-			//deflate
-			if(connection->_outContentEncoding == eceDeflate && !connection->_outBody.empty())
-			{
-				if(stringDeflate(connection->_outBody, _deflateLevel))
-				{
-					connection->_outHeaders += "Content-Encoding: deflate\r\n";
-					encoded = true;
-				}
-			}
-			////////////////////////////
-			//gzip
-			if(!encoded && connection->_outContentEncoding == eceGzip && !connection->_outBody.empty())
-			{
-				if(stringGzip(connection->_outBody, _deflateLevel))
-				{
-					connection->_outHeaders += "Content-Encoding: gzip\r\n";
-					encoded = true;
-				}
-			}
 			connection->_outHeaders += "Content-Length: " + _ntoa(connection->_outBody.size())+ "\r\n";
 		}
 		else if(connection->_outCompressorStream)
@@ -1257,10 +1268,22 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	std::string TransportAsio::mimeTypeForExt(const std::string &ext)
 	{
-		std::map<std::string, std::string>::iterator iter = _mimeTypes.find(ext);
-		if(_mimeTypes.end() == iter)
+		std::map<std::string, std::string>::iterator iter = _extMimeTypes.find(ext);
+		if(_extMimeTypes.end() == iter)
 		{
 			return "application/octet-stream";
+		}
+
+		return iter->second;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	int TransportAsio::compressForExt(const std::string &ext)
+	{
+		std::map<std::string, int>::iterator iter = _extCompress.find(ext);
+		if(_extCompress.end() == iter)
+		{
+			return -1;
 		}
 
 		return iter->second;

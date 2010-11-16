@@ -1428,6 +1428,43 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	std::map<std::string, int> Router::getConfigMapStringInt(const char *name)
+	{
+		jsval jsv = getConfigValue(name);
+		std::map<std::string, int> v;
+		JSObject *o;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "o", &o))
+		{
+			(JSExceptionReporter)false;
+			return v;
+		}
+		if(!o)
+		{
+			std::cerr<<"Router::getConfigMapString: bad config value"<<std::endl;
+			return v;
+		}
+
+		JSIdArray *ids = JS_Enumerate(ecx()->_jsCx, o);
+		for(jsint i(0); i<ids->length; i++)
+		{
+			jsval kv[2];
+			char *key;
+			int32 val;
+			if(	!JS_IdToValue(ecx()->_jsCx, ids->vector[i], &kv[0]) ||
+				!JS_GetPropertyById(ecx()->_jsCx, o, ids->vector[i], &kv[1]) ||
+				!JS_ConvertArguments(ecx()->_jsCx, 2, kv, "si", &key, &val))
+			{
+				(JSExceptionReporter)false;
+				JS_DestroyIdArray(ecx()->_jsCx, ids);
+				return v;
+			}
+
+			v[key] = val;
+		}
+		JS_DestroyIdArray(ecx()->_jsCx, ids);
+		return v;
+	}
+	//////////////////////////////////////////////////////////////////////////
 	std::vector<std::string> Router::getConfigArrayString(const char *name)
 	{
 		jsval jsv = getConfigValue(name);

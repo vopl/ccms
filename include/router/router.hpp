@@ -80,6 +80,7 @@ namespace ccms
 		unsigned long getConfigUlong(const char *name);
 		bool getConfigBool(const char *name);
 		std::map<std::string, std::string> getConfigMapString(const char *name);
+		std::map<std::string, int> getConfigMapStringInt(const char *name);
 		std::vector<std::string> getConfigArrayString(const char *name);
 
 		//virtual void process(TEnvMap &env, std::istream &in, std::ostream &out, std::ostream &err);

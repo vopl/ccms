@@ -61,6 +61,7 @@ int main_(int argc, char* argv[])
 			router);
 
 		t.set_mimeTypes(router->getConfigMapString("server.mimeTypes"));
+		t.set_compress(router->getConfigMapStringInt("server.compress"));
 		t.set_cronInterval(router->getConfigUlong("server.cronInterval"));
 
 		t.set_keepaliveMax(router->getConfigUlong("server.keepaliveMax"));
@@ -78,7 +79,6 @@ int main_(int argc, char* argv[])
 
 		t.set_enableGzip(router->getConfigBool("server.enableGzip"));
 		t.set_enableDeflate(router->getConfigBool("server.enableDeflate"));
-		t.set_deflateLevel(router->getConfigLong("server.deflateLevel"));
 
 		std::string staticDiectory = router->getConfigString("server.staticDiectory");
 		if(staticDiectory != "undefined") t.set_staticDirectory(staticDiectory.data());

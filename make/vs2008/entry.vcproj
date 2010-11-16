@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="entry"
 	ProjectGUID="{741C9585-917F-44C3-BE38-41F4EC51BF4E}"
 	RootNamespace="entry"
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zdll.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../left/js/lib/js3250.lib libpq.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
