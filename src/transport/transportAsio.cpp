@@ -24,6 +24,7 @@ namespace ccms
 		, _socket(socket)
 		, _inContentType(ectNull)
 		, _outContentEncoding(eceNone)
+		, _outCompression(-1)
 		, _bytesTransfered(0)
 		, _staticFileSize(0)
 		, Connection4Backend(err)
@@ -333,12 +334,11 @@ namespace ccms
 						{
 							size_t inBuffer = connection->_netBuf.size();
 							size_t spaceSend = _outbufGranula;
-							assert(spaceSend >= inBuffer);
-							size_t spaceRead = spaceSend - inBuffer;
 
-							connection->_netBuf.resize(spaceSend);
-							if(spaceRead)
+							if(inBuffer < spaceSend)
 							{
+								connection->_netBuf.resize(spaceSend);
+								size_t spaceRead = spaceSend - inBuffer;
 								bool finishStub;
 								connection->_outCompressorStream->compress(&connection->_netBuf[inBuffer], spaceRead, finishStub);
 								connection->_netBuf.resize(inBuffer + spaceRead);
@@ -353,15 +353,19 @@ namespace ccms
 					{
 						size_t inBuffer = connection->_netBuf.size();
 						size_t spaceSend = std::min((size_t)_outbufGranula, connection->_staticFileSize - connection->_bytesTransfered);
-						assert(spaceSend >= inBuffer);
-						size_t spaceRead = spaceSend - inBuffer;
-
-						connection->_netBuf.resize(spaceSend);
-						if(spaceRead)
+						if(inBuffer < spaceSend)
 						{
-							connection->_staticFile->read(&connection->_netBuf[inBuffer], spaceRead);
-							//spaceRead = connection->_staticFile->gcount();
-							//spaceSend = connection->_netBuf.size();
+
+							assert(spaceSend >= inBuffer);
+							size_t spaceRead = spaceSend - inBuffer;
+
+							connection->_netBuf.resize(spaceSend);
+							if(spaceRead)
+							{
+								connection->_staticFile->read(&connection->_netBuf[inBuffer], spaceRead);
+								//spaceRead = connection->_staticFile->gcount();
+								//spaceSend = connection->_netBuf.size();
+							}
 						}
 					}
 				}
@@ -915,7 +919,7 @@ namespace ccms
 
 		size_t dotPos = connection->_staticPath.find_last_of('.');
 		std::string mimeType;
-		int compress = -1;
+		connection->_outCompression = -1;
 		if(dotPos == std::string::npos)
 		{
 			mimeType = "application/octet-stream";
@@ -924,10 +928,10 @@ namespace ccms
 		{
 			std::string ext = std::string(connection->_staticPath.begin()+dotPos+1, connection->_staticPath.end());
 			mimeType = mimeTypeForExt(ext);
-			compress = compressForExt(ext);
+			connection->_outCompression = compressForExt(ext);
 		}
 
-		if(-1 > compress || 9 < compress || 0 == compress)
+		if(-1 > connection->_outCompression || 9 < connection->_outCompression || 0 == connection->_outCompression)
 		{
 			connection->_outContentEncoding = eceNone;
 		}
@@ -956,11 +960,11 @@ namespace ccms
 
 				if(eceGzip == connection->_outContentEncoding)
 				{
-					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(compress));
+					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(connection->_outCompression));
 				}
 				else if(eceDeflate == connection->_outContentEncoding)
 				{
-					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(compress));
+					connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(connection->_outCompression));
 				}
 				else
 				{
@@ -975,33 +979,6 @@ namespace ccms
 				connection->_staticFile.reset();
 			}
 		}
-
-		if(	connection->_outContentEncoding != eceNone && connection->_outBody.size())
-		{
-			bool encoded = false;
-			////////////////////////////
-			//deflate
-			if(connection->_outContentEncoding == eceDeflate && !connection->_outBody.empty())
-			{
-				if(stringDeflate(connection->_outBody, compress))
-				{
-					connection->_outHeaders += "Content-Encoding: deflate\r\n";
-					encoded = true;
-				}
-			}
-			////////////////////////////
-			//gzip
-			if(!encoded && connection->_outContentEncoding == eceGzip && !connection->_outBody.empty())
-			{
-				if(stringGzip(connection->_outBody, compress))
-				{
-					connection->_outHeaders += "Content-Encoding: gzip\r\n";
-					encoded = true;
-				}
-			}
-
-		}
-
 
 		onCompleteProcess_own(connection, true);
 	}
@@ -1229,8 +1206,37 @@ namespace ccms
 		}
 		connection->_outHeaders.insert(0, statusText);
 
+
+
 		if(!connection->_outBody.empty())
 		{
+
+			if(connection->_outContentEncoding != eceNone)
+			{
+				bool encoded = false;
+				////////////////////////////
+				//deflate
+				if(connection->_outContentEncoding == eceDeflate)
+				{
+					if(stringDeflate(connection->_outBody, connection->_outCompression))
+					{
+						connection->_outHeaders += "Content-Encoding: deflate\r\n";
+						encoded = true;
+					}
+				}
+				////////////////////////////
+				//gzip
+				if(!encoded && connection->_outContentEncoding == eceGzip)
+				{
+					if(stringGzip(connection->_outBody, connection->_outCompression))
+					{
+						connection->_outHeaders += "Content-Encoding: gzip\r\n";
+						encoded = true;
+					}
+				}
+
+			}
+
 			connection->_outHeaders += "Content-Length: " + _ntoa(connection->_outBody.size())+ "\r\n";
 		}
 		else if(connection->_outCompressorStream)

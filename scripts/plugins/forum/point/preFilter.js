@@ -1,15 +1,11 @@
-if(!ui.blocks.breadcrumbs)
-{
-	ui.blocks.breadcrumbs = this.parent.properties.breadcrumbs();
-}
+ui.blocks.breadcrumbs.front = this.parent.properties.breadcrumbs();
 
-if(!ui.blocks.header)
+
 {
 	let t = arguments.callee.header;
 	if(!t)
 	{
 		t = router.createTemplate();
-		
 		t.compile(<>
 			<table>
 				<tr>
@@ -24,9 +20,11 @@ if(!ui.blocks.header)
 				</tr>
 			</table>
 		</>);
+		t.auth = router.getPoint('/user/authorize');
 		arguments.callee.header = t;
 	}
 	t = t.clone();
-	t.auth = router.getPoint('/user/authorize').render();
-	ui.blocks.header = t;
+	t.auth = t.auth.render();
+	ui.blocks.header.push(t);
+	//ui.pushBlock('header', t);
 }

@@ -21,7 +21,7 @@ Array.prototype.__defineGetter__('front', function()
 	if(!this.length) return undefined;
 	return this[0];
 });
-Array.prototype.__defineSetter__('front', function()
+Array.prototype.__defineSetter__('front', function(v)
 {
 	this[0] = v;
 });
