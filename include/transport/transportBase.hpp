@@ -13,6 +13,7 @@ namespace ccms
 	protected:
 		std::string		_host;
 		unsigned short	_port;
+		unsigned short	_portSsl;
 		size_t			_queueSize;
 		volatile bool	_stop;
 
@@ -20,7 +21,7 @@ namespace ccms
 		ITransportBackend	*_backend;
 
 	public:
-		TransportBase(const char *host, unsigned short port, size_t	queueSize, ITransportBackend *backend);
+		TransportBase(const char *host, unsigned short port, unsigned short	portSsl, size_t	queueSize, ITransportBackend *backend);
 		virtual ~TransportBase();
 		virtual bool start();
 		virtual bool stop();

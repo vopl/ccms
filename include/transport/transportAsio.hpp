@@ -2,6 +2,7 @@
 #define _ccms_transportAsio_h_
 
 #include "transport/transportBase.hpp"
+#include "transport/transportAsioSocket.hpp"
 
 #include "utils/deflate.hpp"
 
@@ -10,8 +11,6 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	class TransportAsio;
 
-	//////////////////////////////////////////////////////////////////////////
-	typedef boost::shared_ptr<boost::asio::ip::tcp::socket> SocketPtr;
 	typedef std::vector<char> DataBuf;
 	typedef std::deque<char> DDataBuf;
 
@@ -54,7 +53,7 @@ namespace ccms
 		TransportAsio		*_transport;
 
 		EConnectionState	_state;
-		SocketPtr			_socket;
+		TransportAsioSocketPtr			_socket;
 
 		EContentType		_inContentType;
 		std::string			_inBodyBoundary;
@@ -88,7 +87,7 @@ namespace ccms
 
 		Connection(
 			TransportAsio *transport,
-			SocketPtr socket, 
+			TransportAsioSocketPtr socket, 
 			std::ostream &err);
 
 		~Connection();
@@ -100,8 +99,16 @@ namespace ccms
 		: public TransportBase<ConnectionPtr>
 	{
 		boost::asio::io_service _io_service;
+		boost::asio::ssl::context _contextSsl;
 		boost::asio::ip::tcp::acceptor _acceptor;
+		boost::asio::ip::tcp::acceptor _acceptorSsl;
 		boost::asio::deadline_timer _cronTimer;
+
+		std::string	_ssl_certificate;
+		std::string	_ssl_privateKey;
+		std::string	_ssl_tmpdh;
+		std::string	_ssl_password;
+
 
 		typedef boost::shared_ptr<boost::asio::deadline_timer> TimerPtr;
 
@@ -132,6 +139,7 @@ namespace ccms
 		TransportAsio(
 			const char *host, 
 			unsigned short port, 
+			unsigned short portSsl, 
 			size_t queueSize,
 			ITransportBackend *be);
 		~TransportAsio();
@@ -156,12 +164,22 @@ namespace ccms
 		void set_enableGzip(bool v){_enableGzip = v;};
 		void set_enableDeflate(bool v){_enableDeflate = v;};
 
+		void set_ssl_certificate(const std::string &v){_ssl_certificate=v;};
+		void set_ssl_privateKey(const std::string &v){_ssl_privateKey=v;};
+		void set_ssl_tmpdh(const std::string &v){_ssl_tmpdh=v;};
+		void set_ssl_password(const std::string &v){_ssl_password=v;};
+
 		virtual bool start();
 		virtual bool stop();
 
 	private:
 		void makeAccept();
-		void handleAccept(SocketPtr socket, const boost::system::error_code& e);
+		void handleAccept(TransportAsioSocketPtr socket, const boost::system::error_code& e);
+
+		void makeAcceptSsl();
+		void handleAcceptSsl(TransportAsioSocketPtr socket, const boost::system::error_code& e);
+		const std::string &handleGetPasswordSsl();
+		void handleHandshakeSsl(ConnectionPtr connection, const boost::system::error_code& e);
 
 		void makeRead(TimerPtr timer, ConnectionPtr connection, size_t granula);
 		void handleRead(TimerPtr timer, ConnectionPtr connection, const boost::system::error_code& e, std::size_t bytes_transferred);

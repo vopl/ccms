@@ -1,8 +1,9 @@
-var orm = arguments[0];
+﻿var orm = arguments[0];
 var install = arguments[1];
 
 if(!install)
 {
+	orm.delCategory('ForumMaped');
 	orm.delCategory('Forum');
 	orm.delCategory('ForumPost');
 	orm.delCategory('ForumPostAttachment');
@@ -15,18 +16,35 @@ if(!install)
 
 
 
+
+///////////////////////////////////////////////////////////
+orm.addCategory({
+	name:'ForumMapped',
+	abstract:true,
+	fields:
+	{
+		//для проекции на урлы часть пути
+		map_path:'text',
+		//и некий заголовок
+		map_title:'text',
+	},
+});
+
+
+
+
+
+
 ///////////////////////////////////////////////////////////
 orm.addCategory({
 	name:'Forum',
-	bases:['NsTree'],
+	bases:['NsTree', 'ForumMapped'],
 	fields:
 	{
+		//дерево внутри форумов
 		tree_pid:{type:'fkey',target:'Forum',},
 		tree_root:{type:'fkey',target:'Forum',},
 
-		map_path:'text',
-		map_title:'text',
-		
 		allow_topic:'boolean',
 		description:'string',
 	},
@@ -38,14 +56,17 @@ orm.addCategory({
 ///////////////////////////////////////////////////////////
 orm.addCategory({
 	name:'ForumPost',
-	base:'NsTree',
+	bases:['NsTree', 'ForumMapped'],
 	fields:
 	{
-		forum_id:{type:'fkey',target:'Forum',},
-		map_path:'text',
-		map_title:'text',
+		//дерево внутри постов. Корень - тема которая тоже пост
 		tree_pid:{type:'fkey',target:'ForumPost',},
 		tree_root:{type:'fkey',target:'ForumPost',},
+	
+		//отношение к экземпляру форума
+		forum_id:{type:'fkey',target:'Forum',},
+		//отношение к "постоянной странице"
+		ppage:'integer',
 		
 		content:'text',
 	},

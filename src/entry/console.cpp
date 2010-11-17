@@ -54,9 +54,12 @@ int main_(int argc, char* argv[])
 			return 0;
 		}
 
+		unsigned short portSsl = (unsigned short)router->getConfigUlong("server.ssl.port");
+
 		ccms::TransportAsio t(
 			router->getConfigString("server.host").data(), 
 			(unsigned short)router->getConfigUlong("server.port"), 
+			portSsl, 
 			router->getConfigUlong("server.queueSize"),
 			router);
 
@@ -79,6 +82,14 @@ int main_(int argc, char* argv[])
 
 		t.set_enableGzip(router->getConfigBool("server.enableGzip"));
 		t.set_enableDeflate(router->getConfigBool("server.enableDeflate"));
+
+		if(portSsl)
+		{
+			t.set_ssl_certificate(router->getConfigString("server.ssl.certificate"));
+			t.set_ssl_privateKey(router->getConfigString("server.ssl.privateKey"));
+			t.set_ssl_tmpdh(router->getConfigString("server.ssl.tmpdh"));
+			t.set_ssl_password(router->getConfigString("server.ssl.password"));
+		}
 
 		std::string staticDiectory = router->getConfigString("server.staticDiectory");
 		if(staticDiectory != "undefined") t.set_staticDirectory(staticDiectory.data());

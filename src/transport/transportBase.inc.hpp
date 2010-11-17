@@ -11,10 +11,12 @@ namespace ccms
 	TransportBase<Connection4TransportPtr>::TransportBase(
 		const char *host, 
 		unsigned short port, 
+		unsigned short portSsl, 
 		size_t queueSize, 
 		ITransportBackend *backend)
 		: _host(host?host:"localhost")
 		, _port(port?port:80)
+		, _portSsl(portSsl)
 		, _queueSize(queueSize)
 		, _backend(backend)
 		, _stop(false)
