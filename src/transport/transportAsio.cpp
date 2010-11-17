@@ -116,9 +116,21 @@ namespace ccms
 					| boost::asio::ssl::context::no_sslv2
 					| boost::asio::ssl::context::single_dh_use);
 				_contextSsl.set_password_callback(boost::bind(&TransportAsio::handleGetPasswordSsl, this));
-				_contextSsl.use_certificate_chain_file(_ssl_certificate);
-				_contextSsl.use_private_key_file(_ssl_privateKey, boost::asio::ssl::context::pem);
-				_contextSsl.use_tmp_dh_file(_ssl_tmpdh);
+
+				if(!_ssl_certificate.empty())
+				{
+					_contextSsl.use_certificate_chain_file(_ssl_certificate);
+				}
+
+				if(!_ssl_privateKey.empty())
+				{
+					_contextSsl.use_private_key_file(_ssl_privateKey, boost::asio::ssl::context::pem);
+				}
+
+				if(!_ssl_tmpdh.empty())
+				{
+					_contextSsl.use_tmp_dh_file(_ssl_tmpdh);
+				}
 
 				boost::asio::ip::tcp::resolver resolver(_io_service);
 

@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zlib.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
