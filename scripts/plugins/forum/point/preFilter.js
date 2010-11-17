@@ -1,4 +1,4 @@
-ui.blocks.breadcrumbs.front = this.parent.properties.breadcrumbs();
+﻿ui.blocks.breadcrumbs.front = this.parent.properties.breadcrumbs();
 
 
 {
@@ -7,12 +7,13 @@ ui.blocks.breadcrumbs.front = this.parent.properties.breadcrumbs();
 	{
 		t = router.createTemplate();
 		t.compile(<>
-			<table>
+			<table border="1">
 				<tr>
 					<td>
 						<img src='/dog.png'/>
 					</td>
-					<td width='100%'>
+					<td width='100%' align="center">
+						а тут нахрен банер прям посередине
 					</td>
 					<td align='right'>
 						{t.auth}

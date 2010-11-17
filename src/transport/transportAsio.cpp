@@ -745,7 +745,8 @@ namespace ccms
 		iter = env.find("connection");
 		if(env.end() != iter)
 		{
-			if(tolowerLatin(iter->second) == "keep-alive")
+			tolowerLatin(iter->second);
+			if(std::string::npos != iter->second.find("keep-alive"))
 			{
 				iter = env.find("keep-alive");
 				if(env.end() != iter)
