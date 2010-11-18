@@ -8,9 +8,9 @@ let res =
 		ssl:
 		{
 			port:			8443,
-			certificate:		"server.pem" ,
-			privateKey:		"server.pem",
-			tmpdh:			"dh512.pem",
+			certificate:		absFile("../ssl/server.pem"),
+			privateKey:		absFile("../ssl/server.pem"),
+			tmpdh:			absFile("../ssl/dh512.pem"),
 			password:		"test",
 		},
 
