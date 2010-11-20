@@ -72,7 +72,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-#define USE_PROFILER 0
+#define USE_PROFILER 1
 
 #ifdef _DEBUG
 #	define USE_JSOBJECT_ROOTNAME 1
