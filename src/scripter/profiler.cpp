@@ -2,8 +2,8 @@
 #include "scripter/profiler.hpp"
 
 #if USE_PROFILER
-#include "jsdbgapi.h"
-#include "jsinterp.h"
+#include <js/jsdbgapi.h>
+#include <js/jsinterp.h>
 
 #include "scripter/scripter.hpp"
 
@@ -45,8 +45,15 @@ namespace ccms
 		_out<<"$rrun_utime=10000000; $rrun_stime=0; $rrun_rtime=0\n";
 		_out<<"PART2\n";
 		_out.flush();
+
+#ifdef WIN32
 		QueryPerformanceCounter(&_liStart);
 		QueryPerformanceFrequency(&_liFrequency);
+#else
+		struct tms stms;
+		_liStart = times(&stms);
+		_liFrequency = CLOCKS_PER_SEC;
+#endif
 
 	}
 
@@ -64,9 +71,15 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	long long Profiler::curTime()
 	{
+#ifdef WIN32
 		LARGE_INTEGER    liNow;
 		QueryPerformanceCounter(&liNow);
 		return (liNow.QuadPart - _liStart.QuadPart)*BASE/_liFrequency.QuadPart;
+#else
+		struct tms stms;
+		clock_t liNow = times(&stms);
+		return (liNow - _liStart)*BASE/_liFrequency;
+#endif
 	}
 
 	//////////////////////////////////////////////////////////////////////////

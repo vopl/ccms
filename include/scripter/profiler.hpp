@@ -5,6 +5,11 @@
 
 #if USE_PROFILER
 
+#ifdef WIN32
+#else
+#	include <sys/times.h>
+#endif
+
 
 namespace ccms
 {
@@ -12,7 +17,11 @@ namespace ccms
 	class Profiler
 	{
 		std::ofstream _out;
+#ifdef WIN32
 		LARGE_INTEGER    _liStart, _liFrequency;
+#else
+		clock_t	_liStart, _liFrequency;
+#endif
 		long long curTime();
 
 	public:
