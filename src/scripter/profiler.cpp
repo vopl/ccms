@@ -55,7 +55,7 @@ namespace ccms
 		LARGE_INTEGER li;
 		QueryPerformanceCounter(&li);
 		_liStart = li.QuadPart;
-		QueryPerformanceFrequency(&_liFrequency);
+		QueryPerformanceFrequency(&li);
 		_liFrequency = li.QuadPart;
 #else
 		_liFrequency = 1000000000;

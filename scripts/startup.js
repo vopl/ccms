@@ -5,6 +5,7 @@ exec('lib/escapers.js');
 exec('lib/uniq.js');
 exec('lib/i18n.js');
 exec('lib/stdext.js');
+global.cache = exec('lib/cache.js');
 
 
 
@@ -23,8 +24,6 @@ orm.setSchema('orm');
 
 //
 exec('system/startup.js');
-
-
 
 
 if(!router.plugins.session.isInstalled)

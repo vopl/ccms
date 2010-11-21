@@ -7,6 +7,7 @@
 #include "router/execContext.hpp"
 #include "router/contextDataStorage.hpp"
 
+#include "router/cache.hpp"
 #include "router/crontab.hpp"
 #include "router/plugins.hpp"
 #include "router/request.hpp"
@@ -176,6 +177,7 @@ namespace ccms
 		PointInstancePtr				_rootInstance;
 		PointPtr						_root;
 		ContextDataStorage				_contextDataStorage;
+		CachePtr						_cache;
 		CrontabPtr						_crontab;
 		PluginsPtr						_plugins;
 		I18nPtr							_i18n;

@@ -26,7 +26,7 @@ if(pp)
 
 
 //////////////////////////////////////////////////
-let mostForum = data.forums[data.forums.length-1];
+let mostForum = data.forums.back;
 
 //////////////////////////////////////////////////
 if(pathPart == 'edit')
@@ -86,14 +86,23 @@ if(pathPart == 'addTopic')
 //////////////////////////////////////////////////
 
 let dbr;
-if(Math.round(pathPart)==pathPart)
-{
-	dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND id=$2', mostForum.id, pathPart);
-}
-if(!dbr || !dbr.length)
-{
-	dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND map_path=$2', mostForum.id, pathPart);
-}
+dbr = global.cache.process({
+	key:'forum.child.'+mostForum.id+'.'+pathPart,
+	provider:function()
+	{
+		if(Math.round(pathPart)==pathPart)
+		{
+			dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND id=$2', mostForum.id, pathPart);
+		}
+		if(!dbr || !dbr.length)
+		{
+			dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND map_path=$2', mostForum.id, pathPart);
+		}
+		return dbr;
+	},
+	events: ['forum.forum'],
+});
+
 
 if(dbr.length)
 {
@@ -132,5 +141,5 @@ if(dbr.length)
 	return res;
 }
 
-warn('unknown path for '+absFile()+", '"+pathIn.join('/')+"'");
+warn('unknown path for '+absFile()+", '"+pathPart+"'");
 return false;

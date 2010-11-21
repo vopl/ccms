@@ -1675,6 +1675,11 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	void Router::cronTick(std::ostream &err)
 	{
 		_crontab->tick();
+		_cache->tick();
+
+		time_t now;
+		time(&now);
+		_cache->delOld(now - 5*60);
 	}
 
 
@@ -2141,6 +2146,10 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_crontab = mkp(new Crontab, ROOTNAME);
 		jsRegisterProp("crontab", _crontab->thisJsval());
 
+		_cache = mkp(new Cache, ROOTNAME);
+		jsRegisterProp("cache", _cache->thisJsval());
+		
+
 		_plugins = mkp(new Plugins, ROOTNAME);
 		jsRegisterProp("plugins", _plugins->thisJsval());
 
@@ -2212,6 +2221,9 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 		_crontab.reset();
 		deletePermanent("crontab");
+
+		_cache.reset();
+		deletePermanent("cache");
 
 		_plugins.reset();
 		deletePermanent("plugins");

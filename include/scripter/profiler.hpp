@@ -1,9 +1,12 @@
 #ifndef _ccms_profiler_hpp_
 #define _ccms_profiler_hpp_
 
-#include <js/jsapi.h>
+
+#define USE_PROFILER 0
 
 #if USE_PROFILER
+
+#include <js/jsapi.h>
 
 #ifdef WIN32
 #else

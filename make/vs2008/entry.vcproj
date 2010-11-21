@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib P:\sdk\libmemcached\lib\libmemcached.dll.a"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
@@ -225,6 +225,10 @@
 			<Filter
 				Name="router"
 				>
+				<File
+					RelativePath="..\..\src\router\cache.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\src\router\contextData.cpp"
 					>
@@ -2143,6 +2147,10 @@
 			<Filter
 				Name="router"
 				>
+				<File
+					RelativePath="..\..\include\router\cache.hpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\include\router\contextData.hpp"
 					>
