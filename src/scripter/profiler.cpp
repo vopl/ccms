@@ -38,21 +38,32 @@ namespace ccms
 		_out.close();
 		_out.clear();
 		_out.open("tmon.out");
+		std::cerr<<"tmon.out"<<std::endl;
+		if(!_out)
+		{
+		    std::cerr<<"bad tmon.out"<<std::endl;
+		}
 		_out<<"#fOrTyTwO\n";
-		_out<<"$hz="<<BASE<<";\n";
+		_out<<"$hz="<<CLOCKS_PER_SEC<<";\n";
 		_out<<"$XS_VERSION='DProf 19970606';\n";
 		_out<<"# All values are given in HZ\n";
-		_out<<"$rrun_utime=10000000; $rrun_stime=0; $rrun_rtime=0\n";
+		_out<<"$rrun_utime="<<CLOCKS_PER_SEC<<"; $rrun_stime=0; $rrun_rtime=0\n";
 		_out<<"PART2\n";
 		_out.flush();
 
 #ifdef WIN32
-		QueryPerformanceCounter(&_liStart);
+		LARGE_INTEGER li;
+		QueryPerformanceCounter(&li);
+		_liStart = li.QuadPart;
 		QueryPerformanceFrequency(&_liFrequency);
+		_liFrequency = li.QuadPart;
 #else
-		struct tms stms;
-		_liStart = times(&stms);
-		_liFrequency = CLOCKS_PER_SEC;
+		_liFrequency = 1000000000;
+		
+		struct timespec sts;
+		clock_gettime(CLOCK_REALTIME, &sts);
+		_liStart = sts.tv_sec*_liFrequency + sts.tv_nsec;
+		
 #endif
 
 	}
@@ -72,13 +83,15 @@ namespace ccms
 	long long Profiler::curTime()
 	{
 #ifdef WIN32
-		LARGE_INTEGER    liNow;
-		QueryPerformanceCounter(&liNow);
-		return (liNow.QuadPart - _liStart.QuadPart)*BASE/_liFrequency.QuadPart;
+		LARGE_INTEGER    li;
+		QueryPerformanceCounter(&li);
+		return (li.QuadPart - _liStart)*BASE/_liFrequency;
 #else
-		struct tms stms;
-		clock_t liNow = times(&stms);
-		return (liNow - _liStart)*BASE/_liFrequency;
+		struct timespec sts;
+		clock_gettime(CLOCK_REALTIME, &sts);
+		unsigned long long li = sts.tv_sec*_liFrequency + sts.tv_nsec;
+
+		return (li - _liStart)*BASE/_liFrequency;
 #endif
 	}
 

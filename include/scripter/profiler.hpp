@@ -17,11 +17,7 @@ namespace ccms
 	class Profiler
 	{
 		std::ofstream _out;
-#ifdef WIN32
-		LARGE_INTEGER    _liStart, _liFrequency;
-#else
-		clock_t	_liStart, _liFrequency;
-#endif
+		unsigned long long    _liStart, _liFrequency;
 		long long curTime();
 
 	public:

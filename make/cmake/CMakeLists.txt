@@ -54,6 +54,7 @@ SET(INCLUDE_SCRIPTER
 	../../include/scripter/jsObject.hpp
 	../../include/scripter/newPropsCollector.hpp
 	../../include/scripter/scripter.hpp
+	../../include/scripter/profiler.hpp
 )
 SOURCE_GROUP(include\\scripter FILES ${INCLUDE_SCRIPTER})
 
@@ -61,6 +62,7 @@ SET(SRC_SCRIPTER
 	../../src/scripter/jsObject.cpp
 	../../src/scripter/scripter.cpp
 	../../src/scripter/preprocessor.cpp
+	../../src/scripter/profiler.cpp
 )
 SOURCE_GROUP(src\\scripter FILES ${SRC_SCRIPTER})
 
@@ -108,12 +110,14 @@ SOURCE_GROUP(src\\struct FILES ${SRC_STRUCT})
 ################################
 SET(INCLUDE_TRANSPORT
 	../../include/transport/transportAsio.hpp
+	../../include/transport/transportAsioSocket.hpp
 	../../include/transport/transportBase.hpp
 )
 SOURCE_GROUP(include\\transport FILES ${INCLUDE_TRANSPORT})
 
 SET(SRC_TRANSPORT
 	../../src/transport/transportAsio.cpp
+	../../src/transport/transportAsioSocket.cpp
 	../../src/transport/transportBase.inc.hpp
 )
 SOURCE_GROUP(src\\transport FILES ${SRC_TRANSPORT})
@@ -588,6 +592,7 @@ INSTALL(CODE "set(USER ${CMAKE_INSTALL_OWNER})")
 INSTALL(CODE "set(PREFIX ${CMAKE_INSTALL_PREFIX})")
 
 install(DIRECTORY ../../cfg DESTINATION .)
+install(DIRECTORY ../../ssl DESTINATION .)
 install(DIRECTORY ../../scripts DESTINATION .)
 install(DIRECTORY ../../www DESTINATION .)
 INSTALL(CODE "FILE(MAKE_DIRECTORY \${PREFIX}/bin)")
