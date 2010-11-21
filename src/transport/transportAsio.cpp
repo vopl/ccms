@@ -1425,6 +1425,10 @@ namespace ccms
 		{
 			connection->_outHeaders += "Content-Length: " + _ntoa(connection->_staticFileSize)+ "\r\n";
 		}
+		else
+		{
+			connection->_outHeaders += "Content-Length: 0\r\n";
+		}
 
 
 		////////////////////////////

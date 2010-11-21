@@ -16,23 +16,32 @@ if(request.cookies.sid)
 	});
 }
 
+let now = new Date();
 if(!session)
 {
 	session = {
 		id:String(Math.random()),
-		ctime:new Date(),
-		//atime:new Date(),
-		dtime:new Date(),
+		ctime:now,
+		atime:now,
+		dtime:now,
 		data:{},
 		addr:request.env.REMOTE_ADDR,
-		isNew:true,
 	};
+	session.isNew = true,
+	session.needUpdate = true;
 	request.pushHeader('Set-Cookie', 'sid='+session.id+'; path=/');
 	
-	global.cache.set('session.'+sessio.id, session);
+	global.cache.set('session.'+session.id, session);
+}
+else
+{
+	if((now.getTime() - session.atime.getTime())/1000 > 10)
+	{
+		session.atime = now;
+		session.needUpdate = true;
+	}
 }
 
-session.atime = new Date();
 session.dtime = new Date(session.atime.getTime() + 2*60*60*1000);
 //session.dtime = new Date(session.atime.getTime() + 10*1000);
 

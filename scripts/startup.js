@@ -15,7 +15,7 @@ global.db = router.createService('pg');
 db.open(router.getConfig().dbConnectionString);
 //Valid values are DEBUG5, DEBUG4, DEBUG3, DEBUG2, DEBUG1, LOG, NOTICE, WARNING, ERROR, FATAL, and PANIC
 db.exec("SET client_min_messages='WARNING'");
-db.verbose=true;
+//db.verbose=true;
 
 // orm
 global.orm = exec('lib/orm/orm.js');

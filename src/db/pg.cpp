@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "db/pg.hpp"
 #include "utils/ncvt.h"
-#include "utils/mkgmtime.h"
 #include "scripter/scripter.hpp"
 #include "scripter/profiler.hpp"
 
@@ -65,25 +64,25 @@ namespace ccms
 						jsval jsvs[2];
 
 						if(!JS_CallFunctionName(cx, obj, "getTime", 0, NULL, jsvs+0)) return false;
-						if(!JS_CallFunctionName(cx, obj, "getTimezoneOffset", 0, NULL, jsvs+1)) return false;
+						//if(!JS_CallFunctionName(cx, obj, "getTimezoneOffset", 0, NULL, jsvs+1)) return false;
 
-						int offset;
+						//int offset;
 						jsdouble d;
-						if(!JS_ConvertArguments(cx, 2, jsvs, "di", &d, &offset))return false;
+						//if(!JS_ConvertArguments(cx, 2, jsvs, "di", &d, &offset))return false;
+						if(!JS_ConvertArguments(cx, 1, jsvs, "d", &d))return false;
 						time_t t = (time_t)(d/1000);
-						t -= offset*60;
+						//t -= offset*60;
 
 						tm *ptm = gmtime(&t);
 
 						char buf[64];
-						sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d%+03d", 
+						sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d%", 
 							ptm->tm_year+1900,
 							ptm->tm_mon+1,
 							ptm->tm_mday,
 							ptm->tm_hour,
 							ptm->tm_min,
-							ptm->tm_sec,
-							-offset/60);
+							ptm->tm_sec);
 
 						char *s;
 						v  = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buf));
@@ -250,32 +249,30 @@ namespace ccms
 									DD,
 									hh,
 									mm,
-									ss,
-									offset;
+									ss;
 
-								if(7 == sscanf(value, "%d-%d-%d %d:%d:%d%d",
+								if(6 == sscanf(value, "%d-%d-%d %d:%d:%d",
 									&YYYY,
 									&MM,
 									&DD,
 									&hh,
 									&mm,
-									&ss,
-									&offset))
+									&ss))
 								{
 									tm stm = {ss, mm, hh, DD, MM-1, YYYY-1900};
-									time_t t  = mkgmtime(&stm);
+									time_t t  = mktime(&stm);
 
-									jsdouble td = (jsdouble)t;
-									td -= offset*60*60;
-									td *= 1000;
+
+									jsdouble td = (jsdouble)t * 1000;
 
 									//make new Date
-									static JSObject *Date = JSVAL_TO_OBJECT(ecx()->_scripter->f_exec("return Date", ".js"));
+									static JSObject *Date = JSVAL_TO_OBJECT(ecx()->_scripter->f_exec("return new Date", ".js"));
 
 									static JSClass *DateClass = JS_GetClass(Date);
 
 
-									jsv = DOUBLE_TO_JSVAL(&td);
+									if(!JS_NewDoubleValue(ecx()->_jsCx, td, &jsv)) return false;
+
 									//jsv = OBJECT_TO_JSVAL(JS_New(cx, Date, 1, &jsv));
 									jsv = OBJECT_TO_JSVAL(JS_ConstructObjectWithArguments(cx, DateClass, NULL, NULL, 1, &jsv));
 									break;

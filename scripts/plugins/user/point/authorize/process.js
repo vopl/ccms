@@ -41,6 +41,7 @@ try
 						request.pushHeader('Set-Cookie', 'sid='+router.cd.global.session.id+'; path=/');
 					}
 					
+					router.cd.global.session.needUpdate = true;
 					request.setStatusCode(303);
 					request.pushHeader('Location', request.params.backUrl?request.params.backUrl:'/');
 					return;
@@ -65,6 +66,7 @@ try
 			delete global.user;
 			delete router.cd.session.userId;
 			router.cd.global.session.remember = false;
+			router.cd.global.session.needUpdate = true;
 			request.pushHeader('Set-Cookie', 'sid='+router.cd.global.session.id+'; path=/');
 			request.setStatusCode(303);
 			request.pushHeader('Location', request.params.backUrl?request.params.backUrl:'/');
