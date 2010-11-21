@@ -71,22 +71,31 @@ acl.hasRight = function hasRight(module, operation, userIdOrNull)
 		userIdOrNull = global.user.id;
 	}
 	
-	let dbr = orm.query('SELECT value FROM {OperationRole} o_r \
-		LEFT JOIN {Operation} o ON (o_r.operation=o.id) \
-		LEFT JOIN {UserRole} u_r ON (u_r.role=o_r.role) \
-		WHERE o.module=$1 AND o.name=$2 AND u_r.user=$3\
-		',module, operation, userIdOrNull);
-		
-	let res = undefined;
-	
-	for each(let v in dbr)
-	{
-		switch(v.value)
+	let res = global.cache.process({
+		key:'user.'+userIdOrNull+'.rights',
+		provider:function()
 		{
-		case 'deny': return false;
-		case 'allow': res=true; break;
-		}
-	}
+			let dbr = orm.query('SELECT value FROM {OperationRole} o_r \
+				LEFT JOIN {Operation} o ON (o_r.operation=o.id) \
+				LEFT JOIN {UserRole} u_r ON (u_r.role=o_r.role) \
+				WHERE o.module=$1 AND o.name=$2 AND u_r.user=$3\
+				',module, operation, userIdOrNull);
+				
+			let res = undefined;
+			
+			for each(let v in dbr)
+			{
+				switch(v.value)
+				{
+				case 'deny': return false;
+				case 'allow': res=true; break;
+				}
+			}
+			return res;
+		},
+		events:['user.operation', 'user.role', 'user.user'],
+	});
+	
 	return res;
 }
 return acl;

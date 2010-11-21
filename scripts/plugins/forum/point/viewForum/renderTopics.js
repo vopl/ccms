@@ -4,7 +4,15 @@ let page = request.planData.page?request.planData.page:1;
 
 let limit=20;
 let offset = (page-1)*limit;
-let topics = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL ORDER BY id DESC LIMIT $2 OFFSET $3', forum.id, limit, offset);
+let topics = global.cache.process({
+		key:'forum.topic.'+forum.id+'.'+limit+'.'+offset,
+		provider:function()
+		{
+			return orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL ORDER BY id DESC LIMIT $2 OFFSET $3', forum.id, limit, offset);
+		},
+		events:["forum.topic"],
+});
+
 
 let topicsXml = <></>;
 for each(let topic in topics)

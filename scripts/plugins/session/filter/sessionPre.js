@@ -2,7 +2,18 @@
 let session;
 if(request.cookies.sid)
 {
-	session = orm.query('SELECT * FROM {Session} WHERE id=$1', request.cookies.sid)[0];
+	session = global.cache.process({
+		key:'session.'+request.cookies.sid,
+		provider:function()
+		{
+			let res = orm.query('SELECT * FROM {Session} WHERE id=$1', request.cookies.sid)[0];
+			if(res)
+			{
+				res.data = JSON.parse(res.data);
+			}
+			return res;
+		}
+	});
 }
 
 if(!session)
@@ -17,16 +28,13 @@ if(!session)
 		isNew:true,
 	};
 	request.pushHeader('Set-Cookie', 'sid='+session.id+'; path=/');
+	
+	global.cache.set('session.'+sessio.id, session);
 }
-else
-{
-	session.data = JSON.parse(session.data);
-}
-
 
 session.atime = new Date();
-//session.dtime = new Date(session.atime.getTime() + 2*60*60*1000);
-session.dtime = new Date(session.atime.getTime() + 10*1000);
+session.dtime = new Date(session.atime.getTime() + 2*60*60*1000);
+//session.dtime = new Date(session.atime.getTime() + 10*1000);
 
 
 router.cdSetInstance('session', session.data);

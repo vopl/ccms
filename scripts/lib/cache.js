@@ -19,6 +19,10 @@ cache.process = function process(conf)
 		throw Error("cache.process: provider must be an function");
 	}
 	value = conf.provider();
+	if(undefined === value)
+	{
+		return value;
+	}
 	
 	if('events' in conf)
 	{
@@ -42,6 +46,25 @@ cache.process = function process(conf)
 ////////////////////////////////////////////////////
 cache.fire = function fire(event)
 {
-	router.cache.fire(event);
+	return router.cache.fire(event);
 }
+
+////////////////////////////////////////////////////
+cache.del = function del(key)
+{
+	return router.cache.del(key);
+}
+
+////////////////////////////////////////////////////
+cache.set = function set(key, value)
+{
+	return router.cache.set(key, value);
+}
+
+////////////////////////////////////////////////////
+cache.get = function get(key)
+{
+	return router.cache.get(key);
+}
+
 return cache;
