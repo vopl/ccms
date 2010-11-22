@@ -1261,6 +1261,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		, _memoryNormalBytes(500*1024*1024)
 		, _cacheFlushPart(0.1)
 		, _cacheAliveTime(1*60)
+		, _stackLimit(500000)
 	{
 	}
 
@@ -1309,9 +1310,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		if(!_cacheAliveTime) _cacheAliveTime = 1*60;
 
 
-		jsuword stackLimit = getConfigUlong("memory.stackLimit");
-		if(!stackLimit) stackLimit = 500000;
-		_scripter.setStackLimit(stackLimit);
+		_stackLimit = getConfigUlong("memory.stackLimit");
+		if(!_stackLimit) _stackLimit = 500000;
 
 		return true;
 	}
@@ -1544,6 +1544,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::probe(Connection4Backend *connection)
 	{
+		ScripterScopedStackLimit sssl(_stackLimit);
+
 		//сначала отсмотреть статику
 		boost::filesystem::path path = (_documentRoot / connection->_requestPath);
 		if(boost::filesystem::is_regular_file(path))
@@ -1655,6 +1657,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::process(Connection4Backend *connection)
 	{
+		ScripterScopedStackLimit sssl(_stackLimit);
+
 		ConnectionData *cd = (ConnectionData *)connection->_backendData;
 		if(!cd)
 		{

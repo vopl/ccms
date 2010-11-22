@@ -631,9 +631,13 @@ namespace ccms
 #else
 			limitAddr = limitAddr - size;
 #endif
+			JS_SetThreadStackLimit(ecx()->_jsCx, limitAddr);
+		}
+		else
+		{
+			JS_SetThreadStackLimit(ecx()->_jsCx, 0);
 		}
 
-		JS_SetThreadStackLimit(ecx()->_jsCx, limitAddr);
 	}
 
 

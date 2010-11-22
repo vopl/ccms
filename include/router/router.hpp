@@ -187,6 +187,8 @@ namespace ccms
 		double	_cacheFlushPart;
 		time_t	_cacheAliveTime;
 
+		jsuword _stackLimit;
+
 	private:
 		//отложенное построение унаследованных поинтов для которых еще не построены суперы
 		struct DelayedPointInstanceBuild

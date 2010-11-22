@@ -187,5 +187,19 @@ namespace ccms
 		ScopedStateStreams(std::ostream *out, std::ostream *err, const char *currentName = NULL);
 		~ScopedStateStreams();
 	};
+
+	struct ScripterScopedStackLimit
+	{
+		ScripterScopedStackLimit(jsuword size)
+		{
+			ecx()->_scripter->setStackLimit(size);
+		}
+		~ScripterScopedStackLimit()
+		{
+			ecx()->_scripter->setStackLimit(0);
+		}
+
+	};
+
 }
 #endif
