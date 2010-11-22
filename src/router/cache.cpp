@@ -184,6 +184,42 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
+	bool Cache::delOld(double part)
+	{
+		size_t amount = _mv.size();
+		if(!amount)
+		{
+			return true;
+		}
+
+		size_t delAmount = (size_t)(part * amount) + 1;
+		if(delAmount > amount) delAmount = amount;
+
+		std::vector<Key> keys;
+		keys.reserve(delAmount);
+
+		TMKeyValue::right_iterator iter = _mv.right.begin();
+		for(size_t i(0); i<delAmount; i++)
+		{
+			keys.push_back(iter++ ->second);
+		}
+
+		for(size_t i(0); i<delAmount; i++)
+		{
+			del(keys[i]);
+		}
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	size_t Cache::size()
+	{
+		return _mv.size();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	bool Cache::call_set(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc < 2 || argc > 4)

@@ -61,6 +61,14 @@ let res =
 	},
 	
 	adminEmail:'________ HERE ADMINISTRATOR EMAIL!!! ________',
+
+	memory:
+	{
+		stackLimit:500000,
+		normalBytes: 100*1024*1024,
+		cacheFlushPart:0.1,
+		cacheAliveTime:1*60,
+	},
 };
 
 return res;

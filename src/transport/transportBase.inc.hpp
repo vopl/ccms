@@ -18,8 +18,7 @@ namespace ccms
 		, _port(port?port:80)
 		, _portSsl(portSsl)
 		, _queueSize(queueSize)
-		, _backend(backend)
-		, _stop(false)
+		, _backend(backend), _stop(false)
 		, _cvEvent(false)
 		, _cronTick(false)
 	{
@@ -233,9 +232,13 @@ namespace ccms
 
 			backend->deinitializeThread();
 		}
+		catch(std::exception &e)
+		{
+			std::cerr<<"std::exception in backend thread. WTF? "<<e.what()<<std::endl;
+		}
 		catch(...)
 		{
-			std::cerr<<"exception in backend thread. WTF?"<<std::endl;
+			std::cerr<<"unknown exception in backend thread. WTF?"<<std::endl;
 		}
 	}
 

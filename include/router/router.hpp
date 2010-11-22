@@ -80,6 +80,7 @@ namespace ccms
 		long getConfigLong(const char *name);
 		unsigned long getConfigUlong(const char *name);
 		bool getConfigBool(const char *name);
+		double getConfigDouble(const char *name);
 		std::map<std::string, std::string> getConfigMapString(const char *name);
 		std::map<std::string, int> getConfigMapStringInt(const char *name);
 		std::vector<std::string> getConfigArrayString(const char *name);
@@ -181,6 +182,10 @@ namespace ccms
 		CrontabPtr						_crontab;
 		PluginsPtr						_plugins;
 		I18nPtr							_i18n;
+
+		size_t	_memoryNormalBytes;
+		double	_cacheFlushPart;
+		time_t	_cacheAliveTime;
 
 	private:
 		//отложенное построение унаследованных поинтов для которых еще не построены суперы

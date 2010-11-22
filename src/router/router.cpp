@@ -1258,6 +1258,9 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		: JsObject(false, "Router")
 		, _scripter(eomStderrOnly)
 		, _config(NULL)
+		, _memoryNormalBytes(500*1024*1024)
+		, _cacheFlushPart(0.1)
+		, _cacheAliveTime(1*60)
 	{
 	}
 
@@ -1297,6 +1300,18 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 		_i18n = mkp(new I18n(true), ROOTNAME);
 		jsRegisterProp("i18n", _i18n->thisJsval());
+
+		_memoryNormalBytes = getConfigUlong("memory.normalBytes");
+		if(!_memoryNormalBytes) _memoryNormalBytes = 500*1024*1024;
+		_cacheFlushPart = getConfigDouble("memory.cacheFlushPart");
+		if(!_cacheFlushPart) _cacheFlushPart = 0.1;
+		_cacheAliveTime = getConfigUlong("memory.cacheAliveTime");
+		if(!_cacheAliveTime) _cacheAliveTime = 1*60;
+
+
+		jsuword stackLimit = getConfigUlong("memory.stackLimit");
+		if(!stackLimit) stackLimit = 500000;
+		_scripter.setStackLimit(stackLimit);
 
 		return true;
 	}
@@ -1389,6 +1404,19 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		return v?true:false;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	double Router::getConfigDouble(const char *name)
+	{
+		jsval jsv = getConfigValue(name);
+		jsdouble v;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "d", &v))
+		{
+			(JSExceptionReporter)false;
+			return 0;
+		}
+		return v;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	std::map<std::string, std::string> Router::getConfigMapString(const char *name)
@@ -1679,7 +1707,22 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 		time_t now;
 		time(&now);
-		_cache->delOld(now - 5*60);
+		_cache->delOld(now - _cacheAliveTime);
+
+		uint32 bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
+#define NORMAL_TO_REAL_OVERHEAD 7
+		if(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
+		{
+			_scripter.requestGc();
+			bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
+
+			while(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
+			{
+				_cache->delOld(_cacheFlushPart);
+				_scripter.requestGc();
+				bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
+			}
+		}
 	}
 
 

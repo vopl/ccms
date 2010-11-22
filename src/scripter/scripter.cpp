@@ -459,8 +459,6 @@ namespace ccms
 		JS_SetErrorReporter(_cxMain, Scripter::jsf_report_err);
 		//jsuword 
 
-		//JS_SetThreadStackLimit(_cxMain, )
-
 		_global = createGlobalObject(_cxMain);
 		JS_SetGlobalObject(_cxMain, _global);
 
@@ -563,11 +561,6 @@ namespace ccms
 			ecx_rw()->_err = &ecx()->_request->err;
 		}
 		//JS_BeginRequest(ecx()->_jsCx);
-
-#define MAXJSSTACKSIZE 500000
-		//setStackLimit(MAXJSSTACKSIZE);
-		//JS_SetNativeStackQuota(ecx()->_jsCx, MAXJSSTACKSIZE);
-
 	}
 
 #ifdef DEBUG
@@ -612,14 +605,11 @@ namespace ccms
 		ecx_rw()->_request = NULL;
 
 		JS_MaybeGC(ecx()->_jsCx);
-		//JS_GC(ecx()->_jsCx);
-
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	void Scripter::requestGc()
 	{
-		//JS_MaybeGC(ecx()->_jsCx);
 		JS_GC(ecx()->_jsCx);
 	}
 

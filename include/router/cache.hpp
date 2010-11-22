@@ -22,6 +22,9 @@ namespace ccms
 		bool fire(jsval event);
 		bool tick();
 		bool delOld(time_t bound);
+		bool delOld(double part);
+
+		size_t size();
 
 		bool call_set(uintN argc, jsval *argv, jsval *rval);
 		bool call_get(uintN argc, jsval *argv, jsval *rval);

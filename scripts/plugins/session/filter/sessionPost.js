@@ -1,6 +1,7 @@
 ﻿var session = router.cd.global.session;
 delete router.cd.global.session;
 
+return;
 if(session.needUpdate)
 {
 	session.data = JSON.stringify(router.cdGetInstance('session'));
