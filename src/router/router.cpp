@@ -1713,13 +1713,12 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		time(&now);
 		_cache->delOld(now - _cacheAliveTime);
 
+		_scripter.requestGc();
 		uint32 bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
+
 #define NORMAL_TO_REAL_OVERHEAD 8
 		if(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
 		{
-			_scripter.requestGc();
-			bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
-
 			while(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
 			{
 				_cache->delOld(_cacheFlushPart);
