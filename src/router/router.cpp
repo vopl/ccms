@@ -1714,7 +1714,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_cache->delOld(now - _cacheAliveTime);
 
 		uint32 bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
-#define NORMAL_TO_REAL_OVERHEAD 7
+#define NORMAL_TO_REAL_OVERHEAD 8
 		if(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
 		{
 			_scripter.requestGc();
@@ -1727,6 +1727,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 				bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
 			}
 		}
+		std::cerr<<"bytes: "<<bytes<<", nodes: "<<_cache->size()<<std::endl;
 	}
 
 
