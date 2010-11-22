@@ -2252,6 +2252,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	{
 		_scripter.requestStart(NULL);
 
+		_delayedPointInstanceBuilds.clear();
 		_topRoot4DelayedPointInstanceBuilds.reset();
 
 		if(_root)
@@ -2487,6 +2488,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			return false;
 		}
 
+		bool res = false;
 		try
 		{
 			std::string curFile;
@@ -2501,24 +2503,26 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			{
 				*rval = JSVAL_VOID;
 			}
+
+			res = true;
 		}
 		catch (ccms::exception &e)
 		{
 			JS_ReportError(ecx()->_jsCx, "[Router.createPointInstance ccms exception: %s", e.what());
-			return false;
 		}
 		catch (std::exception &e)
 		{
 			JS_ReportError(ecx()->_jsCx, "[Router.createPointInstance std exception: %s", e.what());
-			return false;
 		}
 		catch (...)
 		{
 			JS_ReportError(ecx()->_jsCx, "[Router.createPointInstance unknown exception");
-			return false;
 		}
 
-		return true;
+		_delayedPointInstanceBuilds.clear();
+		_topRoot4DelayedPointInstanceBuilds.reset();
+
+		return res;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
