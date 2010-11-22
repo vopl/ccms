@@ -91,6 +91,7 @@ namespace ccms
 		void requestStart(Request *r);
 		void requestStop();
 		void requestGc();
+		void requestMaybeGc();
 		void idle();
 
 		void setStackLimit(jsuword size);

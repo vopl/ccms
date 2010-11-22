@@ -1713,7 +1713,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		time(&now);
 		_cache->delOld(now - _cacheAliveTime);
 
-		_scripter.requestGc();
+		_scripter.requestMaybeGc();
 		uint32 bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
 
 #define NORMAL_TO_REAL_OVERHEAD 8
