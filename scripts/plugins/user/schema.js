@@ -118,6 +118,27 @@ orm.addCategory({
 			targets:['login'],
 		}
 	},
+	
+	methods:
+	{
+		setPassword:function(p)
+		{
+			let soult = hash.crc32(Date().getTime());
+			this.password = soult+hash.md5(soult, p);
+		},
+		checkPassword:function(p)
+		{
+			if('string' != typeof this.password || this.password.length != 24)
+			{
+				return false;
+			}
+			
+			let soult = this.password.substr(0,8);
+			let hp = soult+hash.md5(soult, p);
+			return this.password == hp;
+		},
+	},
+	
 });
 
 ///////////////////////////////////////////////////////////
