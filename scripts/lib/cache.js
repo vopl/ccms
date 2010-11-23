@@ -24,22 +24,7 @@ cache.process = function process(conf)
 		return value;
 	}
 	
-	if('events' in conf)
-	{
-		if('timeout' in conf)
-		{
-			router.cache.set(key, value, conf.events, conf.timeout);
-		}
-		else
-		{
-			router.cache.set(key, value, conf.events);
-		}
-	}
-	else
-	{
-		router.cache.set(key, value);
-	}
-	
+	router.cache.set(key, value, conf.events, conf.timeout, conf.callback);
 	return value;
 }
 
@@ -56,9 +41,9 @@ cache.del = function del(key)
 }
 
 ////////////////////////////////////////////////////
-cache.set = function set(key, value)
+cache.set = function set(key, value, events, timeout, callback)
 {
-	return router.cache.set(key, value);
+	return router.cache.set(key, value, events, timeout, callback);
 }
 
 ////////////////////////////////////////////////////

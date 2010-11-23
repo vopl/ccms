@@ -1258,7 +1258,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		: JsObject(false, "Router")
 		, _scripter(eomStderrOnly)
 		, _config(NULL)
-		, _memoryNormalBytes(500*1024*1024)
+		, _gcNormalBytes(30*1024*1024)
 		, _cacheFlushPart(0.1)
 		, _cacheAliveTime(1*60)
 		, _stackLimit(500000)
@@ -1302,8 +1302,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_i18n = mkp(new I18n(true), ROOTNAME);
 		jsRegisterProp("i18n", _i18n->thisJsval());
 
-		_memoryNormalBytes = getConfigUlong("memory.normalBytes");
-		if(!_memoryNormalBytes) _memoryNormalBytes = 500*1024*1024;
+		_gcNormalBytes = getConfigUlong("memory.gcNormalBytes");
+		if(!_gcNormalBytes) _gcNormalBytes = 30*1024*1024;
 		_cacheFlushPart = getConfigDouble("memory.cacheFlushPart");
 		if(!_cacheFlushPart) _cacheFlushPart = 0.1;
 		_cacheAliveTime = getConfigUlong("memory.cacheAliveTime");
@@ -1713,13 +1713,12 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		time(&now);
 		_cache->delOld(now - _cacheAliveTime);
 
-		_scripter.requestGc();
+		_scripter.requestMaybeGc();
 		uint32 bytes = JS_GetGCParameter(_scripter._rt, JSGC_BYTES);
 
-#define NORMAL_TO_REAL_OVERHEAD 8
-		if(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
+		if(bytes > _gcNormalBytes && _cache->size())
 		{
-			while(bytes > _memoryNormalBytes/NORMAL_TO_REAL_OVERHEAD && _cache->size())
+			while(bytes > _gcNormalBytes && _cache->size())
 			{
 				_cache->delOld(_cacheFlushPart);
 				_scripter.requestGc();

@@ -183,7 +183,7 @@ namespace ccms
 		PluginsPtr						_plugins;
 		I18nPtr							_i18n;
 
-		size_t	_memoryNormalBytes;
+		size_t	_gcNormalBytes;
 		double	_cacheFlushPart;
 		time_t	_cacheAliveTime;
 

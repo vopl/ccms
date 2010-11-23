@@ -23,7 +23,7 @@ namespace ccms
 	{
 		BOOST_FOREACH(const TMKeyValue::value_type &v, _mv)
 		{
-			unprotectGc(v.right._value);
+			(JSExceptionReporter)onUnset(v.right);
 		}
 		_me.clear();
 		_mt.clear();
@@ -32,18 +32,18 @@ namespace ccms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Cache::set(jsval key, jsval value, const std::vector<const char *> &delEvents, time_t timeout)
+	bool Cache::set(jsval key, jsval value, jsval callback, const std::vector<const char *> &delEvents, time_t timeout)
 	{
 		Key k(key);
 		time_t now;
 		time(&now);
-		Value v = {now, value};
+		Value v = {now, value, callback};
 
 
 		{
 			del(k);
 			TMKeyValue::left_iterator iter = _mv.left.insert(TMKeyValue::left_map::value_type(k, v)).first;
-			if(!protectGc(iter->second._value)) return false;
+			if(!onSet(iter->second)) return false;
 		}
 
 		if(timeout > 0)
@@ -220,25 +220,59 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
+	//cache.set(name, value, events, callback, timeout)
 	bool Cache::call_set(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(argc < 2 || argc > 4)
+		if(argc < 2 || argc > 5)
 		{
-			JS_ReportError(ecx()->_jsCx, "Cache.set: must be called with 2-4 args");
+			JS_ReportError(ecx()->_jsCx, "Cache.set: must be called with 2-5 args");
 			return false;
 		}
 
-		std::vector<const char *> events;
-		time_t timeout(0);
+		jsval jsvEvents = JSVAL_VOID;
+		jsval jsvTimeout = JSVAL_VOID;
+		jsval jsvCallback = JSVAL_VOID;
 
 		if(argc > 2)
 		{
-			if(!JSVAL_IS_OBJECT(argv[2]))
+			jsvEvents = argv[2];
+			if(argc > 3)
 			{
-				JS_ReportError(ecx()->_jsCx, "Cache.set: 3-rd arg must be an array of strings");
-				return false;
+				jsvTimeout = argv[3];
 			}
-			JSObject *eventsArray = JSVAL_TO_OBJECT(argv[2]);
+			if(argc > 4)
+			{
+				jsvCallback = argv[4];
+			}
+		}
+
+		if(!JSVAL_IS_OBJECT(jsvEvents) && !JSVAL_IS_VOID(jsvEvents))
+		{
+			JS_ReportError(ecx()->_jsCx, "Cache.set: 3rd arg must be an Array of strings");
+			return false;
+		}
+		if(JSVAL_IS_NULL(jsvEvents)) jsvEvents = JSVAL_VOID;
+
+		if(!JSVAL_IS_OBJECT(jsvTimeout) && !JSVAL_IS_VOID(jsvTimeout))
+		{
+			JS_ReportError(ecx()->_jsCx, "Cache.set: 4-th arg must be an Date");
+			return false;
+		}
+		if(JSVAL_IS_NULL(jsvTimeout)) jsvTimeout = JSVAL_VOID;
+
+		if(!JSVAL_IS_OBJECT(jsvCallback) && !JSVAL_IS_VOID(jsvCallback))
+		{
+			JS_ReportError(ecx()->_jsCx, "Cache.set: 5-rd arg must be an function");
+			return false;
+		}
+		if(JSVAL_IS_NULL(jsvCallback)) jsvCallback = JSVAL_VOID;
+
+
+
+		std::vector<const char *> events;
+		if(JSVAL_IS_OBJECT(jsvEvents))
+		{
+			JSObject *eventsArray = JSVAL_TO_OBJECT(jsvEvents);
 			if(!JS_IsArrayObject(ecx()->_jsCx, eventsArray))
 			{
 				JS_ReportError(ecx()->_jsCx, "Cache.set: 3-rd arg must be an array of strings");
@@ -255,32 +289,38 @@ namespace ccms
 				if(!JS_GetElement(ecx()->_jsCx, eventsArray, i, &jsv)) return false;
 				if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "s", &events[i])) return false;
 			}
+		}
 
-			if(argc > 3)
+		time_t timeout(0);
+		if(JSVAL_IS_OBJECT(jsvTimeout))
+		{
+			JSObject *obj = JSVAL_TO_OBJECT(jsvTimeout);
+			JSClass *cls = JS_GET_CLASS(cx, obj);
+			if(strcmp("Date", cls->name))
 			{
-				if(!JSVAL_IS_OBJECT(argv[3]) || JSVAL_IS_NULL(argv[3]))
-				{
-					JS_ReportError(ecx()->_jsCx, "Cache.set: 4-th arg must be an Date object");
-					return false;
-				}
-				JSObject *obj = JSVAL_TO_OBJECT(argv[3]);
-				JSClass *cls = JS_GET_CLASS(cx, obj);
-				if(strcmp("Date", cls->name))
-				{
-					JS_ReportError(ecx()->_jsCx, "Cache.set: 4-th arg must be an Date object");
-					return false;
-				}
+				JS_ReportError(ecx()->_jsCx, "Cache.set: 4-th arg must be an Date object");
+				return false;
+			}
 
-				jsval jsv;
-				if(!JS_CallFunctionName(ecx()->_jsCx, obj, "getTime", 0, NULL, &jsv)) return false;
-				jsdouble d;
-				if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "d", &d))return false;
-				timeout = (time_t)(d/1000);
+			jsval jsv;
+			if(!JS_CallFunctionName(ecx()->_jsCx, obj, "getTime", 0, NULL, &jsv)) return false;
+			jsdouble d;
+			if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "d", &d))return false;
+			timeout = (time_t)(d/1000);
+		}
+
+		if(JSVAL_IS_OBJECT(jsvCallback))
+		{
+			if(JSTYPE_FUNCTION != JS_TypeOfValue(ecx()->_jsCx, jsvCallback))
+			{
+				JS_ReportError(ecx()->_jsCx, "Cache.set: 5-rd arg must be an Function");
+				return false;
 			}
 		}
 
+
 		*rval = JSVAL_VOID;
-		return set(argv[0], argv[1], events, timeout);
+		return set(argv[0], argv[1], jsvCallback, events, timeout);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -327,7 +367,7 @@ namespace ccms
 		TMKeyValue::left_iterator iter = _mv.left.find(k);
 		if(_mv.left.end() != iter)
 		{
-			if(!unprotectGc(iter->second._value)) return false;
+			if(!onUnset(iter->second)) return false;
 			_mv.left.erase(iter);
 			_mt.left.erase(k);
 			_me.left.erase(k);
@@ -338,18 +378,31 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Cache::protectGc(const jsval &jsv)
+	bool Cache::onSet(const Value &v)
 	{
-		if(JSVAL_IS_GCTHING(jsv))
-			return JS_AddRoot(ecx()->_jsCx, (void *)&jsv)?true:false;
+		if(JSVAL_IS_GCTHING(v._value))
+			(JSExceptionReporter)JS_AddRoot(ecx()->_jsCx, (void *)&v._value);
+		if(JSVAL_IS_GCTHING(v._callback))
+			(JSExceptionReporter)JS_AddRoot(ecx()->_jsCx, (void *)&v._callback);
+
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Cache::unprotectGc(const jsval &jsv)
+	bool Cache::onUnset(const Value &v)
 	{
-		if(JSVAL_IS_GCTHING(jsv))
-			return JS_RemoveRoot(ecx()->_jsCx, (void *)&jsv)?true:false;
+		if(JSVAL_IS_GCTHING(v._callback))
+		{
+			if(JSVAL_IS_OBJECT(v._callback))
+			{
+				jsval jsv;
+				(JSExceptionReporter)JS_CallFunctionValue(ecx()->_jsCx, NULL, v._callback, 1, (jsval *)&v._value, &jsv);
+			}
+			(JSExceptionReporter)JS_RemoveRoot(ecx()->_jsCx, (void *)&v._callback);
+		}
+
+		if(JSVAL_IS_GCTHING(v._value))
+			(JSExceptionReporter)JS_RemoveRoot(ecx()->_jsCx, (void *)&v._value);
 		return true;
 	}
 

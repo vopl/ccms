@@ -1,4 +1,10 @@
 ﻿
+function callback(v)
+{
+//	warn('session droped from cache callback: '+dumps(v));
+}
+
+
 let session;
 if(request.cookies.sid)
 {
@@ -12,7 +18,8 @@ if(request.cookies.sid)
 				res.data = JSON.parse(res.data);
 			}
 			return res;
-		}
+		},
+		callback:callback,
 	});
 }
 
@@ -31,7 +38,7 @@ if(!session)
 	session.needUpdate = true;
 	request.pushHeader('Set-Cookie', 'sid='+session.id+'; path=/');
 	
-	global.cache.set('session.'+session.id, session);
+	global.cache.set('session.'+session.id, session, null, null, callback);
 }
 else
 {

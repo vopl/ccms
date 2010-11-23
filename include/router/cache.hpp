@@ -15,7 +15,7 @@ namespace ccms
 		Cache();
 		~Cache();
 
-		bool set(jsval key, jsval value, const std::vector<const char *> &delEvents, time_t timeout);
+		bool set(jsval key, jsval value, jsval callback, const std::vector<const char *> &delEvents, time_t timeout);
 		bool get(jsval key, jsval *value, bool &present);
 		bool del(jsval key);
 
@@ -26,6 +26,7 @@ namespace ccms
 
 		size_t size();
 
+		//cache.set(name, value, events, callback, timeout)
 		bool call_set(uintN argc, jsval *argv, jsval *rval);
 		bool call_get(uintN argc, jsval *argv, jsval *rval);
 		bool call_del(uintN argc, jsval *argv, jsval *rval);
@@ -57,14 +58,15 @@ namespace ccms
 		{
 			time_t	_atime;
 			jsval	_value;
+			jsval	_callback;
 
 			bool operator<(const Value &with) const {return _atime < with._atime;}
 		};
 
 	private:
 		bool del(const Key &k);
-		bool protectGc(const jsval &jsv);
-		bool unprotectGc(const jsval &jsv);
+		bool onSet(const Value &v);
+		bool onUnset(const Value &v);
 
 	private:
 		typedef boost::bimaps::bimap<
