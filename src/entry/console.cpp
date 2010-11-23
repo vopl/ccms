@@ -122,6 +122,9 @@ int main_(int argc, char* argv[])
 					{
 						router->getScripter().f_execFile(scriptName);
 					}
+
+					router->preStart();
+
 #if USE_PROFILER
 					ccms::g_profiler.start();
 #endif
@@ -136,7 +139,10 @@ int main_(int argc, char* argv[])
 #if USE_PROFILER
 					ccms::g_profiler.stop();
 #endif
+
 					ccms::ScripterScopedRequest ssr;
+					router->postStart();
+
 					std::string scriptName = router->getScripter().resolveLibName("shutdown.js");
 					if(!scriptName.empty())
 					{

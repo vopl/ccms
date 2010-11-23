@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib P:\sdk\libmemcached\lib\libmemcached.dll.a"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
@@ -2120,6 +2120,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="hash"
+				>
+				<File
+					RelativePath="..\..\src\hash\hash.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="include"
@@ -2793,6 +2801,14 @@
 				</File>
 				<File
 					RelativePath="..\..\include\net\smtp.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="hash"
+				>
+				<File
+					RelativePath="..\..\include\hash\hash.hpp"
 					>
 				</File>
 			</Filter>

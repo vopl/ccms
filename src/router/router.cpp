@@ -11,8 +11,10 @@
 #include "magick/magick.hpp"
 #include "mime/mime.hpp"
 #include "net/net.hpp"
+#include "hash/hash.hpp"
 
 #include "scripter/profiler.hpp"
+
 
 namespace ccms
 {
@@ -1728,6 +1730,18 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		//std::cerr<<"bytes: "<<bytes<<", nodes: "<<_cache->size()<<std::endl;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	bool Router::preStart()
+	{
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void Router::postStart()
+	{
+		_cache->delOld(1.0);
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -2242,6 +2256,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_scripter.jsDefineInGlobal("Magick", mkp(new magick::Magick, ROOTNAME));
 		_scripter.jsDefineInGlobal("Mime", mkp(new mime::Mime, ROOTNAME));
 		_scripter.jsDefineInGlobal("Net", mkp(new net::Net, ROOTNAME));
+		_scripter.jsDefineInGlobal("hash", mkp(new Hash, ROOTNAME));
 
 		_scripter.requestStop();
 	}
@@ -2250,6 +2265,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	void Router::jsDestroy()
 	{
 		_scripter.requestStart(NULL);
+
 
 		_delayedPointInstanceBuilds.clear();
 		_topRoot4DelayedPointInstanceBuilds.reset();
@@ -2296,7 +2312,6 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		}
 
 		_scripter.requestStop();
-
 		_scripter.stop();
 
 		ecx_rw()->_router = NULL;

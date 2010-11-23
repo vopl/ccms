@@ -14,7 +14,7 @@ namespace ccms
   MaxLen: 268 435 455 байт (2 147 483 647 бит) - обнаружение
    одинарных, двойных, пакетных и всех нечетных ошибок
 */
-	const unsigned Crc32Table[256] = {
+	const boost::uint32_t Crc32Table[256] = {
 		0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,
 		0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
 		0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
@@ -81,13 +81,41 @@ namespace ccms
 		0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 	};
 
-	unsigned Crc32(const char * buf, size_t len)
+	boost::uint32_t Crc32(const char * buf, size_t len)
 	{
-		unsigned crc = 0xFFFFFFFF;
+		boost::uint32_t crc = 0xFFFFFFFF;
 		while (len--)
 			crc = (crc >> 8) ^ Crc32Table[(crc ^ (unsigned char)*buf++) & 0xFF];
 		return crc ^ 0xFFFFFFFF;
 	}
+
+
+
+	int CRC32_Init(CRC32_CTX *c)
+	{
+		c->_state = 0xFFFFFFFF;
+		return 0;
+	}
+
+	int CRC32_Update(CRC32_CTX *c, const void *data, size_t len)
+	{
+		const unsigned char *cdata = (const unsigned char *)data;
+		while (len--)
+			c->_state = (c->_state >> 8) ^ Crc32Table[(c->_state ^ (unsigned char)*cdata++) & 0xFF];
+		return 0;
+	}
+
+	int CRC32_Final(unsigned char *md, CRC32_CTX *c)
+	{
+		c->_state ^= 0xFFFFFFFF;
+		unsigned char *cbuf = (unsigned char *)&c->_state;
+		md[0] = cbuf[3];
+		md[1] = cbuf[2];
+		md[2] = cbuf[1];
+		md[3] = cbuf[0];
+		return 0;
+	}
+
 }
 
 

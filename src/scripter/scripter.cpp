@@ -348,6 +348,8 @@ namespace ccms
 
 
 
+
+
 #define JS_FN_FLAGS (JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_SHARED)
 	static JSFunctionSpec shell_functions[] = {
 		JS_FN("print",			Scripter::jsf_write_out,		1, JS_FN_FLAGS),	//print(str)

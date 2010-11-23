@@ -94,6 +94,10 @@ namespace ccms
 		virtual void cleanup(void *connectionData);
 		virtual void cronTick(std::ostream &err);
 
+		bool preStart();
+		void postStart();
+
+
 		bool buildExecutePlan(const Path &path, 
 			JSObject *executePlan, 
 			JSObject *executePlanData, 
