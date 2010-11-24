@@ -6,7 +6,7 @@ if(!t)
 		<input name='backUrl' type='hidden' value={t.backUrl}/>
 		<input name='id' type='hidden' value={t.id}/>
 		login:<input name='login' type='string'  value={t.login}/><br/>
-		password:<input name='password' type='string' value={t.password}/><br/>
+		password:<input name='password' type='string' value={''}/><br/>
 
 		{t.roles}
 		<input type='submit'/>
@@ -24,7 +24,6 @@ if('id' in request.params)
 	{
 		t.id = user.id;
 		t.login = user.login;
-		t.password = user.password;
 
 		let ownRoles = orm.query('SELECT ur.role, r.name FROM {Role} r LEFT JOIN {UserRole} ur ON (r.id=ur.role) WHERE ur.user=$1', user.id);
 		let ownRolesHash = {};

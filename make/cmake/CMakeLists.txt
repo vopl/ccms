@@ -20,6 +20,17 @@ SET(SRC_DB
 SOURCE_GROUP(src\\db FILES ${SRC_DB})
 
 
+################################
+SET(INCLUDE_HASH
+	../../include/hash/hash.hpp
+)
+SOURCE_GROUP(include\\hash FILES ${INCLUDE_HASH})
+
+SET(SRC_HASH
+	../../src/hash/hash.cpp
+)
+SOURCE_GROUP(src\\hash FILES ${SRC_HASH})
+
 
 
 ################################
@@ -537,6 +548,7 @@ SOURCE_GROUP(src\\entry FILES ${ENTRY})
 
 
 ADD_EXECUTABLE(entry 
+	${INCLUDE_HASH} ${SRC_HASH}
 	${INCLUDE_DB} ${SRC_DB}
 	${INCLUDE_ROUTER} ${SRC_ROUTER}
 	${INCLUDE_SCRIPTER} ${SRC_SCRIPTER} ${HDR_SRC_SCRIPTER}
@@ -556,6 +568,7 @@ ADD_EXECUTABLE(entry
 
 CREATE_PCH(entry ../../src/stdafx.h ../../src/stdafx.cpp)
 
+USE_PCH(entry ../../src/stdafx.h ${SRC_HASH})
 USE_PCH(entry ../../src/stdafx.h ${SRC_DB})
 USE_PCH(entry ../../src/stdafx.h ${SRC_ROUTER})
 USE_PCH(entry ../../src/stdafx.h ${SRC_SCRIPTER})

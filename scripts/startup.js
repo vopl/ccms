@@ -91,9 +91,3 @@ warn('startup');
 // dumpe(res);
 // warn(cnt / (end.getTime() - beg.getTime())*1000);
 
-
-let user = orm.user.make({});
-dumpe(user);
-user.setPassword('220');
-dumpe(user);
-warn(user.checkPassword('220'));

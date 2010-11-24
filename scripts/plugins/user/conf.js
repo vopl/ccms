@@ -73,6 +73,7 @@
 		router.i18n.addTranslation('ru', absFile('i18n/ru/texts.po'));
 		
 		global.acl = exec("acl.js");
+		
 		return true;
 	},
 	

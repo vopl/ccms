@@ -57,7 +57,7 @@ let now = new Date();
 if(!session)
 {
 	session = {
-		id:hash.md5(String(Math.random())+'_'+global.uniq+'_'+now.getTime()),
+		id:hash.md5(String(Math.random()), global.uniq, now.getTime()),
 		ctime:now,
 		atime:now,
 		dtime:now,
@@ -68,7 +68,7 @@ if(!session)
 	request.pushHeader('Set-Cookie', 'sid='+session.id+'; path=/');
 	global.cache.set('session.'+session.id, session, null, null, callback);
 	
-	warn('create session '+session.id);
+	//warn('create session '+session.id);
 }
 else
 {

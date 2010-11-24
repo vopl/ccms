@@ -9,7 +9,7 @@ try
 		}
 		
 		//user.login=request.params.login;
-		user.password=request.params.password;
+		user.setPassword(request.params.password);
 		user.save();
 
 		let roles = request.params.role;

@@ -52,15 +52,16 @@ try
 			orm.Role.select('WHERE module=$1 AND name=$2', 'user', 'user'),
 			orm.Role.select('WHERE module=$1 AND name=$2', 'forum', 'user'));
 		
-		let user = acl.setUser(
-			{
+		let user = orm.User.make({
 				login:request.params.login,
-				password:request.params.password,
 				email:request.params.email,
 				status:'waitConfirm:'+confirmSecret,
 				create_date:new Date(),
-			}, 
-			roles);
+			});
+		user.setPassword(request.params.password);
+		user.save();
+		
+		acl.setUser(user, roles);
 			
 		//отправить письмо
 		{

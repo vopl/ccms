@@ -14,7 +14,7 @@ try
 					this.msg = _("Login incorrect");
 					break;
 				}
-				if(user.password != request.params.password)
+				if(!user.checkPassword(request.params.password))
 				{
 					this.msg = _("Password incorrect");
 					break;
