@@ -123,18 +123,18 @@ orm.addCategory({
 	{
 		setPassword:function(p)
 		{
-			let salt = hash.crc32((new Date()).getTime());
-			this.password = salt+hash.md5(salt, p);
+			let salt = hash.crc32_((new Date()).getTime(), Math.random(), uniq);
+			this.password = salt+hash.md5_(salt, p);
 		},
 		checkPassword:function(p)
 		{
-			if('string' != typeof this.password || this.password.length != 40)
+			if('string' != typeof this.password || this.password.length != 6+22)
 			{
 				return this.password === p;
 			}
 			
-			let salt = this.password.substr(0,8);
-			let hp = salt+hash.md5(salt, p);
+			let salt = this.password.substr(0,6);
+			let hp = salt+hash.md5_(salt, p);
 			return this.password == hp;
 		},
 	},

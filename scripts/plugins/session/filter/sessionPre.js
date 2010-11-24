@@ -57,7 +57,7 @@ let now = new Date();
 if(!session)
 {
 	session = {
-		id:hash.md5(String(Math.random()), global.uniq, now.getTime()),
+		id:hash.md5_(String(Math.random()), global.uniq, now.getTime()),
 		ctime:now,
 		atime:now,
 		dtime:now,
