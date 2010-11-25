@@ -111,8 +111,9 @@ namespace ccms
 			"0123456789_."
 		};
 	}
-	bool Hash::mkstr64(const unsigned char *sum, size_t len, jsval *rval)
+	bool Hash::mkstr64(const unsigned char *sum_, size_t len, jsval *rval)
 	{
+		const unsigned char *sum = sum_;
 		char sbuf[MAX_HASHBITS/8/3*4+1];
 
 		size_t triplets = len / 3;
@@ -139,16 +140,25 @@ namespace ccms
 		case 1:
 			*out = impl::Hash_s64[(sum[0] & 0xfc) >> 2];
 			out++;
-			*out = impl::Hash_s64[((sum[0] & 0x03) << 4)];
+
+// 			*out = impl::Hash_s64[((sum[0] & 0x03) << 4)];
+			//зациклить на начало
+			*out = impl::Hash_s64[((sum[0] & 0x03) << 4) + ((sum_[0] & 0xf0) >> 4)];
 			out++;
+
 			break;
 		case 2:
 			*out = impl::Hash_s64[(sum[0] & 0xfc) >> 2];
 			out++;
+
 			*out = impl::Hash_s64[((sum[0] & 0x03) << 4) + ((sum[1] & 0xf0) >> 4)];
 			out++;
-			*out = impl::Hash_s64[((sum[1] & 0x0f) << 2)];
+
+//			*out = impl::Hash_s64[((sum[1] & 0x0f) << 2)];
+			//зациклить на начало
+			*out = impl::Hash_s64[((sum[1] & 0x0f) << 2) + ((sum_[0] & 0xc0) >> 6)];
 			out++;
+
 			break;
 		}
 

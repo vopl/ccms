@@ -1,73 +1,34 @@
-﻿function checkNsTree(data, level, correct, element)
+﻿if(!arguments.callee.stat1)
 {
-	if(element)
+	arguments.callee.stat1 = {};
+	arguments.callee.stat2 = {};
+	arguments.callee.cnt = {a:0};
+	
+	let stat1 = arguments.callee.stat1;
+	let stat2 = arguments.callee.stat2;
+	for(let k=0; k<10000; k++)
 	{
-		if(element.tree_level != level)
-		{
-			if(correct)
-			{
-				orm.exec('UPDATE {NsTree} SET tree_level=$1 WHERE id=$2', level, element.id);
-			}
-			else
-			{
-				dumpe(['tree_level', level, element]);
-				return false;
-			}
-		}
-	
-	
-		if(element.tree_left <= data.cnt)
-		{
-			if(correct)
-			{
-				orm.exec('UPDATE {NsTree} SET tree_left=$1 WHERE id=$2', data.cnt+1, element.id);
-				element.tree_left = data.cnt+1;
-			}
-			else
-			{
-				dumpe(['tree_left', data, element]);
-				return false;
-			}
-		}
-		data.cnt = element.tree_left;
-	
-	
-	
-	
-		let childs = orm.query('SELECT * FROM {NsTree} WHERE tree_pid=$1 ORDER BY tree_left', element.id);
-		for each(let child in childs)
-		{
-			if(!checkNsTree(data, level+1, correct, child)) return false;
-		}
-		
-		if(element.tree_right <= data.cnt)
-		{
-			if(correct)
-			{
-				orm.exec('UPDATE {NsTree} SET tree_right=$1 WHERE id=$2', data.cnt+1, element.id);
-				element.tree_right = data.cnt+1;
-			}
-			else
-			{
-				dumpe(['tree_right', data, element]);
-				return false;
-			}
-		}
-		data.cnt = element.tree_right;
-		
-	}
-	else
-	{
-		//выбрать корни
-		let roots = orm.query('SELECT * FROM {NsTree} WHERE tree_pid IS NULL ORDER BY tree_left');
-		for each(let root in roots)
-		{
-			data.cnt=-100000;
-			if(!checkNsTree(data, level, correct, root)) return false;
-		}
+		let v = hash.sha1_(k, Math.random());
+		if(!stat1[v.charAt(5)]) stat1[v.charAt(5)] = 0;
+		stat1[v.charAt(5)]++;
+
+		if(!stat2[v.charAt(3)]) stat2[v.charAt(3)] = 0;
+		stat2[v.charAt(3)]++;
 	}
 	
-	return true;
 }
- 
-return <>{checkNsTree({cnt:-100000}, 0, request.params.c)}</>;
+let stat1 = arguments.callee.stat1;
+let stat2 = arguments.callee.stat2;
+let cnt = arguments.callee.cnt;
+for(let k=0; k<10000; k++)
+{
+	let v = hash.sha1_(k, Math.random());
+	for(let j=0; j<v.length-1; j++)
+	{
+		stat1[v.charAt(j)]++;
+	}
+	stat2[v.charAt(v.length-1)]++;
+}
+cnt.a += 10000
+
+return dumps([cnt.a, stat1, stat2]);

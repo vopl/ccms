@@ -4,8 +4,6 @@ var res=
 	{
 		process:{file:'./process.js'},
 		render:{file:'./render.js'},
-
-		saveNsTreeObject:{file:'saveNsTreeObject.js'},
 	},
 
 	childs:
