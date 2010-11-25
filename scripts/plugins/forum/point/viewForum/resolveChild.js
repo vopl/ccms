@@ -7,15 +7,39 @@ let data = arguments[1];
 let pp = pathPart.match(/^page(\d+)$/);
 if(pp)
 {
-	data.page = pp[1];
-	data.nonPagePath = '/'+pathOut.join('/');
+	data.page = Number(pp[1]);
 	
 	return {
 		title:_('page $num', {$num:data.page}),
-		point:this,
+		point:this.parent.childs.viewTopics,
 	};
 }
 
+//////////////////////////////////////////////////
+pp = pathPart.match(/^rpage(\d+)$/);
+if(pp)
+{
+	data.rpage = Number(pp[1]);
+	
+	return {
+		title:_('rpage $num', {$num:data.rpage}),
+		point:this.parent.childs.viewTopics,
+	};
+}
+
+
+//////////////////////////////////////////////////
+pp = pathPart.match(/^(\d{4}-\d{2}-\d{2})$/);
+if(pp)
+{
+	data.date = new Date();
+	data.date.tsd = pp[1];
+	
+	return {
+		title:_('date $date', {$date:data.date}),
+		point:this.parent.childs.viewTopics,
+	};
+}
 
 //////////////////////////////////////////////////
 let mostForum = data.forums.back;

@@ -8,6 +8,18 @@ if(request.params.save)
 	post.forum_id = mostForum.id;
 	if(request.planData.mode && request.planData.mode == 'add')
 	{
+		let dbr = orm.query('SELECT MAX(page) FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL', mostForum.id);
+		let mostPage = dbr[0].max || 1;
+		dbr = orm.query('SELECT COUNT(*) FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND page=$2', mostForum.id, mostPage);
+		let mostPageSize = dbr[0].count || 0;
+
+		if(mostPageSize >= (mostForum.topics_navigate_page_size || 20))
+		{
+			mostPage++;
+		}
+		dumpe([mostPage, mostPageSize]);
+
+		post.page = mostPage;
 		post.tree_pid = mostPost?mostPost.id:undefined;
 		post.ctime = new Date();
 	}

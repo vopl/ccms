@@ -6,6 +6,7 @@
 		editForum:'editForum/conf.js',
 		moveForum:'moveForum/conf.js',
 		viewForum:'viewForum/conf.js',
+		viewTopics:'viewTopics/conf.js',
 
 		delPost:'delPost/conf.js',
 		editPost:'editPost/conf.js',
