@@ -1,10 +1,10 @@
-let pathPart = arguments[0];
+п»їlet pathPart = arguments[0];
 let data = arguments[1];
 
 
 let mostPost = data.posts[data.posts.length-1];
 
-//резолвить на топик
+//СЂРµР·РѕР»РІРёС‚СЊ РЅР° С‚РѕРїРёРє
 
 
 ///////////////////////////////////////////////////

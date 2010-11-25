@@ -218,6 +218,7 @@ namespace ccms
 				if(fik == el.second->getKind())
 				{
 					if(!el.second->process(fpr)) return false;
+					if(efiprComplete == fpr) return true;
 				}
 			}
 			break;
@@ -228,6 +229,7 @@ namespace ccms
 				if(fik == el.second->getKind())
 				{
 					if(!el.second->process(fpr)) return false;
+					if(efiprComplete == fpr) return true;
 				}
 			}
 			break;

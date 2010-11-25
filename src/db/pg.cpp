@@ -585,12 +585,10 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
-	PgStatement::PgStatement(PgPtr db, const char *name, const char *sql, bool verbose)
+	PgStatement::PgStatement(PgPtr db, const char *sql)
 		: JsObject(true, "PgStatement")
 		, _db(db)
-		, _name(name)
 		, _sql(sql)
-		, _verbose(verbose)
 	{
 		jsRegisterMeth("query", &PgStatement::call_query, 0);
 		jsRegisterMeth("exec", &PgStatement::call_exec, 0);
@@ -604,7 +602,17 @@ namespace ccms
 	PgStatement::~PgStatement()
 	{
 		_db->onStatementDestroy(this);
-		PQclear(PQexec(_db->getConn(), ("DEALLOCATE "+_name).c_str()));
+		dropPrepared();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void PgStatement::dropPrepared()
+	{
+		if(!_name.empty())
+		{
+			PQclear(PQexec(_db->getConn(), ("DEALLOCATE "+_name).c_str()));
+			_name.clear();
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -617,7 +625,8 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool PgStatement::call_query(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(_verbose)
+		if(!prepare()) return false;
+		if(_db->getVerbose())
 		{
 			(*ecx()->_err)<<_sql<<std::endl;
 		}
@@ -627,7 +636,8 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool PgStatement::call_exec(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(_verbose)
+		if(!prepare()) return false;
+		if(_db->getVerbose())
 		{
 			(*ecx()->_err)<<_sql<<std::endl;
 		}
@@ -639,7 +649,9 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool PgStatement::call_describe(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(_verbose)
+		if(!prepare()) return false;
+
+		if(_db->getVerbose())
 		{
 			(*ecx()->_err)<<"describe "<<_sql<<std::endl;
 		}
@@ -702,6 +714,61 @@ namespace ccms
 
 
 
+	//////////////////////////////////////////////////////////////////////////
+	bool PgStatement::prepare()
+	{
+		if(!_name.empty())
+		{
+			return true;
+		}
+
+		char stmt[32];
+
+		PGconn *_conn = _db->getConn();
+		bool inTrans = false;
+		switch(PQtransactionStatus(_conn))
+		{
+		case PQTRANS_ACTIVE:
+		case PQTRANS_INTRANS:
+		case PQTRANS_INERROR:
+			inTrans = true;
+		}
+
+		for(;;)
+		{
+			if(inTrans) PQclear(PQexec(_conn, "SAVEPOINT internal_prepare_09275782567835"));
+
+			sprintf(stmt, "ps_%08x", rand()*rand());
+			PGresult *res = PQprepare(_conn, stmt, _sql.data(), 0, NULL);
+			ExecStatusType est = PQresultStatus(res);
+			if(PGRES_FATAL_ERROR == est)
+			{
+				if(inTrans) PQclear(PQexec(_conn, "ROLLBACK TO SAVEPOINT internal_prepare_09275782567835"));
+				char *s4 = PQresultErrorField(res, PG_DIAG_SQLSTATE);
+				if(s4 && !strcmp(s4, "42P05"))//DUPLICATE PREPARED STATEMENT
+				{
+					PQclear(res);
+					continue;
+				}
+			}
+			if(inTrans) PQclear(PQexec(_conn, "RELEASE SAVEPOINT internal_prepare_09275782567835"));
+			if(PGRES_COMMAND_OK != est)
+			{
+				char *s = PQresultErrorMessage(res);
+
+				JS_ReportError(ecx()->_jsCx, "[Pg.prepare failed: %s [%s]]", s, _sql.data());
+				PQclear(res);
+				return false;
+			}
+			//ok
+			PQclear(res);
+			break;
+		};
+
+		_name = stmt;
+		return true;
+	}
+
 
 
 
@@ -713,6 +780,7 @@ namespace ccms
 		, _verbose(false)
 	{
 		jsRegisterMeth("open", &Pg::call_open, 1);
+		jsRegisterMeth("reset", &Pg::call_reset, 0);
 		jsRegisterMeth("close", &Pg::call_close, 0);
 		jsRegisterMeth("prepare", &Pg::call_prepare, 1);
 		jsRegisterMeth("query", &Pg::call_query, 1);
@@ -808,50 +876,8 @@ namespace ccms
 			return true;
 		}
 
-		char stmt[32];
-
-		bool inTrans = false;
-		switch(PQtransactionStatus(_conn))
-		{
-		case PQTRANS_ACTIVE:
-		case PQTRANS_INTRANS:
-		case PQTRANS_INERROR:
-			inTrans = true;
-		}
-
-		for(;;)
-		{
-			if(inTrans) PQclear(PQexec(_conn, "SAVEPOINT internal_prepare_09275782567835"));
-
-			sprintf(stmt, "ps_%08x", rand()*rand());
-			PGresult *res = PQprepare(_conn, stmt, sql, 0, NULL);
-			ExecStatusType est = PQresultStatus(res);
-			if(PGRES_FATAL_ERROR == est)
-			{
-				if(inTrans) PQclear(PQexec(_conn, "ROLLBACK TO SAVEPOINT internal_prepare_09275782567835"));
-				char *s4 = PQresultErrorField(res, PG_DIAG_SQLSTATE);
-				if(!strcmp(s4, "42P05"))//DUPLICATE PREPARED STATEMENT
-				{
-					PQclear(res);
-					continue;
-				}
-			}
-			if(inTrans) PQclear(PQexec(_conn, "RELEASE SAVEPOINT internal_prepare_09275782567835"));
-			if(PGRES_COMMAND_OK != est)
-			{
-				char *s = PQresultErrorMessage(res);
-
-				JS_ReportError(ecx()->_jsCx, "[Pg.prepare failed: %s [%s]]", s, sql);
-				PQclear(res);
-				return false;
-			}
-			//ok
-			PQclear(res);
-			break;
-		};
-
 		//тут создать объект statement, зарядить его именем stmt и вернуть
-		PgStatement *p = new PgStatement(mkp(this, ROOTNAME), stmt, sql, _verbose);
+		PgStatement *p = new PgStatement(mkp(this, ROOTNAME), sql);
 
 		*rval = p->thisJsval();
 		return true;
@@ -1062,12 +1088,44 @@ namespace ccms
 		return true;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	bool Pg::call_reset(uintN argc, jsval *argv, jsval *rval)
+	{
+		BOOST_FOREACH(TMStatements::value_type &v, _statements)
+		{
+			v.second->dropPrepared();
+		}
+		
+		PQreset(_conn);
+
+		if(PQstatus(_conn) != CONNECTION_OK)
+		{
+			char *errMsg = PQerrorMessage(_conn);
+
+			JS_ReportError(ecx()->_jsCx, "[Pg.reset error: %s]", errMsg);
+			return false;
+		}
+		int i = PQsetClientEncoding(_conn, "UTF8");
+		//int i = PQsetClientEncoding(_conn, "LATIN1");
+
+		*rval = true;
+		return true;
+
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	PGconn *Pg::getConn()
 	{
 		return _conn;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Pg::getVerbose()
+	{
+		return _verbose;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	void Pg::onStatementCreate(PgStatement *stmt)

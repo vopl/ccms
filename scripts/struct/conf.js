@@ -2,6 +2,15 @@
 {
 	filters:
 	{
+		dbPre:
+		{
+			kind:'preTransit',
+			properties:
+			{
+				process:{file:'dbProcessPre.js', executeble:true},
+			}
+		},
+
 
 		uiPre:
 		{

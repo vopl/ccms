@@ -17,13 +17,13 @@ namespace ccms
 	{
 		std::string	_name;
 		std::string	_sql;
-		bool _verbose;
 		PgPtr		_db;
 
 	public: 
-		PgStatement(PgPtr db, const char *name, const char *sql, bool verbose);
+		PgStatement(PgPtr db, const char *sql);
 		~PgStatement();
 
+		void dropPrepared();
 		const char *getSql();
 
 		//recArray query([params]);
@@ -33,6 +33,9 @@ namespace ccms
 
 		bool call_describe(uintN argc, jsval *argv, jsval *rval);
 		bool xetter_sql(jsval *vp, bool isGet);
+
+	private:
+		bool prepare();
 	};
 	//typedef JsPtr<PgStatement> PgStatementPtr;
 
@@ -72,8 +75,11 @@ namespace ccms
 		bool xetter_protocolVersion(jsval *vp, bool isGet);
 		bool xetter_serverVersion(jsval *vp, bool isGet);
 
+		//if('OK' != db.status) db.reset();
+		bool call_reset(uintN argc, jsval *argv, jsval *rval);
 
 		PGconn *getConn();
+		bool getVerbose();
 
 	public:
 		void onStatementCreate(PgStatement *stmt);
