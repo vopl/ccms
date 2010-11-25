@@ -42,6 +42,7 @@ if(!t)
 			</tr>
 
 			</table>
+			{t.ga}
 			<b>{this.path}</b>
 		</body>
 	</html></>;
@@ -49,4 +50,31 @@ if(!t)
 	
 	arguments.callee.t=t;
 }
-return t.clone();
+
+t = t.clone();
+
+if(/graydog\.1gb\.ru/.test(request.env.host))
+//if(/local/.test(request.env.host))
+{
+	t.ga = <>
+		<script type="text/javascript"><![CDATA[
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-19928951-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		]]></script><br/>
+	</>;
+}
+else
+{
+	t.ga = <>no ga for {request.env.host}<br/></>;
+}
+
+return t;
