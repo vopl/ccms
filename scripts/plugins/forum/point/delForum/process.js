@@ -12,8 +12,6 @@ if(!target)
 if(request.params.confirm)
 {
 	target = orm.Forum.make(target);
-	//warn('del '+target.id);
-	//dumpe(target);
 	target.delete();
 	cache.fire('forum.forum');
 	request.setStatusCode(303);

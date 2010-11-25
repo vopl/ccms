@@ -56,7 +56,7 @@ if(request.params.name)
 	}
 }
 
-ui.blocks.center(this.render());
+ui.blocks.center.push(this.render());
 ui.print();
 
 

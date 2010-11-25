@@ -103,7 +103,7 @@ impl.prepareCategoryConf_fields = function prepareCategoryConf_fields(conf, fiel
 		//неПусто
 		if(!('notNull' in value)) value.notNull = false;
 		
-		if(value.notNull && null==value.default) throw Error("default value for field "+name+" must not be a null");
+		//if(value.notNull && null==value.default) throw Error("default value for field "+name+" must not be a null");
 		
 		//валидатор
 		if('validator' in value && 'function' != typeof value.validator) throw Error("validator for field "+name+" must be a function");

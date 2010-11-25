@@ -1578,7 +1578,7 @@ namespace ccms
 		case ectFormUrlEncoded:
 			if(!connection->_fueAccumulerKey.empty() && !connection->_fueAccumulerValue.empty())
 			{
-				connection->_paramsPost[connection->_fueAccumulerKey].push_back(connection->_fueAccumulerValue);
+				connection->_paramsPost[urldecode(connection->_fueAccumulerKey)].push_back(urldecode(connection->_fueAccumulerValue));
 			}
 
 			connection->_fueWaitKey = true;

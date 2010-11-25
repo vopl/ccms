@@ -34,7 +34,6 @@ if('id' in request.params)
 
 		for each(let role in allRoles)
 		{
-			t.roles += <>{role.module+'.'+role.name}</>;
 			if(role.id in ownRolesHash)
 			{
 				t.roles += <input name={'role.'+role.id} type='checkbox' value='1' checked='true'/>;
@@ -43,6 +42,8 @@ if('id' in request.params)
 			{
 				t.roles += <input name={'role.'+role.id} type='checkbox' value='1'/>;
 			}
+			t.roles += <>{role.module+'.'+role.name}</>;
+			t.roles += <br/>;
 		}
 	}
 }

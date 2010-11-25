@@ -17,11 +17,11 @@ if(request.params.save)
 		{
 			mostPage++;
 		}
-		dumpe([mostPage, mostPageSize]);
 
 		post.page = mostPage;
 		post.tree_pid = mostPost?mostPost.id:undefined;
 		post.ctime = new Date();
+		post.user_id = user.id;
 	}
 	else
 	{

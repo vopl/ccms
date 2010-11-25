@@ -68,17 +68,19 @@ orm.addCategory({
 		//дерево внутри постов. Корень - тема которая тоже пост
 		tree_pid:{type:'fkey',target:'ForumPost',},
 		tree_root:{type:'fkey',target:'ForumPost',},
-	
-		ctime:'date',
-		mtime:'date',
+
+		user_id:{type:'fkey',target:'User',notNull:true},
+		
+		ctime:{type:'date',notNull:true},
+		mtime:{type:'date',notNull:true},
 		
 		//отношение к экземпляру форума
-		forum_id:{type:'fkey',target:'Forum',},
+		forum_id:{type:'fkey',target:'Forum',notNull:true,},
 		
 		//отношение к "постоянной странице"
-		page:'integer',
+		page:{type:'integer',notNull:true},
 		
-		content:'text',
+		content:{type:'text',notNull:true},
 	},
 });
 

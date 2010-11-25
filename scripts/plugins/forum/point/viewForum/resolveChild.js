@@ -2,7 +2,6 @@ let pathPart = arguments[0];
 let data = arguments[1];
 
 
-
 //////////////////////////////////////////////////
 let pp = pathPart.match(/^page(\d+)$/);
 if(pp)
@@ -20,6 +19,7 @@ pp = pathPart.match(/^rpage(\d+)$/);
 if(pp)
 {
 	data.rpage = Number(pp[1]);
+	if(!data.rpage) return false;
 	
 	return {
 		title:_('rpage $num', {$num:data.rpage}),
@@ -32,11 +32,11 @@ if(pp)
 pp = pathPart.match(/^(\d{4}-\d{2}-\d{2})$/);
 if(pp)
 {
-	data.date = new Date();
-	data.date.tsd = pp[1];
+	data.dateYMD = new Date();
+	data.dateYMD.tsd = pp[1];
 	
 	return {
-		title:_('date $date', {$date:data.date}),
+		title:_('date $date', {$date:data.dateYMD}),
 		point:this.parent.childs.viewTopics,
 	};
 }

@@ -73,7 +73,7 @@ namespace ccms
 						time_t t = (time_t)(d/1000);
 						//t -= offset*60;
 
-						tm *ptm = gmtime(&t);
+						tm *ptm = localtime(&t);
 
 						char buf[64];
 						sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d%", 

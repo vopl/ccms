@@ -72,7 +72,7 @@ acl.hasRight = function hasRight(module, operation, userIdOrNull)
 	}
 	
 	let res = global.cache.process({
-		key:'user.'+userIdOrNull+'.rights',
+		key:'user.'+userIdOrNull+'.rights.'+module+'.'+operation,
 		provider:function()
 		{
 			let dbr = orm.query('SELECT value FROM {OperationRole} o_r \
@@ -81,7 +81,7 @@ acl.hasRight = function hasRight(module, operation, userIdOrNull)
 				WHERE o.module=$1 AND o.name=$2 AND u_r.user=$3\
 				',module, operation, userIdOrNull);
 				
-			let res = undefined;
+			let res = false;
 			
 			for each(let v in dbr)
 			{
