@@ -49,7 +49,13 @@ return <>
 	
 	description:<input type='string' name='description' value={forum.description?forum.description:''}/><br/>
 	
-	allow_topic:<input type='checkbox' name='allow_topic' value='1' {forum.allow_topic?'checked':'data-checked'}='1'/><br/>
+	topic_allow:<input type='checkbox' name='topic_allow' value='1' {forum.topic_allow?'checked':'data-checked'}='1'/><br/>
+	topics_navigate_date:<input type='checkbox' name='topics_navigate_date' value='1' {forum.topics_navigate_date?'checked':'data-checked'}='1'/><br/>
+	topics_navigate_page:<input type='checkbox' name='topics_navigate_page' value='1' {forum.topics_navigate_page?'checked':'data-checked'}='1'/><br/>
+	topics_navigate_rpage:<input type='checkbox' name='topics_navigate_rpage' value='1' {forum.topics_navigate_rpage?'checked':'data-checked'}='1'/><br/>
+	topics_navigate_page_size:<input type='string' name='topics_navigate_page_size' value={forum.topics_navigate_page_size}/><br/>
+	topics_navigate_rpage_size:<input type='string' name='topics_navigate_rpage_size' value={forum.topics_navigate_rpage_size}/><br/>
+	
 	<input type='submit'/>
 </form>
 

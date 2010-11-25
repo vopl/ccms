@@ -13,7 +13,7 @@
 						<img src='/dog.png'/>
 					</td>
 					<td width='100%' align="center">
-						а тут нахрен банер прям посередине
+						тут
 					</td>
 					<td align='right'>
 						{t.auth}

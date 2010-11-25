@@ -1,8 +1,9 @@
 ﻿if(request.params.save)
 {
 	let forum = orm.Forum.make(request.params);
-	forum.allow_topic = forum.allow_topic?true:false;
+	forum.topic_allow = forum.topic_allow?true:false;
 	forum.save();
+	cache.fire('forum.forum');
 
 	request.setStatusCode(303);
 	request.pushHeader('Location', request.params.backUrl?request.params.backUrl:this.parent.path);

@@ -241,6 +241,30 @@ namespace ccms
 						switch(oid)
 						{
 						case 1082: // date
+							{
+								int YYYY,
+									MM,
+									DD;
+
+								if(3 == sscanf(value, "%d-%d-%d",
+									&YYYY,
+									&MM,
+									&DD))
+								{
+									//make new Date
+									static JSObject *Date = JSVAL_TO_OBJECT(ecx()->_scripter->f_exec("return new Date", ".js"));
+									static JSClass *DateClass = JS_GetClass(Date);
+
+
+									jsval jsvs[3] = {INT_TO_JSVAL(YYYY), INT_TO_JSVAL(MM-1), INT_TO_JSVAL(DD)};
+
+									//jsv = OBJECT_TO_JSVAL(JS_New(cx, Date, 1, &jsv));
+									jsv = OBJECT_TO_JSVAL(JS_ConstructObjectWithArguments(cx, DateClass, NULL, NULL, 3, jsvs));
+									break;
+								}
+							}
+							jsv = STRING_TO_JSVAL(JS_NewStringCopyN(cx, value, length));
+							break;
 						case 1114: // timestamp
 						case 1184: // timestamptz
 							{

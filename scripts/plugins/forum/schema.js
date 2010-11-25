@@ -45,8 +45,14 @@ orm.addCategory({
 		tree_pid:{type:'fkey',target:'Forum',},
 		tree_root:{type:'fkey',target:'Forum',},
 
-		allow_topic:'boolean',
 		description:'string',
+
+		topic_allow:{type:'boolean', default:true,},
+		topics_navigate_date:{type:'boolean', default:true,},
+		topics_navigate_page:{type:'boolean', default:true,},
+		topics_navigate_rpage:{type:'boolean', default:true,},
+		topics_navigate_page_size:{type:'integer', default:20,},
+		topics_navigate_rpage_size:{type:'integer', default:20,},
 	},
 });
 
@@ -63,10 +69,14 @@ orm.addCategory({
 		tree_pid:{type:'fkey',target:'ForumPost',},
 		tree_root:{type:'fkey',target:'ForumPost',},
 	
+		ctime:'date',
+		mtime:'date',
+		
 		//отношение к экземпляру форума
 		forum_id:{type:'fkey',target:'Forum',},
+		
 		//отношение к "постоянной странице"
-		ppage:'integer',
+		page:'integer',
 		
 		content:'text',
 	},

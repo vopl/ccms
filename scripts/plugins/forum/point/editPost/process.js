@@ -4,16 +4,19 @@ let mostPost = request.planData.posts?request.planData.posts[request.planData.po
 if(request.params.save)
 {
 	let post = orm.ForumPost.make(request.params);
+
 	post.forum_id = mostForum.id;
 	if(request.planData.mode && request.planData.mode == 'add')
 	{
 		post.tree_pid = mostPost?mostPost.id:undefined;
+		post.ctime = new Date();
 	}
 	else
 	{
 		post.id = mostPost.id;
 		post.tree_pid = mostPost.tree_pid;
 	}
+	post.mtime = new Date();
 	post.save();
 
 	request.setStatusCode(303);

@@ -6,5 +6,5 @@ this.properties.ensureRootForum(data);
 let rootForum = data.forums[0];
 return { 
 	goto:this.childs.viewForum, 
-	title:rootForum.map_title?rootForum.map_title:('forum #'+rootForum.id),
+	title:rootForum.title,
 };

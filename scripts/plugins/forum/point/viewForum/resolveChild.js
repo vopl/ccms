@@ -1,14 +1,6 @@
 let pathPart = arguments[0];
 let data = arguments[1];
 
-if(pathPart == 'navigate')
-{
-	data.mode = 'navigate';
-	return {
-		title:'navigate',
-		point:this,
-	};
-};
 
 
 //////////////////////////////////////////////////
@@ -84,12 +76,12 @@ if(pathPart == 'addTopic')
 }
 
 //////////////////////////////////////////////////
-
-let dbr;
-dbr = global.cache.process({
+let point = this;
+let forum = global.cache.process({
 	key:'forum.child.'+mostForum.id+'.'+pathPart,
 	provider:function()
 	{
+		let dbr;
 		if(Math.round(pathPart)==pathPart)
 		{
 			dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND id=$2', mostForum.id, pathPart);
@@ -98,26 +90,32 @@ dbr = global.cache.process({
 		{
 			dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND map_path=$2', mostForum.id, pathPart);
 		}
-		return dbr;
+		if(dbr.length)
+		{
+			dbr = dbr[0];
+			dbr.parent = data.forums.back;
+			point.properties.mkPath(dbr);
+			return dbr;
+		}
+		return null;
 	},
 	events: ['forum.forum'],
 });
 
 
-if(dbr.length)
+if(forum)
 {
-	dbr = dbr[0];
-	data.forums.push(dbr);
+	data.forums.push(forum);
 
 	return {
-		title:dbr.map_title?dbr.map_title:('forum #'+dbr.id),
+		title:forum.title,
 		point:this,
 	};
 }
 
 
 //////////////////////////////////////////////////
-dbr = undefined;
+let dbr = undefined;
 if(Math.round(pathPart)==pathPart)
 {
 	dbr = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND id=$2', mostForum.id, pathPart);

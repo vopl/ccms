@@ -15,6 +15,7 @@ if(request.params.confirm)
 	//warn('del '+target.id);
 	//dumpe(target);
 	target.delete();
+	cache.fire('forum.forum');
 	request.setStatusCode(303);
 	request.pushHeader('Location', request.params.backUrl?request.params.backUrl:this.parent.path);
 	return;

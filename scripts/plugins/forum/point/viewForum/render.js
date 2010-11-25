@@ -1,8 +1,13 @@
-﻿
-if(request.planData.mode && request.planData.mode == 'navigate')
-{
-	return this.properties.renderNavigate();
-}
+﻿return [
+	<hr/>,
+	this.properties.renderHeader(),
+	<hr/>,
+	this.properties.renderNavigate(),
+	<hr/>,
+	this.properties.renderTopicNavigate(),
+	<hr/>,
+	this.properties.renderFooter(),
+	<hr/>,
 
-let target = request.planData.forums[request.planData.forums.length-1];
-return this.properties.renderTopics(target);
+];
+

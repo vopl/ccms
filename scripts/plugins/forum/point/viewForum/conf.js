@@ -18,9 +18,12 @@ var res=
 
 		renderNavigate:{file:'renderNavigate.js'},
 		renderHeader:{file:'./renderHeader.js'},
-		renderRow:{file:'./renderRow.js'},
+		renderNavigateRow:{file:'./renderNavigateRow.js'},
 		renderFooter:{file:'./renderFooter.js'},
-		renderTopics:{file:'./renderTopics.js'},
+		renderTopicNavigate:{file:'./renderTopicNavigate.js'},
+
+		mkPath:{file:'./mkPath.js'},
+
 	},
 
 };

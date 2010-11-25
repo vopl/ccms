@@ -1,4 +1,5 @@
 ﻿let data = arguments[0];
+let point = this;
 
 if(!data.forums)
 {
@@ -27,7 +28,9 @@ if(!data.forums)
 				dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid IS NULL');
 				break;
 			}
-			return dbr[0];
+			dbr = dbr[0];
+			point.childs.viewForum.properties.mkPath(dbr);
+			return dbr;
 
 		},
 		events:['forum.forum'],

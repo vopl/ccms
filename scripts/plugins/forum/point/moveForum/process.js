@@ -8,6 +8,7 @@ if(target)
 		if(bound.length)
 		{
 			target.move(bound[0].tree_left);
+			cache.fire('forum.forum');
 		}
 		request.setStatusCode(303);
 		request.pushHeader('Location', request.params.backUrl?request.params.backUrl:request.plan[request.plan.length-2].path);
@@ -19,6 +20,7 @@ if(target)
 		if(bound.length)
 		{
 			target.move(bound[0].tree_right);
+			cache.fire('forum.forum');
 		}
 		request.setStatusCode(303);
 		request.pushHeader('Location', request.params.backUrl?request.params.backUrl:request.plan[request.plan.length-2].path);
