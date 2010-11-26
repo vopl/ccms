@@ -24,6 +24,10 @@
 }
 
 return	<div>
+	Если доведется тебе услышать дурное слово, закопай его в землю на глубину в семь локтей.<br/>
+	(с)Афоризмы древней Ассирии
+	<br/><br/>
+
 	{(function(){
 		if(global.user.login == 'anonymous')
 		{
@@ -31,6 +35,7 @@ return	<div>
 		}
 		return "";
 	})()}<br/>
+
 	
 	<b>
 		<ul>
@@ -39,6 +44,5 @@ return	<div>
 	</b>
 	
 	<pre>
-		{dumps(this.map({childs:1, forum:1, forumTopic:1}), 2)};
 	</pre>
 </div>

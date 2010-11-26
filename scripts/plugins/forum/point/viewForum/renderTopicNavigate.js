@@ -81,6 +81,6 @@ return <>
 
 
 	<table border="1">{topicsXml}</table>
-	<a href={forumPath+'/addTopic?backUrl='+forumPath}>addTopic</a>
+	<a href={forumPath+'/addTopic?backUrl='+forumPath+"/"+(new Date()).tsd}>addTopic</a>
 	
 </>

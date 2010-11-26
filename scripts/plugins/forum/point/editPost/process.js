@@ -5,7 +5,13 @@ if(request.params.save)
 {
 	let post = orm.ForumPost.make(request.params);
 
+	if(post.id) post.load();
+
+	if(!post.map_title) post.map_title = "никакненазваныйпосттипатемаапочемутыегоникакненазвалговори";
+	if(!post.map_path) post.map_path = post.map_title+"->translit";
+	if(!post.content) post.content = "блиннукакжетактемабезничеговнутрихотьбыsubjнаписалвотжелюдипошлинепишутничего";
 	post.forum_id = mostForum.id;
+
 	if(request.planData.mode && request.planData.mode == 'add')
 	{
 		let dbr = orm.query('SELECT MAX(page) FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL', mostForum.id);

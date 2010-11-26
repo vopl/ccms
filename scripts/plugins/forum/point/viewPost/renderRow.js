@@ -5,7 +5,7 @@ let path = '';
 let iter = target;
 while(iter)
 {
-	if(iter.map_path) path = iter.map_path + path;
+	if(iter.map_path) path = encodeURIComponent(iter.map_path) + path;
 	else path = iter.id + path;
 	
 	path = '/' + path;
@@ -17,7 +17,7 @@ for each(let forum in request.planData.forums)
 {
 	if(!forum.tree_pid) continue;
 	href += '/';
-	if(forum.map_path) href += forum.map_path;
+	if(forum.map_path) href += encodeURIComponent(forum.map_path);
 	else href += forum.id;
 }
 href += path;
