@@ -1,9 +1,10 @@
 ﻿
 if(request.params.secret)
 {
-	let user = orm.query('SELECT id FROM {User} WHERE status=$1', 'waitConfirm:'+request.params.secret)[0];
+	let user = orm.User.select('WHERE status=$1', 'waitConfirm:'+request.params.secret)[0];
 	if(user)
 	{
+		user.status = 'ok';
 		orm.exec("UPDATE {User} SET status='ok' WHERE id=$1", user.id);
 
 		router.cd.session.userId = user.id;
@@ -22,4 +23,6 @@ if(request.params.secret)
 	}
 }
 
+
 ui.print();
+

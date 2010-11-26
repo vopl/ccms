@@ -8,7 +8,7 @@ let point = this;
 
 
 
-
+global.cache.fire('forum.forum');
 let forumTree = global.cache.process({
 	key:'forum.tree.'+target.id,
 	provider:function()
