@@ -3,17 +3,12 @@ let mostForum = request.planData.forums[request.planData.forums.length-1]
 let mostPost = request.planData.posts?request.planData.posts[request.planData.posts.length-1]:undefined;
 if(request.params.save)
 {
-	let post = orm.ForumPost.make(request.params);
-
-	if(post.id) post.load();
-
-	if(!post.map_title) post.map_title = "никакненазваныйпосттипатемаапочемутыегоникакненазвалговори";
-	if(!post.map_path) post.map_path = post.map_title+"->translit";
-	if(!post.content) post.content = "блиннукакжетактемабезничеговнутрихотьбыsubjнаписалвотжелюдипошлинепишутничего";
-	post.forum_id = mostForum.id;
+	let post;
 
 	if(request.planData.mode && request.planData.mode == 'add')
 	{
+		post = orm.ForumPost.make({});
+
 		let dbr = orm.query('SELECT MAX(page) FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL', mostForum.id);
 		let mostPage = dbr[0].max || 1;
 		dbr = orm.query('SELECT COUNT(*) FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND page=$2', mostForum.id, mostPage);
@@ -31,9 +26,18 @@ if(request.params.save)
 	}
 	else
 	{
+		post = orm.ForumPost.load({id:mostPost.id});
+		post.set(request.params);
+
 		post.id = mostPost.id;
 		post.tree_pid = mostPost.tree_pid;
 	}
+
+	if(!post.map_title) post.map_title = "никакненазваныйпосттипатемаапочемутыегоникакненазвалговори";
+	if(!post.map_path) post.map_path = post.map_title+"->translit";
+	post.map_path.replace(/\/|\?|\#/, '_');
+	if(!post.content) post.content = "блиннукакжетактемабезничеговнутрихотьбыsubjнаписалвотжелюдипошлинепишутничего";
+	post.forum_id = mostForum.id;
 	post.mtime = new Date();
 	post.save();
 

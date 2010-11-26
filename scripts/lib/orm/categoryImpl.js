@@ -716,6 +716,33 @@ impl.load = function load(v)
 }
 
 //////////////////////////////////////////////////////////
+impl.set = function set(dst, src)
+{
+	if('object' != typeof(dst))
+	{
+		dst = {};
+	}
+	
+	if(!dst.category)
+	{	
+		dst.category = this.conf.name;
+	}
+
+	for(let fname in this.fieldImpls)
+	{
+		if(fname in src)
+		{
+			dst[fname] = src[fname];
+		}
+	}
+	//насунуть методы
+	dst.__proto__ = this.methods;
+	
+	return dst;
+}
+
+
+//////////////////////////////////////////////////////////
 impl.adoptArray = function adoptArray(arr)
 {
 	//перебрать массив

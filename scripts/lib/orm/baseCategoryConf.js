@@ -16,6 +16,13 @@
 
 			return category.load(this);
 		},
+		set:function(v)
+		{
+			let category = orm[this.category];
+			if(!category) throw Error('unknown category '+this.category);
+
+			return category.set(this, v);
+		},
 		save:function()
 		{
 			let category = orm[this.category];
@@ -41,9 +48,16 @@
 			return this.getImpl().make(v);
 		},
 
+		//////////////////////////////////////////////////////////
 		adopt: function adopt(v)
 		{
 			return this.getImpl().adopt(v);
+		},
+
+		//////////////////////////////////////////////////////////
+		set: function set(dst, src)
+		{
+			return this.getImpl().set(dst, src);
 		},
 
 		//////////////////////////////////////////////////////////
