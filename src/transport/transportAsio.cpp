@@ -1483,11 +1483,17 @@ namespace ccms
 			std::string::iterator eqIter = std::find(tok_iter->_begin, tok_iter->_end, '=');
 			if(tok_iter->_end == eqIter)
 			{//key
-				connection->_paramsGet[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, tok_iter->_end)))].push_back(std::string());
+				std::string key(tok_iter->_begin, tok_iter->_end);
+				dropInvalidUtf8(urldecode(key));
+				connection->_paramsGet[key].push_back(std::string());
 			}
 			else
 			{//key=value
-				connection->_paramsGet[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, eqIter)))].push_back(dropInvalidUtf8(urldecode(std::string(eqIter+1, tok_iter->_end))));
+				std::string key(tok_iter->_begin, eqIter);
+				dropInvalidUtf8(urldecode(key));
+				std::string value(eqIter+1, tok_iter->_end);
+				dropInvalidUtf8(urldecode(value));
+				connection->_paramsGet[key].push_back(value);
 			}
 		}
 
@@ -1506,11 +1512,17 @@ namespace ccms
 			std::string::iterator eqIter = std::find(tok_iter->_begin, tok_iter->_end, '=');
 			if(tok_iter->_end == eqIter)
 			{//key
-				connection->_cookies[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, tok_iter->_end)))].push_back(std::string());
+				std::string key(tok_iter->_begin, tok_iter->_end);
+				dropInvalidUtf8(urldecode(key));
+				connection->_cookies[key].push_back(std::string());
 			}
 			else
 			{//key=value
-				connection->_cookies[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, eqIter)))].push_back(dropInvalidUtf8(urldecode(std::string(eqIter+1, tok_iter->_end))));
+				std::string key(tok_iter->_begin, eqIter);
+				dropInvalidUtf8(urldecode(key));
+				std::string value(eqIter+1, tok_iter->_end);
+				dropInvalidUtf8(urldecode(key));
+				connection->_cookies[key].push_back(value);
 			}
 		}
 
