@@ -28,6 +28,16 @@ orm.addCategory({
 		//и некий заголовок
 		map_title:'text',
 	},
+	
+	methods:
+	{
+		adoptMapPath: function adoptMapPath()
+		{
+			this.map_path = this.map_path.replace(/\#/g, '{hash}');
+			this.map_path = this.map_path.replace(/\//g, '{slash}');
+			this.map_path = this.map_path.replace(/\?/g, '{quest}');
+		},
+	},
 });
 
 

@@ -36,7 +36,7 @@ if(request.params.save)
 
 	if(!post.map_title) post.map_title = "никакненазваныйпосттипатемаапочемутыегоникакненазвалговори";
 	if(!post.map_path) post.map_path = post.map_title+"->translit";
-	post.map_path.replace(/\/|\?|\#/, '_');
+	post.adoptMapPath();
 	if(!post.content) post.content = "блиннукакжетактемабезничеговнутрихотьбыsubjнаписалвотжелюдипошлинепишутничего";
 	post.forum_id = mostForum.id;
 	post.mtime = new Date();

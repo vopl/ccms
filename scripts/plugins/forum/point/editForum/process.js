@@ -2,6 +2,7 @@
 {
 	let forum = orm.Forum.make(request.params);
 	forum.topic_allow = forum.topic_allow?true:false;
+	forum.adoptMapPath();
 	forum.save();
 	cache.fire('forum.forum');
 
