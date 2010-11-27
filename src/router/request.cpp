@@ -181,19 +181,17 @@ namespace ccms
 			if(iter->second.size())
 			{
 				const std::string &strValue = iter->second.front();
-				jsval jsv = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, strValue.data(), strValue.size()));
-
-				if(!putParam(res, iter->first.data(), jsv)) return false;
-				if(add)
+				JSString *str = JS_NewStringCopyN(ecx()->_jsCx, strValue.data(), strValue.size());
+				if(str)
 				{
-					if(!putParam(add, iter->first.data(), jsv)) return false;
-				}
+					jsval jsv = STRING_TO_JSVAL(str);
 
-// 				if(!JS_DefineProperty(ecx()->_jsCx, res, iter->first.data(), jsv, NULL, NULL, JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY)) return NULL;
-// 				if(add)
-// 				{
-// 					if(!JS_DefineProperty(ecx()->_jsCx, add, iter->first.data(), jsv, NULL, NULL, JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY)) return NULL;
-// 				}
+					if(!putParam(res, iter->first.data(), jsv)) return false;
+					if(add)
+					{
+						if(!putParam(add, iter->first.data(), jsv)) return false;
+					}
+				}
 			}
 		}
 
