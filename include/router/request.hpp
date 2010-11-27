@@ -47,6 +47,9 @@ namespace ccms
 		bool call_setStatusCode(uintN argc, jsval *argv, jsval *rval);
 		bool call_pushHeader(uintN argc, jsval *argv, jsval *rval);
 
+		bool call_getStatusCode(uintN argc, jsval *argv, jsval *rval);
+		bool call_getHeaders(uintN argc, jsval *argv, jsval *rval);
+
 	private:
 		JSObject *makeParams(const TMDStrings &map, JSObject *add);
 		JSObject *makeParams(const TMDFiles &map, JSObject *add);

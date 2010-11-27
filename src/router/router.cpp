@@ -16,6 +16,7 @@
 
 #include "scripter/profiler.hpp"
 
+#include "router/log.hpp"
 
 namespace ccms
 {
@@ -2772,6 +2773,12 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		if(!strcmp(name, "ui"))
 		{
 			*rval = mkp(new Ui, ROOTNAME)->thisJsval();
+			return true;
+		}
+
+		if(!strcmp(name, "log"))
+		{
+			*rval = mkp(new Log, ROOTNAME)->thisJsval();
 			return true;
 		}
 

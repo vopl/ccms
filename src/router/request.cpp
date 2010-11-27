@@ -71,6 +71,8 @@ namespace ccms
 		//добавить методы, параметры
 		if(!jsRegisterMeth("setStatusCode", &Request::call_setStatusCode, 1)) return false;
 		if(!jsRegisterMeth("pushHeader", &Request::call_pushHeader, 2)) return false;
+		if(!jsRegisterMeth("getStatusCode", &Request::call_getStatusCode, 0)) return false;
+		if(!jsRegisterMeth("getHeaders", &Request::call_getHeaders, 0)) return false;
 
 		if(!jsRegisterProp("path", _connection->_requestPath, true)) return false;
 
@@ -166,6 +168,29 @@ namespace ccms
 		JS_ReportError(ecx()->_jsCx, "[request.pushHeader must be called with 2 arguments]");
 		return false;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Request::call_getStatusCode(uintN argc, jsval *argv, jsval *rval)
+	{
+		*rval = INT_TO_JSVAL(_connection->_outStatus);
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Request::call_getHeaders(uintN argc, jsval *argv, jsval *rval)
+	{
+		JSString *str = JS_NewStringCopyN(ecx()->_jsCx, _connection->_outHeaders.data(), _connection->_outHeaders.size());
+		if(str)
+		{
+			*rval = STRING_TO_JSVAL(str);
+		}
+		else
+		{
+			*rval = JSVAL_VOID;
+		}
+		return true;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	JSObject *Request::makeParams(const TMDStrings &map, JSObject *add)

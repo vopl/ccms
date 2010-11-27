@@ -2,6 +2,15 @@
 {
 	filters:
 	{
+		accesslogPre:
+		{
+			kind:'preTransit',
+			properties:
+			{
+				process:{file:'accesslogPre.js', executeble:true},
+			}
+		},
+
 		dbPre:
 		{
 			kind:'preTransit',
@@ -56,6 +65,15 @@
 				process:{file:'dbProcessPost.js', executeble:true},
 			}
 		},
+		accesslogPost:
+		{
+			kind:'postTransit',
+			properties:
+			{
+				process:{file:'accesslogPost.js', executeble:true},
+			}
+		},
+
 
 	},
 	properties:
