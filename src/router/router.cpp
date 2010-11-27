@@ -7,6 +7,7 @@
 #include "tpm/template.hpp"
 #include "ui/ui.hpp"
 #include "utils/crc32.hpp"
+#include "utils/string.hpp"
 
 #include "magick/magick.hpp"
 #include "mime/mime.hpp"
@@ -1543,6 +1544,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	{
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::probe(Connection4Backend *connection)
 	{
@@ -1613,7 +1615,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 				connection->_outBody = ""
 					"<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1>"
-					"<p>The requested URL " + connection->_requestPath + " was not found on this server.</p></body></html>";
+					"<p>The requested URL " + escxml(connection->_requestPath) + " was not found on this server.</p></body></html>";
 
 				delete connectionData;
 				return false;

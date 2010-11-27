@@ -1,4 +1,4 @@
-﻿function mkMap(map, path)
+function mkMap(map, path)
 {
 	if(!map) return <></>;
 	
@@ -26,6 +26,8 @@
 return	<div>
 	Если доведется тебе услышать дурное слово, закопай его в землю на глубину в семь локтей.<br/>
 	(с)Афоризмы древней Ассирии
+	<br/><br/>
+	<a href="/design/index.html">наброски дизайна</a>
 	<br/><br/>
 
 	{(function(){

@@ -229,5 +229,78 @@ namespace ccms
 		return str;
 	}
 
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	inline std::string escxml(const std::string &from)
+	{
+		std::string result;
+		std::string::const_iterator iter;
+
+		for(iter = from.begin(); iter != from.end(); ++iter)
+		{
+			switch(*iter)
+			{
+			case '"':
+				result.append("&quot;");
+				break;
+			case '\'':
+				result.append("&apos;");
+				break;
+			case '&':
+				result.append("&amp;");
+				break;
+			case '<':
+				result.append("&lt;");
+				break;
+			case '>':
+				result.append("&gt;");
+				break;
+			default:
+				result.append(1, *iter);
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	inline std::string escxmlstr(const std::string &from)
+	{
+		std::string result;
+		std::string::const_iterator iter;
+
+		for(iter = from.begin(); iter != from.end(); ++iter)
+		{
+			switch(*iter)
+			{
+			case '"':
+				result.append("&quot;");
+				break;
+			case '\'':
+				result.append("&apos;");
+				break;
+			case '&':
+				result.append("&amp;");
+				break;
+			case '<':
+				result.append("&lt;");
+				break;
+			case '>':
+				result.append("&gt;");
+				break;
+			case '\\':
+				result.append("\\\\");
+				break;
+			default:
+				result.append(1, *iter);
+				break;
+			}
+		}
+
+		return result;
+	}
 }
 #endif
