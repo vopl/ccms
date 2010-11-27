@@ -749,8 +749,7 @@ namespace ccms
 
 				connection->_requestPath.erase(pos);
 			}
-			connection->_requestPath = hexdecode(connection->_requestPath);
-			dropInvalidUtf8(connection->_requestPath);
+			dropInvalidUtf8(hexdecode(connection->_requestPath));
 		}
 
 		static const char SPACES[] = " \t";
@@ -1521,7 +1520,7 @@ namespace ccms
 				std::string key(tok_iter->_begin, eqIter);
 				dropInvalidUtf8(urldecode(key));
 				std::string value(eqIter+1, tok_iter->_end);
-				dropInvalidUtf8(urldecode(key));
+				dropInvalidUtf8(urldecode(value));
 				connection->_cookies[key].push_back(value);
 			}
 		}

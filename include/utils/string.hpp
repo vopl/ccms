@@ -85,73 +85,58 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	inline
-	std::string urldecode(const std::string& src)
+	std::string &urldecode(std::string& str)
 	{
-		std::string result;
-		std::string::const_iterator iter;
-		char c;
-
-		for(iter = src.begin(); iter != src.end(); ++iter)
+		std::string::iterator iter = str.begin();
+		while(iter != str.end())
 		{
 			switch(*iter)
 			{
 			case '+':
-				result.append(1, ' ');
+				*iter = ' ';
+				iter++;
 				break;
 			case '%':
-				if(std::distance(iter, src.end()) >= 3
+				if(std::distance(iter, str.end()) >= 3
 					&& std::isxdigit(*(iter + 1)) && std::isxdigit(*(iter + 2)))
 				{
-					c = *++iter;
-					result.append(1, hexToChar(c, *++iter));
-				}
-				else
-				{
-					result.append(1, '%');
+					*iter = hexToChar(*(iter+1), *(iter+2));
+					iter = str.erase(iter+1, iter+3);
 				}
 				break;
-
 			default:
-				result.append(1, *iter);
+				iter++;
 				break;
 			}
 		}
 
-		return result;
+		return str;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	inline
-		std::string hexdecode(const std::string& src)
+		std::string &hexdecode(std::string& str)
 	{
-		std::string result;
-		std::string::const_iterator iter;
-		char c;
-
-		for(iter = src.begin(); iter != src.end(); ++iter)
+		std::string::iterator iter = str.begin();
+		while(iter != str.end())
 		{
 			switch(*iter)
 			{
 			case '%':
-				if(std::distance(iter, src.end()) >= 3
+				if(std::distance(iter, str.end()) >= 3
 					&& std::isxdigit(*(iter + 1)) && std::isxdigit(*(iter + 2)))
 				{
-					c = *++iter;
-					result.append(1, hexToChar(c, *++iter));
-				}
-				else
-				{
-					result.append(1, '%');
+					*iter = hexToChar(*(iter+1), *(iter+2));
+					iter = str.erase(iter+1, iter+3);
 				}
 				break;
-
 			default:
-				result.append(1, *iter);
+				iter++;
 				break;
 			}
 		}
 
-		return result;
+		return str;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
