@@ -1,6 +1,8 @@
 #ifndef _ccms_utils_string_h_
 #define _ccms_utils_string_h_
 
+#include "utils/utf8/checked.h"
+
 namespace ccms
 {
 	//////////////////////////////////////////////////////////////////////////
@@ -97,7 +99,7 @@ namespace ccms
 				result.append(1, ' ');
 				break;
 			case '%':
-				if(std::distance(iter, src.end()) >= 2
+				if(std::distance(iter, src.end()) >= 3
 					&& std::isxdigit(*(iter + 1)) && std::isxdigit(*(iter + 2)))
 				{
 					c = *++iter;
@@ -131,7 +133,7 @@ namespace ccms
 			switch(*iter)
 			{
 			case '%':
-				if(std::distance(iter, src.end()) >= 2
+				if(std::distance(iter, src.end()) >= 3
 					&& std::isxdigit(*(iter + 1)) && std::isxdigit(*(iter + 2)))
 				{
 					c = *++iter;
@@ -302,5 +304,28 @@ namespace ccms
 
 		return result;
 	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	inline std::string &dropInvalidUtf8(std::string &str)
+	{
+		std::string::iterator iter = str.begin();
+		std::string::iterator end = str.end();
+
+		while(iter!=end)
+		{
+			std::string::iterator bad = utf8::find_invalid(iter, end);
+			if(bad == end)
+			{
+				break;
+			}
+			iter = str.erase(bad);
+			end = str.end();
+		}
+
+		return str;
+	}
+
 }
 #endif

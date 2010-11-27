@@ -708,11 +708,12 @@ namespace ccms
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 			return;
 		}
-		if(!trim(env["REQUEST_METHOD"].assign(line._begin, i1)))
+		if(!trim(dropInvalidUtf8(env["REQUEST_METHOD"].assign(line._begin, i1))))
 		{
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 			return;
 		}
+		
 		if(i1 == line._end)
 		{
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
@@ -727,16 +728,16 @@ namespace ccms
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 			return;
 		}
-		trim(connection->_protocolVersion.assign(i2+5, line._end));
+		trim(dropInvalidUtf8(connection->_protocolVersion.assign(i2+5, line._end)));
 
-		if(!trim(connection->_requestPath.assign(i1, i2-1)))
+		if(!trim(dropInvalidUtf8(connection->_requestPath.assign(i1, i2-1))))
 		{
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 			return;
 		}
 		else
 		{
-			env["REQUEST_URI"].assign(i1, i2-1) = connection->_requestPath;
+			env["REQUEST_URI"] = connection->_requestPath;
 			size_t pos = connection->_requestPath.find('?');
 			if(pos != std::string::npos)
 			{
@@ -749,11 +750,12 @@ namespace ccms
 				connection->_requestPath.erase(pos);
 			}
 			connection->_requestPath = hexdecode(connection->_requestPath);
+			dropInvalidUtf8(connection->_requestPath);
 		}
 
 		static const char SPACES[] = " \t";
 		DDataBuf::iterator i3 = std::find_first_of(i2, line._end, SPACES, SPACES+2);
-		if(!trim(env["SERVER_PROTOCOL"].assign(i2+5, i3)))
+		if(!trim(dropInvalidUtf8(env["SERVER_PROTOCOL"].assign(i2+5, i3))))
 		{
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 			return;
@@ -772,7 +774,7 @@ namespace ccms
 			}
 
 			std::string key(line._begin, delim);
-			if(!trim(key))
+			if(!trim(dropInvalidUtf8(key)))
 			{
 				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 				return;
@@ -780,7 +782,7 @@ namespace ccms
 			tolowerLatin(key);
 			std::string &value = env[key];
 			value.assign(delim+2, line._end);
-			if(!trim(value))
+			if(!trim(dropInvalidUtf8(value)))
 			{
 				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
 				return;
@@ -1481,11 +1483,11 @@ namespace ccms
 			std::string::iterator eqIter = std::find(tok_iter->_begin, tok_iter->_end, '=');
 			if(tok_iter->_end == eqIter)
 			{//key
-				connection->_paramsGet[urldecode(std::string(tok_iter->_begin, tok_iter->_end))].push_back(std::string());
+				connection->_paramsGet[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, tok_iter->_end)))].push_back(std::string());
 			}
 			else
 			{//key=value
-				connection->_paramsGet[urldecode(std::string(tok_iter->_begin, eqIter))].push_back(urldecode(std::string(eqIter+1, tok_iter->_end)));
+				connection->_paramsGet[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, eqIter)))].push_back(dropInvalidUtf8(urldecode(std::string(eqIter+1, tok_iter->_end))));
 			}
 		}
 
@@ -1504,11 +1506,11 @@ namespace ccms
 			std::string::iterator eqIter = std::find(tok_iter->_begin, tok_iter->_end, '=');
 			if(tok_iter->_end == eqIter)
 			{//key
-				connection->_cookies[std::string(tok_iter->_begin, tok_iter->_end)].push_back(std::string());
+				connection->_cookies[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, tok_iter->_end)))].push_back(std::string());
 			}
 			else
 			{//key=value
-				connection->_cookies[std::string(tok_iter->_begin, eqIter)].push_back(std::string(eqIter+1, tok_iter->_end));
+				connection->_cookies[dropInvalidUtf8(urldecode(std::string(tok_iter->_begin, eqIter)))].push_back(dropInvalidUtf8(urldecode(std::string(eqIter+1, tok_iter->_end))));
 			}
 		}
 
@@ -1578,7 +1580,7 @@ namespace ccms
 		case ectFormUrlEncoded:
 			if(!connection->_fueAccumulerKey.empty() && !connection->_fueAccumulerValue.empty())
 			{
-				connection->_paramsPost[urldecode(connection->_fueAccumulerKey)].push_back(urldecode(connection->_fueAccumulerValue));
+				connection->_paramsPost[dropInvalidUtf8(urldecode(connection->_fueAccumulerKey))].push_back(dropInvalidUtf8(urldecode(connection->_fueAccumulerValue)));
 			}
 
 			connection->_fueWaitKey = true;
@@ -1791,7 +1793,7 @@ namespace ccms
 							connection->_fueAccumulerValue.insert(connection->_fueAccumulerValue.end(), begin, iter);
 							if(!connection->_fueAccumulerKey.empty() && !connection->_fueAccumulerValue.empty())
 							{
-								connection->_paramsPost[urldecode(connection->_fueAccumulerKey)].push_back(urldecode(connection->_fueAccumulerValue));
+								connection->_paramsPost[dropInvalidUtf8(urldecode(connection->_fueAccumulerKey))].push_back(dropInvalidUtf8(urldecode(connection->_fueAccumulerValue)));
 							}
 							connection->_fueAccumulerKey.clear();
 							connection->_fueAccumulerValue.clear();
