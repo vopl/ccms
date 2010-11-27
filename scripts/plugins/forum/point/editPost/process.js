@@ -7,7 +7,8 @@ if(request.params.save)
 
 	if(request.planData.mode && request.planData.mode == 'add')
 	{
-		post = orm.ForumPost.make({});
+		post = orm.ForumPost.make(request.params);
+		post.id = undefined;
 
 		let dbr = orm.query('SELECT MAX(page) FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL', mostForum.id);
 		let mostPage = dbr[0].max || 1;
