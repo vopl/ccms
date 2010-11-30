@@ -25,7 +25,7 @@
 		arguments.callee.header = t;
 	}
 	t = t.clone();
-	t.auth = t.auth.render();
+	t.auth = ui.skin.link(t.auth.render());
 	ui.blocks.header.push(t);
 	//ui.pushBlock('header', t);
 }

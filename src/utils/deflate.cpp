@@ -33,7 +33,8 @@ namespace ccms
 
 		std::vector<char> outBuf(strm.avail_in);
 
-		while(strm.avail_in)
+		bool done = false;
+		while(!done)
 		{
 			strm.avail_out = outBuf.size() - strm.total_out;
 			if(strm.avail_out < 32)
@@ -45,6 +46,9 @@ namespace ccms
 			strm.next_out = (Bytef *)&outBuf[strm.total_out];
 			int dres = deflate(&strm, Z_FINISH);
 			assert(Z_STREAM_ERROR != dres);
+
+			//done = Z_STREAM_END == dres;
+			done = Z_OK != dres;
 		}
 		data.assign(outBuf.begin(), outBuf.begin()+strm.total_out);
 		deflateEnd(&strm);
@@ -155,7 +159,7 @@ namespace ccms
 			outAmount = _strm.total_out - outAmount;
 			outSize = outAmount;
 
-			if(_finish && !_strm.avail_in)
+			if(_finish && !_strm.avail_in && Z_STREAM_END==dres)
 			{
 				finish = true;
 			}
