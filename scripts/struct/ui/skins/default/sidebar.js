@@ -1,16 +1,12 @@
-let t = arguments.callee.t;
+let data = [];
 
-if(!t)
-{
-	t = router.createTemplate();
-	t.compile(<a href={t.href}>{t.title}</a>)
-	arguments.callee.t = t;
-}
+if(arguments.length>0)
+	data.push(ui.skin.divclass(arguments[0], 'sidebar-content'));
 
-t = t.clone();
+if(arguments.length>1)
+	data.unshift(ui.skin.divclass(arguments[1], 'sidebar-header'));
+	
+if(arguments.length>2)
+	data.push(ui.skin.divclass(arguments[2], 'sidebar-footer'));
 
-t.href = arguments[0];
-t.title = arguments[1];
-if(!t.title) t.title = t.href;
-
-return t;
+return ui.skin.divclass(data, 'sidebar');

@@ -26,7 +26,10 @@
 	}
 	t = t.clone();
 	//t.auth = ui.skin.link(t.auth.render());
-	t.auth = t.auth.render();
+	t.auth = ui.skin.sidebar(t.auth.render(), "Auth");
 	ui.blocks.header.push(t);
-	//ui.pushBlock('header', t);
+
+	ui.blocks.right.push(ui.skin.sidebar('content1', 'header1'));
+	ui.blocks.right.push(ui.skin.sidebar('content2', 'header2'));
+	ui.blocks.right.push(ui.skin.sidebar('content3', 'header3'));
 }
