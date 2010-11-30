@@ -114,7 +114,7 @@ namespace ccms
 		}
 
 		_content._jsval = jsv;
-		if(JSVAL_IS_GCTHING(_content._jsval)) JS_AddRoot(ecx()->_jsCx, &_content._jsval);
+		if(JSVAL_IS_GCTHING(_content._jsval)) JS_AddNamedRoot(ecx()->_jsCx, &_content._jsval, __FUNCTION__);
 
 		_type = etstJsval;
 		return true;
@@ -136,8 +136,8 @@ namespace ccms
 		_content._prop._id = jid;
 		_content._prop._val = val;
 
-		if(JSVAL_IS_GCTHING(_content._prop._idVal)) JS_AddRoot(ecx()->_jsCx, &_content._prop._idVal);
-		if(JSVAL_IS_GCTHING(_content._prop._val)) JS_AddRoot(ecx()->_jsCx, &_content._prop._val);
+		if(JSVAL_IS_GCTHING(_content._prop._idVal)) JS_AddNamedRoot(ecx()->_jsCx, &_content._prop._idVal, __FUNCTION__);
+		if(JSVAL_IS_GCTHING(_content._prop._val)) JS_AddNamedRoot(ecx()->_jsCx, &_content._prop._val, __FUNCTION__);
 
 		//JS_SetReservedSlot(ecx()->_jsCx, _js, 0, _content._prop._idVal);
 		//_owner->clenchJsval(this, 0, _content._prop._idVal);
@@ -381,8 +381,44 @@ namespace ccms
 				}
 
 
-				//if can print itself
+				//если объект Template или унаследованный от него
+				{
+					JSObject *objvt = objv;
+					while(objvt)
+					{
+						JsObject *jso = JsObject::thisObj(objvt);
+						if(jso)
+						{
+							Template *tjso = dynamic_cast<Template *>(jso);
+							if(tjso)
+							{
+								if(ets_xml == tjso->getState() && etetXml == escaper.getType())
+								{
+									if(escaper.getTail())
+									{
+										if(!tjso->print(objv, out, *escaper.getTail())) return false;
+									}
+									else
+									{
+										TemplateEscaper nullEscaper(etetNull);
+										if(!tjso->print(objv, out, nullEscaper)) return false;
+									}
+								}
+								else
+								{
+									if(!tjso->print(objv, out, escaper)) return false;
+								}
+
+								return true;
+							}
+						}
+						objvt = JS_GetPrototype(ecx()->_jsCx, objvt);
+					}
+
+				}
 				JSBool found;
+
+				//if can print itself
 				if(JS_HasProperty(ecx()->_jsCx, objv, "print", &found) && found)
 				{
 					//////////////////////////////////////////////////////////////////////////
@@ -399,6 +435,7 @@ namespace ccms
 					//return printJsval(out, escaper, rval);
 					return true;
 				}
+
 				if(JS_HasProperty(ecx()->_jsCx, objv, "render", &found) && found)
 				{
 					//////////////////////////////////////////////////////////////////////////

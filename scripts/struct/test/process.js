@@ -2,11 +2,11 @@ let t = arguments.callee.header;
 if(!t)
 {
 	t = router.createTemplate();
-	t.compile(<parent> l {t('auth', '')} ll </parent>);
+	t.compile(<parent attr={t('auth', '')}> lll </parent>);
 	arguments.callee.header = t;
 }
 t = t.clone();
-t.auth = <tag>asdf</tag>;
+t.auth = {print:function(){print(<tag>asdf</tag>.toXMLString())}};
 t.print();
 return;
 

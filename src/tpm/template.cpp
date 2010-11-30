@@ -154,14 +154,18 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool Template::print(JSObject *obj, std::ostream &out, const TemplateEscaper &escaper)
 	{
+		jsval oldTopObject = _topObject;
+		_topObject = OBJECT_TO_JSVAL(obj);
 		BOOST_FOREACH(const TResult::value_type &s, _result.rnd)
 		{
 			if(!s.second->print(obj, out, escaper))
 			{
 				//assert(0);
+				_topObject = oldTopObject;
 				return false;
 			}
 		}
+		_topObject = oldTopObject;
 		return true;
 	}
 
@@ -444,31 +448,23 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool Template::call_print(JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
-		jsval oldTopObject = _topObject;
-		_topObject = OBJECT_TO_JSVAL(obj);
 		if(!print(obj, *ecx()->_out, TemplateEscaper(etetNull)))
 		{
-			_topObject = oldTopObject;
 			if(!JS_IsExceptionPending(ecx()->_jsCx))
 			{
 				JS_ReportError(ecx()->_jsCx, "[Template.print failed]");
 			}
 			return false;
 		}
-		_topObject = oldTopObject;
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	bool Template::call_toString(JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
-		jsval oldTopObject = _topObject;
-		_topObject = OBJECT_TO_JSVAL(obj);
-
 		std::stringstream ss;
 		if(!print(obj, ss, TemplateEscaper(etetNull)))
 		{
-			_topObject = oldTopObject;
 			if(!JS_IsExceptionPending(ecx()->_jsCx))
 			{
 				JS_ReportError(ecx()->_jsCx, "[Template.toString failed]");
@@ -478,7 +474,6 @@ namespace ccms
 
 		std::string str = ss.str();
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, str.data(), str.size()));
-		_topObject = oldTopObject;
 		return true;
 	}
 
