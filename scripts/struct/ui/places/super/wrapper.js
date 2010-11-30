@@ -13,5 +13,4 @@ if(!t)
 t = t.clone();
 t.content = arguments[0];
 
-
 return t;

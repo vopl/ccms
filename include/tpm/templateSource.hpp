@@ -43,6 +43,7 @@ namespace ccms
 		{
 			jsval			_idVal;
 			jsid			_id;
+			jsval			_val;
 		};
 		union Content
 		{
@@ -68,7 +69,7 @@ namespace ccms
 		void clearContent();
 		bool setText(const char *data, size_t size);
 		bool setJsval(jsval jsv, bool doSimplify);
-		bool setProp(jsval idVal);
+		bool setProp(jsval id, jsval val);
 
 		bool getJsval(JSObject *obj, jsval &jsv);
 

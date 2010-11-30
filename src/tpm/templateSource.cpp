@@ -34,12 +34,11 @@ namespace ccms
 			free(_content._text._data);
 			break;
 		case etstJsval:
-			_owner->unclenchJsval(this);
-			//JS_RemoveRoot(ecx()->_jsCx, &_content._jsval);
+			if(JSVAL_IS_GCTHING(_content._jsval)) JS_RemoveRoot(ecx()->_jsCx, &_content._jsval);
 			break;
 		case etstProp:
-			_owner->unclenchJsval(this);
-			//JS_RemoveRoot(ecx()->_jsCx, &_content._prop._idVal);
+			if(JSVAL_IS_GCTHING(_content._prop._idVal)) JS_RemoveRoot(ecx()->_jsCx, &_content._prop._idVal);
+			if(JSVAL_IS_GCTHING(_content._prop._val)) JS_RemoveRoot(ecx()->_jsCx, &_content._prop._val);
 			break;
 		default:
 			assert(!"unknown templateSourceType");
@@ -103,9 +102,7 @@ namespace ccms
 			case JSTYPE_FUNCTION:
 				{
 					_content._jsval = jsv;
-					//JS_AddNamedRoot(ecx()->_jsCx, &_content._jsval, __FUNCTION__);
-					//JS_SetReservedSlot(ecx()->_jsCx, _js, 0, _content._jsval);
-					_owner->clenchJsval(this, _content._jsval);
+					if(JSVAL_IS_GCTHING(_content._jsval)) JS_AddRoot(ecx()->_jsCx, &_content._jsval);
 
 					_type = etstJsval;
 					return true;
@@ -117,31 +114,34 @@ namespace ccms
 		}
 
 		_content._jsval = jsv;
-		//JS_AddNamedRoot(ecx()->_jsCx, &_content._jsval, __FUNCTION__);
-		//JS_SetReservedSlot(ecx()->_jsCx, _js, 0, _content._jsval);
-		_owner->clenchJsval(this, _content._jsval);
+		if(JSVAL_IS_GCTHING(_content._jsval)) JS_AddRoot(ecx()->_jsCx, &_content._jsval);
 
 		_type = etstJsval;
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool TemplateSource::setProp(jsval idVal)
+	bool TemplateSource::setProp(jsval id, jsval val)
 	{
 		clearContent();
 
-		jsid id;
-		if(!JS_ValueToId(ecx()->_jsCx, idVal, &id))
+		jsid jid;
+		if(!JS_ValueToId(ecx()->_jsCx, id, &jid))
 		{
 			assert(0);
 			return false;
 		}
 
-		_content._prop._idVal = idVal;
-		_content._prop._id = id;
-		//JS_AddNamedRoot(ecx()->_jsCx, &_content._prop._idVal, __FUNCTION__);
+		_content._prop._idVal = id;
+		_content._prop._id = jid;
+		_content._prop._val = val;
+
+		if(JSVAL_IS_GCTHING(_content._prop._idVal)) JS_AddRoot(ecx()->_jsCx, &_content._prop._idVal);
+		if(JSVAL_IS_GCTHING(_content._prop._val)) JS_AddRoot(ecx()->_jsCx, &_content._prop._val);
+
 		//JS_SetReservedSlot(ecx()->_jsCx, _js, 0, _content._prop._idVal);
-		_owner->clenchJsval(this, _content._prop._idVal);
+		//_owner->clenchJsval(this, 0, _content._prop._idVal);
+		//_owner->clenchJsval(this, 1, _content._prop._val);
 
 		_type = etstProp;
 		return true;
@@ -172,14 +172,14 @@ namespace ccms
 		case etstProp:
 			{
 				JSBool b;
-				if(!JS_HasPropertyById(ecx()->_jsCx, obj, _content._prop._id, &b))
+				if(!JS_AlreadyHasOwnPropertyById(ecx()->_jsCx, obj, _content._prop._id, &b))
 				{
 					return false;
 				}
 
 				if(!b)
 				{
-					jsv = JSVAL_VOID;
+					jsv = _content._prop._val;
 					return true;
 				}
 			}
@@ -219,7 +219,7 @@ namespace ccms
 			res->setJsval(_content._jsval, false);
 			break;
 		case etstProp:
-			res->setProp(_content._prop._idVal);
+			res->setProp(_content._prop._idVal, _content._prop._val);
 			break;
 		default:
 			assert(!"unknown type");

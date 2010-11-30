@@ -10,7 +10,7 @@
 			<table border="1">
 				<tr>
 					<td>
-						<img src='/dog.png'/>
+						<img src='/dog.png.s'/>
 					</td>
 					<td width='100%' align="center">
 						тут

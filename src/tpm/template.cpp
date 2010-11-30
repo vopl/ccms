@@ -623,7 +623,7 @@ namespace ccms
 		}
 
 		TemplateSourcePtr p(new TemplateSource(this));
-		p->setJsval(*vp, false);
+		p->setProp(idVal, *vp);
 		_result.rnd.push_back(TResult::mk(idStr, p));
 		return JS_TRUE;
 	}
@@ -671,7 +671,7 @@ namespace ccms
 		if(_result.assocNu.end() != iter)
 		{
 			//iter->second->setJsval(*vp, ets_init != _state);
-			iter->second->setJsval(*vp, false);
+			iter->second->setProp(idVal, *vp);
 		}
 		return JS_TRUE;
 	}
@@ -712,7 +712,7 @@ namespace ccms
 					TemplateSourcePtr p(new TemplateSource(this));
 					jsval idVal;
 					if(!JS_IdToValue(ecx()->_jsCx, id, &idVal)) return JS_FALSE;
-					p->setProp(idVal);
+					p->setProp(idVal, JSVAL_VOID);
 					std::pair<TResult::Rnd::iterator,bool> pb = _result.rnd.push_back(TResult::mk(idStr, p));
 					size_t idx = pb.first - _result.rnd.begin();
 
@@ -746,10 +746,10 @@ namespace ccms
 			char *idStr = NULL;
 			if(!JS_ConvertArguments(cx, 1, &argv[0], "s", &idStr)) return JS_FALSE;
 
-			if(!JS_DefineProperty(cx, obj, idStr, argv[1], NULL, NULL, 0))return false;
+			//if(!JS_DefineProperty(cx, obj, idStr, argv[1], NULL, NULL, 0))return false;
 
 			TemplateSourcePtr p(new TemplateSource(this));
-			p->setProp(argv[0]);
+			p->setProp(argv[0], argv[1]);
 			std::pair<TResult::Rnd::iterator,bool> pb = _result.rnd.push_back(TResult::mk(idStr, p));
 			size_t idx = pb.first - _result.rnd.begin();
 
@@ -780,21 +780,4 @@ namespace ccms
 		JS_ReportError(cx, "[Template.call must be called with 1 or 2 args]");
 		return JS_FALSE;
 	}
-
-	//////////////////////////////////////////////////////////////////////////
-	void Template::clenchJsval(TemplateSource *ts, jsval jsv)
-	{
-		char name[32];
-		sprintf(name, "%p", ts);
-		(JSExceptionReporter)JS_DefineProperty(ecx()->_jsCx, _clenchContainer, name, jsv, NULL, NULL, 0);
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	void Template::unclenchJsval(TemplateSource *ts)
-	{
-// 		char name[32];
-// 		sprintf(name, "%p", ts);
-// 		(JSExceptionReporter)JS_DeleteProperty(ecx()->_jsCx, _clenchContainer, name);
-	}
-
 }
