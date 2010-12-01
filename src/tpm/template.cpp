@@ -44,6 +44,9 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	Template::~Template()
 	{
+		BOOST_FOREACH(const TResult::value_type &s, _result.rnd)
+			s.second->clearContentNoJs();
+
 		_result.clear();
 	}
 
@@ -775,4 +778,24 @@ namespace ccms
 		JS_ReportError(cx, "[Template.call must be called with 1 or 2 args]");
 		return JS_FALSE;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Template::clenchJsval(TemplateSource *prov, const char *name, jsval &jsv)
+	{
+// 		char buf[1024];
+// 		sprintf(buf, "%p_%s", (void *)prov, name);
+		jsid id = (jsid)prov+name[0];
+		return JS_DefinePropertyById(ecx()->_jsCx, _clenchContainer, id, jsv, NULL, NULL, 0)?true:false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Template::unclenchJsval(TemplateSource *prov, const char *name)
+	{
+
+// 		char buf[1024];
+// 		sprintf(buf, "%p_%s", (void *)prov, name);
+		jsid id = (jsid)prov+name[0];
+		return JS_DeletePropertyById(ecx()->_jsCx, _clenchContainer, id)?true:false;
+	}
+
 }

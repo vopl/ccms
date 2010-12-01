@@ -67,6 +67,7 @@ namespace ccms
 		~TemplateSource();
 
 		void clearContent();
+		void clearContentNoJs();
 		bool setText(const char *data, size_t size);
 		bool setJsval(jsval jsv, bool doSimplify);
 		bool setProp(jsval id, jsval val);
