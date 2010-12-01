@@ -780,21 +780,18 @@ namespace ccms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Template::clenchJsval(TemplateSource *prov, const char *name, jsval &jsv)
+	bool Template::clenchJsval(TemplateSource *prov, int idx, jsval &jsv)
 	{
-// 		char buf[1024];
-// 		sprintf(buf, "%p_%s", (void *)prov, name);
-		jsid id = (jsid)prov+name[0];
+		jsid id;
+		if(!JS_ValueToId(ecx()->_jsCx, INT_TO_JSVAL((jsint)prov/2+idx), &id)) return false;
 		return JS_DefinePropertyById(ecx()->_jsCx, _clenchContainer, id, jsv, NULL, NULL, 0)?true:false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Template::unclenchJsval(TemplateSource *prov, const char *name)
+	bool Template::unclenchJsval(TemplateSource *prov, int idx)
 	{
-
-// 		char buf[1024];
-// 		sprintf(buf, "%p_%s", (void *)prov, name);
-		jsid id = (jsid)prov+name[0];
+		jsid id;
+		if(!JS_ValueToId(ecx()->_jsCx, INT_TO_JSVAL((jsint)prov/2+idx), &id)) return false;
 		return JS_DeletePropertyById(ecx()->_jsCx, _clenchContainer, id)?true:false;
 	}
 

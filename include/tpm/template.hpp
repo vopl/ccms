@@ -65,8 +65,8 @@ namespace ccms
 		virtual JSBool onClassCall(JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 	public:
-		bool clenchJsval(TemplateSource *prov, const char *name, jsval &jsv);
-		bool unclenchJsval(TemplateSource *prov, const char *name);
+		bool clenchJsval(TemplateSource *prov, int idx, jsval &jsv);
+		bool unclenchJsval(TemplateSource *prov, int idx);
 	};
 	typedef JsPtr<Template> TemplatePtr;
 }

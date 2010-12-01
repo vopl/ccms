@@ -35,13 +35,13 @@ namespace ccms
 			break;
 		case etstJsval:
 // 			if(JSVAL_IS_GCTHING(_content._jsval)) JS_RemoveRoot(ecx()->_jsCx, &_content._jsval);
-			if(JSVAL_IS_GCTHING(_content._jsval)) _owner->unclenchJsval(this, "val");
+			if(JSVAL_IS_GCTHING(_content._jsval)) _owner->unclenchJsval(this, 0);
 			break;
 		case etstProp:
 // 			if(JSVAL_IS_GCTHING(_content._prop._idVal)) JS_RemoveRoot(ecx()->_jsCx, &_content._prop._idVal);
 // 			if(JSVAL_IS_GCTHING(_content._prop._val)) JS_RemoveRoot(ecx()->_jsCx, &_content._prop._val);
-			if(JSVAL_IS_GCTHING(_content._prop._idVal))_owner->unclenchJsval(this, "id");
-			if(JSVAL_IS_GCTHING(_content._prop._val))_owner->unclenchJsval(this, "val");
+			if(JSVAL_IS_GCTHING(_content._prop._idVal))_owner->unclenchJsval(this, 0);
+			if(JSVAL_IS_GCTHING(_content._prop._val))_owner->unclenchJsval(this, 1);
 			break;
 		default:
 			assert(!"unknown templateSourceType");
@@ -126,7 +126,7 @@ namespace ccms
 				{
 					_content._jsval = jsv;
 // 					if(JSVAL_IS_GCTHING(_content._jsval)) JS_AddNamedRoot(ecx()->_jsCx, &_content._jsval);
-					if(JSVAL_IS_GCTHING(_content._jsval)) _owner->clenchJsval(this, "val", _content._jsval);
+					if(JSVAL_IS_GCTHING(_content._jsval)) _owner->clenchJsval(this, 0, _content._jsval);
 
 					_type = etstJsval;
 					return true;
@@ -139,7 +139,7 @@ namespace ccms
 
 		_content._jsval = jsv;
 // 		if(JSVAL_IS_GCTHING(_content._jsval)) JS_AddNamedRoot(ecx()->_jsCx, &_content._jsval, __FUNCTION__);
-		if(JSVAL_IS_GCTHING(_content._jsval)) _owner->clenchJsval(this, "val", _content._jsval);
+		if(JSVAL_IS_GCTHING(_content._jsval)) _owner->clenchJsval(this, 0, _content._jsval);
 
 		_type = etstJsval;
 		return true;
@@ -164,8 +164,8 @@ namespace ccms
 // 		if(JSVAL_IS_GCTHING(_content._prop._idVal)) JS_AddNamedRoot(ecx()->_jsCx, &_content._prop._idVal, __FUNCTION__);
 // 		if(JSVAL_IS_GCTHING(_content._prop._val)) JS_AddNamedRoot(ecx()->_jsCx, &_content._prop._val, __FUNCTION__);
 
-		if(JSVAL_IS_GCTHING(_content._prop._idVal)) _owner->clenchJsval(this, "id", _content._prop._idVal);
-		if(JSVAL_IS_GCTHING(_content._prop._val)) _owner->clenchJsval(this, "val", _content._prop._val);
+		if(JSVAL_IS_GCTHING(_content._prop._idVal)) _owner->clenchJsval(this, 0, _content._prop._idVal);
+		if(JSVAL_IS_GCTHING(_content._prop._val)) _owner->clenchJsval(this, 1, _content._prop._val);
 
 		_type = etstProp;
 		return true;
