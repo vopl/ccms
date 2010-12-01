@@ -5,55 +5,120 @@ if(!t)
 {
 	t = router.createTemplate();
 	let xml = <>
-	<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us" >
-		<head>
-			{t(function(){return ui.places.title.render()})}
-			<?ws?>
-			{t(function(){return ui.places.scripts.render()})}
-			<link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all'/>
-			{t(function(){return ui.places.styles.render()})}
+		<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us" >
+			<head>
+				{t(function(){return ui.places.title.render()})}
+				<?ws?>
+				{t(function(){return ui.places.scripts.render()})}
+				<link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all'/>
+				{t(function(){return ui.places.styles.render()})}
 
 
-		</head>
-		<body>
-			<table border='1'>
+			</head>
+			<body>
+				<div class="layout">
 
-			<tr>
-				<td colspan='3'>
-					{t(function(){return ui.places.header.render()})}
-				</td>
-			</tr>
-			<tr>
-				<td colspan='3'>
-					{t(function(){return ui.places.breadcrumbs.render()})}
-				</td>
-			</tr>
-			<tr>
-				<td>
-					{t(function(){return ui.places.left.render()})}
-				</td>
-				<td width='100%'>
-					{t(function(){return ui.places.center.render()})}
-				</td>
-				<td>
-					{t(function(){return ui.places.right.render()})}
-				</td>
-			</tr>
-			<tr>
-				<td colspan='3'>
-					{t(function(){return ui.places.footer.render()})}
-				</td>
-			</tr>
+					<div class="layout-element layout-header">
+						{t(function(){return ui.places.header.render()})}
+					</div>
+					
+					<div class="layout-element layout-breadcrumbs">
+						{t(function(){return ui.places.breadcrumbs.render()})}
+					</div>
+					
+					<div class="layout-element layout-left">
+						{t(function(){return ui.places.left.render()})}
+					</div>
+					<div class="layout-element layout-right">
+						{t(function(){return ui.places.right.render()})}
+					</div>
+					<div class="layout-element layout-center">
+						{t(function(){return ui.places.center.render()})}
+					</div>
+					<div class="layout-element layout-footer">
+						{t(function(){return ui.places.footer.render()})}
+					</div>
 
-			</table>
-			{t.ga}
-			<b>{this.path}</b>
-		</body>
-	</html></>;
+				</div>
+				{t.ga}
+				<b>{this.path}</b>
+			</body>
+		</html>
+	</>;
 	t.compile(xml);
 	
 	arguments.callee.t=t;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// let t = arguments.callee.t;
+
+
+// if(!t)
+// {
+	// t = router.createTemplate();
+	// let xml = <>
+	// <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us" >
+		// <head>
+			// {t(function(){return ui.places.title.render()})}
+			// <?ws?>
+			// {t(function(){return ui.places.scripts.render()})}
+			// <link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all'/>
+			// {t(function(){return ui.places.styles.render()})}
+
+
+		// </head>
+		// <body>
+			// <table border='1'>
+
+			// <tr>
+				// <td colspan='3'>
+					// {t(function(){return ui.places.header.render()})}
+				// </td>
+			// </tr>
+			// <tr>
+				// <td colspan='3'>
+					// {t(function(){return ui.places.breadcrumbs.render()})}
+				// </td>
+			// </tr>
+			// <tr>
+				// <td>
+					// {t(function(){return ui.places.left.render()})}
+				// </td>
+				// <td width='100%'>
+					// {t(function(){return ui.places.center.render()})}
+				// </td>
+				// <td>
+					// {t(function(){return ui.places.right.render()})}
+				// </td>
+			// </tr>
+			// <tr>
+				// <td colspan='3'>
+					// {t(function(){return ui.places.footer.render()})}
+				// </td>
+			// </tr>
+
+			// </table>
+			// {t.ga}
+			// <b>{this.path}</b>
+		// </body>
+	// </html></>;
+	// t.compile(xml);
+	
+	// arguments.callee.t=t;
+// }
 
 t = t.clone();
 

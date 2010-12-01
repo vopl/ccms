@@ -1,14 +1,46 @@
-.header
+body, html 
 {
-	margin-top: 5px;
-	margin-bottom: 5px;
-	vertical-align: top;
+	margin:0px; 
+	padding:0px;
 }
-.center
+
+.layout
 {
-	border: 1px double blue;
+	margin: 0 auto;
+	width: 100%;
+	min-width: 40em;
 }
-.footer
+.layout-element
 {
-	border: 1px double black;
+	margin:0px; 
+	padding:0px;
+}
+.layout-header
+{
+	width: 100%;
+}
+.layout-breadcrumbs
+{
+	width: 100%;
+	background-image: url('/bg/bg1.jpg');
+	font: bold 110% serif;
+}
+.layout-left
+{
+	//width: 12em;
+	float: left;
+}
+.layout-right
+{
+	//width: 12em;
+	float: right;
+}
+.layout-center
+{
+	//margin-left: 12em;
+    //margin-right: 12em;
+}
+.layout-footer
+{
+	width: 100%;
 }
