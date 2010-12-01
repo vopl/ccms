@@ -1,0 +1,14 @@
+.header
+{
+	margin-top: 5px;
+	margin-bottom: 5px;
+	vertical-align: top;
+}
+.center
+{
+	border: 1px double blue;
+}
+.footer
+{
+	border: 1px double black;
+}

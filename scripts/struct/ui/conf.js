@@ -10,7 +10,8 @@ let res =
 	
 	properties:
 	{
-		mapConfig:{value:'return false',},
+		mapConfig:{value:'return {self:true}',},
+		resolve:{file:'./resolve.js'},
 	}
 
 };

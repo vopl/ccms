@@ -11,5 +11,10 @@ let res =
 		divclass:{file:'divclass.js'},
 		tag:{file:'tag.js'},
 	},
+	statics:
+	{
+		'main.css':absFile('main.css'),
+	},
+
 };
 return res;

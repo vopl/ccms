@@ -727,7 +727,14 @@ namespace ccms
 			TResult::AssocNu::iterator aiter = _result.assocNu.find(idStr);
 			if(_result.assocNu.end() != aiter)
 			{
-				aiter->second->getJsval(obj, *vp);
+				if(obj == _js)
+				{
+					aiter->second->getJsval(NULL, *vp);
+				}
+				else
+				{
+					aiter->second->getJsval(obj, *vp);
+				}
 			}
 
 		}

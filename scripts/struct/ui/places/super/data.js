@@ -7,6 +7,10 @@ if(name in ui.blocks)
 	{
 		src = [src];
 	}
+	let srca = [];
+	for each(let v in src) srca.push(v);
+	src = srca;
+
 	let res = src.map(function(entry)	
 		{
 			if(entry instanceof CppObject && 'BlockEntry' == entry.cppClass)
@@ -27,7 +31,8 @@ if(name in ui.blocks)
 	}
 	res.sort(pred);
 	
-	res = res.map(function(entry){return entry.content});
+	let point = this;
+	res = res.map(function(entry){return point.properties.wrapperElement(entry.content)});
 	
 	return res;
 }

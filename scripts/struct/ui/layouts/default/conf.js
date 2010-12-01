@@ -6,5 +6,9 @@ let res =
 		name:{value:'client',executable:false},
 		content:{file:'content.js',executable:true},
 	},
+	statics:
+	{
+		'main.css':absFile('main.css'),
+	},
 };
 return res;

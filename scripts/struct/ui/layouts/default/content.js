@@ -10,25 +10,10 @@ if(!t)
 			{t(function(){return ui.places.title.render()})}
 			<?ws?>
 			{t(function(){return ui.places.scripts.render()})}
+			<link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all' />
+			{t(function(){return ui.places.styles.render()})}
 
 
-			<style><![CDATA[
-				.sidebar
-				{
-					margin-top: 5px;
-					margin-bottom: 5px;
-					vertical-align: top;
-				}
-				.sidebar-header
-				{
-					border: 1px double blue;
-				}
-				.sidebar-content
-				{
-					border: 1px double black;
-				}
-				]]>
-			</style>
 		</head>
 		<body>
 			<table border='1'>

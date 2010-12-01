@@ -6,8 +6,11 @@ let res = {
 		render:{file:'./render.js'},
 
 		pre:{value:'',executable:false},
-		wrapper:{file:'wrapper.js'},
+
 		data:{file:'data.js'},
+		wrapperElement:{file:'wrapperElement.js'},
+		wrapperArray:{file:'wrapperArray.js'},
+
 		post:{value:'',executable:false},
 	},
 };

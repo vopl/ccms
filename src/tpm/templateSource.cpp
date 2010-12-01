@@ -194,6 +194,12 @@ namespace ccms
 			jsv = _content._jsval;
 			break;
 		case etstProp:
+
+			if(!obj)
+			{
+				jsv = _content._prop._val;
+				return true;
+			}
 			{
 				JSBool b;
 				if(!JS_AlreadyHasOwnPropertyById(ecx()->_jsCx, obj, _content._prop._id, &b))

@@ -16,7 +16,7 @@
 
 // return ui.skin.divclass(data, 'sidebar');
 
-
+ui.blocks.styles.skin = this.path+'/main.css';
 
 
 let data = [];

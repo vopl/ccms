@@ -5,7 +5,7 @@ if(!t)
 	let xml = <>{t(function(){
 			return t.obj.self.properties.pre();
 		})}{t(function(){
-			return t.obj.self.properties.wrapper(t.obj.self.properties.data());
+			return t.obj.self.properties.wrapperArray(t.obj.self.properties.data());
 		})}{t(function(){
 			return t.obj.self.properties.post();
 
