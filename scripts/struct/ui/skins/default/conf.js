@@ -9,6 +9,7 @@ let res =
 		link:{file:'link.js'},
 		sidebar:{file:'sidebar.js'},
 		divclass:{file:'divclass.js'},
+		tag:{file:'tag.js'},
 	},
 };
 return res;
