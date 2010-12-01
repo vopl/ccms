@@ -10,7 +10,7 @@ if(!t)
 			{t(function(){return ui.places.title.render()})}
 			<?ws?>
 			{t(function(){return ui.places.scripts.render()})}
-			<link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all' />
+			<link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all'/>
 			{t(function(){return ui.places.styles.render()})}
 
 
