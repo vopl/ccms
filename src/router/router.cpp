@@ -2065,6 +2065,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		return true;
 	}
 
+#if USE_PROFILER
 	//////////////////////////////////////////////////////////////////////////
 	int Router::parseProfilerField(const char *s)
 	{
@@ -2093,7 +2094,6 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		return field;
 	}
 
-#if USE_PROFILER
 	//////////////////////////////////////////////////////////////////////////
 	void Router::writeProfilerResult()
 	{

@@ -489,14 +489,24 @@ namespace ccms
 #if USE_PROFILER
 						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecParams");
 #endif
-						res = PQexecParams(conn, statement, nParams, NULL, &paramValuesPtrs[0], &paramValuesLens[0], NULL, 0);
+						{
+#if USE_PROFILER
+							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [raw]").c_str());
+#endif
+							res = PQexecParams(conn, statement, nParams, NULL, &paramValuesPtrs[0], &paramValuesLens[0], NULL, 0);
+						}
 					}
 					else
 					{
 #if USE_PROFILER
 						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecParams_nulls");
 #endif
-						res = PQexecParams(conn, statement, 0, NULL, NULL, NULL, NULL, 0);
+						{
+#if USE_PROFILER
+							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [raw]").c_str());
+#endif
+							res = PQexecParams(conn, statement, 0, NULL, NULL, NULL, NULL, 0);
+						}
 					}
 				}
 				else
@@ -506,14 +516,24 @@ namespace ccms
 #if USE_PROFILER
 						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecPrepared");
 #endif
-						res = PQexecPrepared(conn, statement, nParams, &paramValuesPtrs[0], &paramValuesLens[0], NULL, 0);
+						{
+#if USE_PROFILER
+							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [prepared]").c_str());
+#endif
+							res = PQexecPrepared(conn, statement, nParams, &paramValuesPtrs[0], &paramValuesLens[0], NULL, 0);
+						}
 					}
 					else
 					{
 #if USE_PROFILER
 						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecPrepared_nulls");
 #endif
-						res = PQexecPrepared(conn, statement, 0, NULL, NULL, NULL, 0);
+						{
+#if USE_PROFILER
+							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [prepared]").c_str());
+#endif
+							res = PQexecPrepared(conn, statement, 0, NULL, NULL, NULL, 0);
+						}
 					}
 				}
 			}
@@ -524,14 +544,24 @@ namespace ccms
 #if USE_PROFILER
 					ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexec");
 #endif
-					res = PQexec(conn, statement);
+					{
+#if USE_PROFILER
+						ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [once]").c_str());
+#endif
+						res = PQexec(conn, statement);
+					}
 				}
 				else
 				{
 #if USE_PROFILER
 					ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecPrepared_nulls");
 #endif
-					res = PQexecPrepared(conn, statement, 0, NULL, NULL, NULL, 0);
+					{
+#if USE_PROFILER
+						ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [prepared]").c_str());
+#endif
+						res = PQexecPrepared(conn, statement, 0, NULL, NULL, NULL, 0);
+					}
 				}
 			}
 
@@ -901,7 +931,7 @@ namespace ccms
 		{
 			(*ecx()->_err)<<sql<<std::endl;
 		}
-		return eval(_conn, eem_sql|eem_query, sql, NULL, argc-1, argv+1, rval);
+		return eval(_conn, eem_sql|eem_query, sql, sql, argc-1, argv+1, rval);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -920,7 +950,7 @@ namespace ccms
 		{
 			(*ecx()->_err)<<sql<<std::endl;
 		}
-		return eval(_conn, eem_sql|eem_exec, sql, NULL, argc-1, argv+1, rval);
+		return eval(_conn, eem_sql|eem_exec, sql, sql, argc-1, argv+1, rval);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

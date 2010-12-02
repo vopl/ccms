@@ -61,7 +61,8 @@ namespace ccms
 		void stop();
 		void reset();
 
-		void mark(JSContext *cx, const char *name, bool before);
+		void enter(JSContext *cx, const char *name);
+		void leave();
 
 		void dumpTable(
 			std::ostream &out, const char *delim, 
@@ -114,7 +115,7 @@ namespace ccms
 
 			void reset(Point *parent, const char *name);
 			Point *enter(TSTimes &timesStack, const char *name);
-			Point *leave(TSTimes &timesStack, const char *name);
+			Point *leave(TSTimes &timesStack);
 
 			const std::string &getName()const;
 			const TMChilds &getChilds()const;
@@ -180,21 +181,17 @@ namespace ccms
 	class ProfilerScopeHelper
 	{
 		Profiler &_prof;
-		JSContext *_cx;
-		const char *_name;
 
 	public:
 		ProfilerScopeHelper(Profiler &prof, JSContext *cx, const char *name)
 			: _prof(prof)
-			, _cx(cx)
-			, _name(name)
 		{
-			_prof.mark(_cx, _name, true);
+			_prof.enter(cx, name);
 		}
 
 		~ProfilerScopeHelper()
 		{
-			_prof.mark(_cx, _name, false);
+			_prof.leave();
 		}
 	};
 

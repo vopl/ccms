@@ -10,6 +10,12 @@
 #include "utils/ncvt.h"
 #include "utils/crc32.hpp"
 
+#ifdef WIN32
+#else
+#	include <sys/time.h>
+#	include <sys/resource.h>
+#endif
+
 namespace ccms
 {
 
@@ -62,24 +68,9 @@ namespace ccms
 
 
 
-// 	//////////////////////////////////////////////////////////////////////////
-// 	long long Profiler::curTime()
-// 	{
-// #ifdef WIN32
-// 		LARGE_INTEGER    li;
-// 		QueryPerformanceCounter(&li);
-// 		return (li.QuadPart - _liStart)*BASE/_liFrequency;
-// #else
-// 		struct timespec sts;
-// 		clock_gettime(CLOCK_REALTIME, &sts);
-//		unsigned long long li = sts.tv_sec*_liFrequency + sts.tv_nsec;
-//
-//		return (li - _liStart)*BASE/_liFrequency;
-// #endif
-// 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	void Profiler::mark(JSContext *cx, const char *name, bool before)
+	void Profiler::enter(JSContext *cx, const char *name)
 	{
 		if(!_currentPoint)
 		{
@@ -105,7 +96,17 @@ namespace ccms
 				name = buf;
 			}
 		}
-		_currentPoint = before?_currentPoint->enter(_timesStack, name):_currentPoint->leave(_timesStack, name);
+		_currentPoint = _currentPoint->enter(_timesStack, name);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void Profiler::leave()
+	{
+		if(!_currentPoint)
+		{
+			return;
+		}
+		_currentPoint = _currentPoint->leave(_timesStack);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -475,7 +476,23 @@ namespace ccms
 		clock_gettime(CLOCK_REALTIME, &sts);
 		_real = (unsigned long long)sts.tv_sec*1000000000 + sts.tv_nsec;
 
-		assert(!"_user, _system");
+		clock_gettime(CLOCK_THREAD_CPUTIME_ID, &sts);
+		_user = (unsigned long long)sts.tv_sec*1000000000 + sts.tv_nsec;
+
+		struct rusage ru = {};
+		if(getrusage(RUSAGE_SELF, &ru))
+		{
+			//error
+			_user = 0;
+			_system = 0;
+		}
+		else
+		{
+			_user = (unsigned long long)ru.ru_utime.tv_sec*1000000000 + ru.ru_utime.tv_usec*1000;
+			_system = (unsigned long long)ru.ru_stime.tv_sec*1000000000 + ru.ru_stime.tv_usec*1000;
+		}
+		
+		_system = 0;
 #endif
 	}
 
@@ -562,9 +579,8 @@ namespace ccms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	Profiler::Point *Profiler::Point::leave(TSTimes &timesStack, const char *name)
+	Profiler::Point *Profiler::Point::leave(TSTimes &timesStack)
 	{
-		assert(_name == name);
 		assert(_parent);
 
 		Times t;
@@ -673,7 +689,14 @@ namespace ccms
 		void *closure)
 	{
 		Profiler* self = (Profiler*) closure;
-		self->mark(cx, fp->fun?JS_GetFunctionName(fp->fun):"unknown", before?true:false);
+		if(before)
+		{
+			self->enter(cx, fp->fun?JS_GetFunctionName(fp->fun):"unknown_js_function");
+		}
+		else
+		{
+			self->leave();
+		}
 		return closure;
 	}
 
