@@ -102,7 +102,9 @@ namespace ccms
 				{
 					*iter = hexToChar(*(iter+1), *(iter+2));
 					iter = str.erase(iter+1, iter+3);
+					break;
 				}
+				iter++;
 				break;
 			default:
 				iter++;
@@ -128,7 +130,9 @@ namespace ccms
 				{
 					*iter = hexToChar(*(iter+1), *(iter+2));
 					iter = str.erase(iter+1, iter+3);
+					break;
 				}
+				iter++;
 				break;
 			default:
 				iter++;
