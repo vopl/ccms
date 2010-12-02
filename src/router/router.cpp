@@ -1266,6 +1266,11 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		, _cacheFlushPart(0.1)
 		, _cacheAliveTime(1*60)
 		, _stackLimit(500000)
+#ifdef USE_PROFILER
+		, _profilerAccumuleRequests(100)
+		, _profilerOrderField(0)
+		, _profilerLinesAmount(20)
+#endif
 	{
 	}
 
@@ -1317,6 +1322,20 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_stackLimit = getConfigUlong("memory.stackLimit");
 		if(!_stackLimit) _stackLimit = 500000;
 
+
+#ifdef USE_PROFILER
+		_profilerAccumuledAmount = 0;
+		_profilerAccumuleRequests = getConfigUlong("profiler.accumuleRequests");
+		_profilerLog.open(getConfigString("profiler.log").c_str());
+
+		std::vector<std::string> fields = getConfigArrayString("profiler.fields");
+		for(size_t i(0); i<fields.size(); i++)
+		{
+			_profilerFields.push_back(parseProfilerField(fields[i].c_str()));
+		}
+		_profilerOrderField = parseProfilerField(getConfigString("profiler.order").c_str());
+		_profilerLinesAmount = parseProfilerField(getConfigString("profiler.linesAmount").c_str());
+#endif
 		return true;
 	}
 
@@ -1705,6 +1724,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 		cleanup(connection->_backendData);
 		connection->_backendData = NULL;
+
+		writeProfilerResult();
 		return res;
 	}
 
@@ -2043,6 +2064,43 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 
 		return true;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	int Router::parseProfilerField(const char *s)
+	{
+		int field = 0;
+		if(strstr(s, "own")) field |= epmaOwn;
+		if(strstr(s, "childs")) field |= epmaChilds;
+		if(strstr(s, "all")) field |= epmaAll;
+
+		if(strstr(s, "avg"))
+		{
+			if(strstr(s, "usr")) field |= epmkAvgUser;
+			if(strstr(s, "sys")) field |= epmkAvgSystem;
+			if(strstr(s, "real")) field |= epmkAvgReal;
+		}
+		else
+		{
+			if(strstr(s, "usr")) field |= epmkUser;
+			if(strstr(s, "sys")) field |= epmkSystem;
+			if(strstr(s, "real")) field |= epmkReal;
+			if(strstr(s, "calls")) field |= epmkReal;
+		}
+
+		if(strstr(s, "%")) field |= epmmPercent;
+		else field |= epmmUnit;
+
+		return field;
+	}
+	//////////////////////////////////////////////////////////////////////////
+	void Router::writeProfilerResult()
+	{
+#if USE_PROFILER
+		int outFormats[4] = {epmkReal|epmaOwn|epmmPercent, epmkReal|epmaAll|epmmPercent, epmkUser|epmaOwn|epmmPercent, epmkUser|epmaAll|epmmPercent};
+		g_profiler.dumpTable(std::cout, " ", 4, outFormats, epmkReal|epmaOwn, 20);
+#endif
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	Scripter &Router::getScripter()

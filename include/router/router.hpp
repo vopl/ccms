@@ -107,6 +107,17 @@ namespace ccms
 		bool executeForHeaders(Request *r, const std::vector<PointPtr> &points);
 		bool executeForBody(Request *r, const std::vector<PointPtr> &points);
 
+#ifdef USE_PROFILER
+		std::size_t _profilerAccumuleRequests;
+		std::ofstream _profilerLog;
+		std::vector<int> _profilerFields;
+		int _profilerOrderField;
+		size_t _profilerLinesAmount;
+		size_t _profilerAccumuledAmount;
+		int parseProfilerField(const char *);
+		void writeProfilerResult();
+#endif
+
 		Scripter &getScripter();
 		PointInstancePtr getRootPointInstance();
 		PointPtr getRootPoint();

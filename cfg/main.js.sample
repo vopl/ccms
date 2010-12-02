@@ -72,6 +72,20 @@ let res =
 
 	accesslog:'../logs/access',
 
+	profiler:
+	{
+		accumuleRequests:4,
+		log:'../logs/profiler',
+		/*
+			<own|childs|all>_(([avg_]<usr|sys|real>)|calls)[_%]
+		*/
+		fields:['own_real', 'own_calls', 'own_usr', 'own_sys'],
+		orderField:'own_real',
+		linesAmount:20,
+
+	}
+
+
 };
 
 return res;
