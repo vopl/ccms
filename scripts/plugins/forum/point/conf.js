@@ -48,5 +48,13 @@
 		},
 */
 	},
+
+
+
+	statics:
+	{
+		'main.css':absFile('main.css'),
+	},
+
 };
 return res;

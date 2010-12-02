@@ -7,9 +7,16 @@ let res =
 	{
 		accessDenied:{file:'accessDenied.js'},
 		link:{file:'link.js'},
+		image:{file:'image.js'},
+
+
 		sidebar:{file:'sidebar.js'},
+		breadcrumbs:{file:'breadcrumbs.js'},
+
+
 		divclass:{file:'divclass.js'},
 		tag:{file:'tag.js'},
+
 	},
 	statics:
 	{

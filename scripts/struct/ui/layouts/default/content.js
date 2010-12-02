@@ -26,14 +26,16 @@ if(!t)
 						{t(function(){return ui.places.breadcrumbs.render()})}
 					</div>
 					
-					<div class="layout-element layout-left">
-						{t(function(){return ui.places.left.render()})}
-					</div>
-					<div class="layout-element layout-right">
-						{t(function(){return ui.places.right.render()})}
-					</div>
-					<div class="layout-element layout-center">
-						{t(function(){return ui.places.center.render()})}
+					<div class="layout-element layout-centerall">
+						<div class="layout-element layout-left">
+							{t(function(){return ui.places.left.render()})}
+						</div>
+						<div class="layout-element layout-right">
+							{t(function(){return ui.places.right.render()})}
+						</div>
+						<div class="layout-element layout-center">
+							{t(function(){return ui.places.center.render()})}
+						</div>
 					</div>
 					<div class="layout-element layout-footer">
 						{t(function(){return ui.places.footer.render()})}

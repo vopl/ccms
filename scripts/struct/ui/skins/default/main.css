@@ -12,3 +12,8 @@
 {
 	border: 1px double black;
 }
+
+.breadcrumbs
+{
+	background-color: #cccccc;
+}

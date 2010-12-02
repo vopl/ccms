@@ -7,27 +7,26 @@
 	{
 		t = router.createTemplate();
 		t.compile(<>
-			<table border="1">
-				<tr>
-					<td>
-						<img src='/dog.png.s'/>
-					</td>
-					<td width='100%' align="center">
-						тут
-					</td>
-					<td align='right'>
-						{t.auth}
-					</td>
-				</tr>
-			</table>
+			<div class="header-left">
+				{t.logo}
+			</div>
+			<div class="header-right">
+				{t.auth}
+			</div>
+			<div class="header-center">
+				тут
+			</div>
 		</>);
 		t.auth = router.getPoint('/user/authorize');
 		arguments.callee.header = t;
 	}
 	t = t.clone();
-	//t.auth = ui.skin.link(t.auth.render());
+
+	t.logo = ui.skin.image('/dog.png');
 	t.auth = ui.skin.sidebar(t.auth.render(), "Auth");
 	ui.blocks.header.push(t);
+
+
 
 	ui.blocks.right.push(ui.skin.sidebar('rcontent1', 'rheader1'));
 	ui.blocks.right.push(ui.skin.sidebar('rcontent2', 'rheader2'));
@@ -39,4 +38,11 @@
 
 	ui.blocks.footer.push(ui.skin.sidebar('fcontent3', 'fheader3'));
 
+
+	ui.blocks.styles.forum = this.parent.path+'/main.css';
+
 }
+
+
+
+

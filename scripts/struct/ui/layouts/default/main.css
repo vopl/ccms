@@ -18,29 +18,32 @@ body, html
 .layout-header
 {
 	width: 100%;
+	clear: both;
 }
 .layout-breadcrumbs
 {
 	width: 100%;
-	background-image: url('/bg/bg1.jpg');
-	font: bold 110% serif;
+	clear: both;
+}
+.layout-centerall
+{
+	clear: both;
 }
 .layout-left
 {
-	//width: 12em;
 	float: left;
 }
 .layout-right
 {
-	//width: 12em;
 	float: right;
 }
 .layout-center
 {
-	//margin-left: 12em;
-    //margin-right: 12em;
+	overflow:hidden;
+	zoom:1;
 }
 .layout-footer
 {
 	width: 100%;
+	clear: both;
 }
