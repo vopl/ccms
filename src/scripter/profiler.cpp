@@ -595,13 +595,33 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	void Profiler::Point::accumuleMetrics(Times &times, size_t &calls, bool own, bool childs) const
 	{
-		if(own)
+		if(own && childs)
 		{
 			times.add(_times);
 			calls += _calls;
-		}
+			TMChilds::const_iterator iter = _childs.begin();
+			TMChilds::const_iterator end = _childs.end();
 
-		if(childs)
+			for(; iter!=end; iter++)
+			{
+				calls += iter->second._calls;
+			}
+			return;
+		}
+		else if(own)
+		{
+			times.add(_times);
+			calls += _calls;
+			TMChilds::const_iterator iter = _childs.begin();
+			TMChilds::const_iterator end = _childs.end();
+
+			for(; iter!=end; iter++)
+			{
+				times.sub(iter->second._times);
+			}
+			return;
+		}
+		else if(childs)
 		{
 			TMChilds::const_iterator iter = _childs.begin();
 			TMChilds::const_iterator end = _childs.end();
@@ -610,6 +630,10 @@ namespace ccms
 			{
 				iter->second.accumuleMetrics(times, calls, true, true);
 			}
+		}
+		else
+		{
+			//nothing
 		}
 	}
 

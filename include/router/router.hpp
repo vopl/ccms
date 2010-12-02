@@ -16,9 +16,11 @@
 #include "scripter/scripter.hpp"
 #include "scripter/jsObject.hpp"
 #include "scripter/newPropsCollector.hpp"
+#include "scripter/profiler.hpp"
 
 #include "struct/pointInstance.hpp"
 #include "struct/point.hpp"
+
 
 namespace ccms
 {
@@ -107,7 +109,7 @@ namespace ccms
 		bool executeForHeaders(Request *r, const std::vector<PointPtr> &points);
 		bool executeForBody(Request *r, const std::vector<PointPtr> &points);
 
-#ifdef USE_PROFILER
+#if USE_PROFILER
 		std::size_t _profilerAccumuleRequests;
 		std::ofstream _profilerLog;
 		std::vector<int> _profilerFields;
