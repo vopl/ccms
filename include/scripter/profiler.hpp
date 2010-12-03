@@ -90,11 +90,12 @@ namespace ccms
 			void sub(const Times &t);
 			void add(const Times &t);
 #ifdef WIN32
-			static unsigned long long _liFrequency;
+			static double _counterMult;
+			static HANDLE _hCurrentThread;
 #endif
 			static void calibrate();
 		};
-		typedef std::stack<Times> TSTimes;
+		typedef std::stack<Times, std::vector<Times> > TSTimes;
 		TSTimes _timesStack;
 
 		//////////////////////////////////////////////////////////////////////////
@@ -119,17 +120,23 @@ namespace ccms
 
 			const std::string &getName()const;
 			const TMChilds &getChilds()const;
-			void accumuleMetrics(Times &times, size_t &calls, bool own, bool childs)const;
+			void accumuleTimes(Times &times, bool own, bool childs)const;
+			void accumuleCalls(size_t &calls, bool own, bool childs)const;
 		};
 		Point _rootPoint;
 		Point *_currentPoint;
 
 	private:
 		template <class T>
-		void walkPoint(std::deque<T> &container, const Point &p, size_t level=0);
+		void walkPoint(
+			std::deque<T> &container, 
+			std::deque<std::pair<std::string, size_t> > &processedStack, 
+			std::map<std::string, size_t> &processedAll, 
+			const Point &p, size_t level=0);
 
 		struct ReportLine
 		{
+			bool _isDouble;
 			size_t	_level;
 			std::string _name;
 			Times _ownTimes;
@@ -137,7 +144,8 @@ namespace ccms
 			Times _childTimes;
 			size_t _childCalls;
 
-			ReportLine(const Point &p, size_t level);
+			ReportLine(ReportLine *prevParent, ReportLine *prevSibling, const Point &p, size_t level);
+			bool needStore() const;
 			void add(const ReportLine &rl);
 			unsigned long long getMetric(int format) const;
 		};

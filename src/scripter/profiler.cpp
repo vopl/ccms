@@ -111,29 +111,121 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	template <class T>
-	void Profiler::walkPoint(std::deque<T> &container, const Point &p, size_t level)
+	void Profiler::walkPoint(
+		std::deque<T> &container, 
+		std::deque<std::pair<std::string, size_t> > &processedStack, 
+		std::map<std::string, size_t> &processedAll, 
+		const Point &p, 
+		size_t level)
 	{
-		container.push_back(T(p, level));
+		int prevInStackIdx = -1;
+		int prevInAllIdx = -1;
+		bool needStore = false;
+		{
+			{
+				std::deque<std::pair<std::string, size_t> >::iterator iter = processedStack.begin();
+				std::deque<std::pair<std::string, size_t> >::iterator end = processedStack.end();
+
+				for(; iter!=end; iter++)
+				{
+					if(iter->first == p.getName())
+					{
+						prevInStackIdx = iter->second;
+						break;
+					}
+				}
+			}
+
+			{
+				typename std::map<std::string, size_t>::iterator iter = processedAll.find(p.getName());
+				if(processedAll.end() != iter) prevInAllIdx = iter->second;
+			}
+
+			T cur(
+				prevInStackIdx>=0?&container[prevInStackIdx]:NULL, 
+				prevInAllIdx>=0?&container[prevInAllIdx]:NULL, 
+				p, 
+				level);
+
+			needStore = cur.needStore();
+			if(needStore)
+			{
+				container.push_back(cur);
+			}
+
+			if(prevInAllIdx<0)
+			{
+				processedAll[p.getName()] = container.size()-1;
+			}
+
+		}
+
+		
 
 		const Point::TMChilds &childs = p.getChilds();
 		Point::TMChilds::const_iterator iter = childs.begin();
 		Point::TMChilds::const_iterator end = childs.end();
 
+
+		if(needStore)
+		{
+			processedStack.push_back(std::make_pair(p.getName(), container.size()-1));
+		}
 		for(; iter!=end; iter++)
 		{
-			walkPoint(container, iter->second, level+1);
+			walkPoint(container, processedStack, processedAll, iter->second, level+1);
+		}
+
+		if(needStore)
+		{
+			processedStack.pop_back();
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	Profiler::ReportLine::ReportLine(const Point &p, size_t level)
-		: _level(level)
+	Profiler::ReportLine::ReportLine(ReportLine *prevParent, ReportLine *prevSibling, const Point &p, size_t level)
+		: _isDouble((prevParent || prevSibling)?true:false)
+		, _level(level)
 		, _ownCalls(0)
 		, _childCalls(0)
 	{
 		_name = p.getName();
-		p.accumuleMetrics(_ownTimes, _ownCalls, true, false);
-		p.accumuleMetrics(_childTimes, _childCalls, false, true);
+
+		if(prevParent)
+		{
+			p.accumuleTimes(_ownTimes, true, false);
+			p.accumuleCalls(_ownCalls, true, false);
+			
+			prevParent->_ownTimes.add(_ownTimes);
+			prevParent->_ownCalls += _ownCalls;
+			prevParent->_childTimes.sub(_ownTimes);
+			prevParent->_childCalls -= _ownCalls;
+		}
+		else if(prevSibling)
+		{
+			p.accumuleTimes(_ownTimes, true, false);
+			p.accumuleCalls(_ownCalls, true, false);
+			p.accumuleTimes(_childTimes, false, true);
+			p.accumuleCalls(_childCalls, false, true);
+
+			prevSibling->_ownTimes.add(_ownTimes);
+			prevSibling->_ownCalls += _ownCalls;
+			prevSibling->_childTimes.add(_childTimes);
+			prevSibling->_childCalls += _childCalls;
+		}
+		else
+		{
+			p.accumuleTimes(_ownTimes, true, false);
+			p.accumuleCalls(_ownCalls, true, false);
+			p.accumuleTimes(_childTimes, false, true);
+			p.accumuleCalls(_childCalls, false, true);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Profiler::ReportLine::needStore() const
+	{
+		return !_isDouble;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -239,7 +331,14 @@ namespace ccms
 		//linearize
 		typedef std::deque<ReportLine> TDReportLines;
 		TDReportLines lines;
-		walkPoint(lines, _rootPoint);
+		{
+			std::deque<std::pair<std::string, size_t> > processedStack;
+			std::map<std::string, size_t> processedAll;
+			walkPoint(lines, processedStack, processedAll, _rootPoint);
+		}
+
+		//remove root
+		lines.pop_front();
 
 		//merge equal names
 		Times allTime;
@@ -248,26 +347,15 @@ namespace ccms
 		{
 			std::sort(lines.begin(), lines.end(), PredName());
 			TDReportLines::iterator iter = ++lines.begin();
+			TDReportLines::iterator end = lines.end();
 
-			while(iter != lines.end())
+			for(; iter != end; iter++)
 			{
 				allTime.add(iter->_ownTimes);
 				llAllCalls += iter->_ownCalls;
-// 				TDReportLines::iterator prevIter = iter-1;
-// 				if(iter->_name == prevIter->_name)
-// 				{
-// 					prevIter->add(*iter);
-// 					iter = lines.erase(iter);
-// 				}
-// 				else
-				{
-					iter++;
-				}
 			}
 		}
 
-		//remove root
-		lines.pop_front();
 
 
 		
@@ -459,25 +547,23 @@ namespace ccms
 #ifdef WIN32
 		LARGE_INTEGER    li;
 		QueryPerformanceCounter(&li);
-		_real = li.QuadPart * 1000000000 / _liFrequency;
+		_real = (unsigned long long)(_counterMult * li.QuadPart);
 
 		//structure contains two 32-bit values that combine to form a 64-bit count of 100-nanosecond time units.
 		FILETIME CreationTime;
 		FILETIME ExitTime;
 		FILETIME KernelTime;
 		FILETIME UserTime;
-		GetThreadTimes(GetCurrentThread(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
+		GetThreadTimes(_hCurrentThread, &CreationTime, &ExitTime, &KernelTime, &UserTime);
 		_user = ((unsigned long long)UserTime.dwHighDateTime<<32) | UserTime.dwLowDateTime;
 		_user = _user * 100;
 		_system = ((unsigned long long)KernelTime.dwHighDateTime<<32) | KernelTime.dwLowDateTime;
 		_system = _system * 100;
 #else
 		struct timespec sts;
-		clock_gettime(CLOCK_REALTIME, &sts);
-		_real = (unsigned long long)sts.tv_sec*1000000000 + sts.tv_nsec;
-
+// 		clock_gettime(CLOCK_REALTIME, &sts);
 		clock_gettime(CLOCK_THREAD_CPUTIME_ID, &sts);
-		_user = (unsigned long long)sts.tv_sec*1000000000 + sts.tv_nsec;
+		_real = (unsigned long long)sts.tv_sec*1000000000 + sts.tv_nsec;
 
 		struct rusage ru = {};
 
@@ -516,7 +602,8 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 #ifdef WIN32
-	unsigned long long Profiler::Times::_liFrequency=1;
+	double Profiler::Times::_counterMult = 1;
+	HANDLE Profiler::Times::_hCurrentThread = INVALID_HANDLE_VALUE;
 #endif
 
 	//////////////////////////////////////////////////////////////////////////
@@ -525,7 +612,9 @@ namespace ccms
 #ifdef WIN32
 		LARGE_INTEGER li;
 		QueryPerformanceFrequency(&li);
-		_liFrequency = li.QuadPart;
+		_counterMult = double(1e9)/li.QuadPart;
+
+		_hCurrentThread = GetCurrentThread();
 #endif
 	}
 
@@ -611,25 +700,17 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
-	void Profiler::Point::accumuleMetrics(Times &times, size_t &calls, bool own, bool childs) const
+	void Profiler::Point::accumuleTimes(Times &times, bool own, bool childs) const
 	{
 		if(own && childs)
 		{
 			times.add(_times);
-			calls += _calls;
-			TMChilds::const_iterator iter = _childs.begin();
-			TMChilds::const_iterator end = _childs.end();
-
-			for(; iter!=end; iter++)
-			{
-				calls += iter->second._calls;
-			}
 			return;
 		}
-		else if(own)
+
+		if(own)
 		{
 			times.add(_times);
-			calls += _calls;
 			TMChilds::const_iterator iter = _childs.begin();
 			TMChilds::const_iterator end = _childs.end();
 
@@ -639,7 +720,8 @@ namespace ccms
 			}
 			return;
 		}
-		else if(childs)
+
+		if(childs)
 		{
 			TMChilds::const_iterator iter = _childs.begin();
 			TMChilds::const_iterator end = _childs.end();
@@ -647,15 +729,31 @@ namespace ccms
 			for(; iter!=end; iter++)
 			{
 				times.add(iter->second._times);
-				calls += iter->second._calls;
 			}
-		}
-		else
-		{
-			//nothing
+			return;
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	void Profiler::Point::accumuleCalls(size_t &calls, bool own, bool childs) const
+	{
+		if(own)
+		{
+			calls += _calls;
+		}
+
+		if(childs)
+		{
+			TMChilds::const_iterator iter = _childs.begin();
+			TMChilds::const_iterator end = _childs.end();
+
+			for(; iter!=end; iter++)
+			{
+				iter->second.accumuleCalls(calls, true, true);
+			}
+		}
+	}
 
 
 

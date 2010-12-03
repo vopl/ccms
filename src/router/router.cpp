@@ -1324,7 +1324,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 #if USE_PROFILER
 		_profilerAccumuledAmount = 0;
 		_profilerAccumuleRequests = getConfigUlong("profiler.accumuleRequests");
-		_profilerLog.open(getConfigString("profiler.log").c_str());
+		_profilerLog.open(getConfigString("profiler.log").c_str(), std::ios::binary);
 
 		std::vector<std::string> fields = getConfigArrayString("profiler.fields");
 		for(size_t i(0); i<fields.size(); i++)
