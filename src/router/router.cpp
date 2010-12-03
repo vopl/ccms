@@ -1566,110 +1566,116 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::probe(Connection4Backend *connection)
 	{
+		{
 #if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "Router::probe");
+			ProfilerScopeHelper psh(g_profiler, NULL, "Router::probe");
 #endif
 
-		ScripterScopedStackLimit sssl(_stackLimit);
+			ScripterScopedStackLimit sssl(_stackLimit);
 
-		//сначала отсмотреть статику
-		boost::filesystem::path path = (_documentRoot / connection->_requestPath);
-		if(boost::filesystem::is_regular_file(path))
-		{
-			path = boost::filesystem::complete(path).normalize();
-			connection->_staticPath = path.string();
-			return true;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		//резолв пути на структуру
-		{
-			ScripterScopedRequest ssr;
-			//после прошлой сборки мусора почистить неудаленные носители
-			_contextDataStorage.flushUnregisterCarriers();
-
-			JSObject *executePlan = JS_NewArrayObject(ecx()->_jsCx, 0, NULL);
-			if(!executePlan)
+			//сначала отсмотреть статику
+			boost::filesystem::path path = (_documentRoot / connection->_requestPath);
+			if(boost::filesystem::is_regular_file(path))
 			{
-				JSExceptionReporter(false);
-				return false;
-			}
-			JSObject *executePlanData = JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL);
-			if(!executePlanData)
-			{
-				JSExceptionReporter(false);
-				return false;
-			}
-
-			bool res = true;
-			std::string staticPath;
-			Request *r(new Request(connection));
-			if(!r->initForHeaders())
-			{
-				JSExceptionReporter(false);
-				res = false;
-			}
-
-			if(res && !r->jsRegisterProp("plan", executePlan, true))
-			{
-				(JSExceptionReporter)false;
-				res = false;
-			}
-			if(res && !r->jsRegisterProp("planData", executePlanData, true))
-			{
-				(JSExceptionReporter)false;
-				return false;
-			}
-
-			ConnectionData *connectionData = new ConnectionData;
-			connectionData->_request = r;
-			if(res && !buildExecutePlan(Path(connection->_requestPath), executePlan, executePlanData, res, connection->_staticPath, connectionData->_points))
-			{
-				delete connectionData;
-				JSExceptionReporter(false);
-				res = false;
-			}
-
-			if(!res)
-			{
-				connection->_outStatus = 404;
-				connection->_outHeaders = "Content-Type: text/html; charset=utf-8\r\n";
-
-				connection->_outBody = ""
-					"<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1>"
-					"<p>The requested URL " + escxml(connection->_requestPath) + " was not found on this server.</p></body></html>";
-
-				delete connectionData;
-				return false;
-			}
-
-			if(!connection->_staticPath.empty())
-			{
-				delete connectionData;
+				path = boost::filesystem::complete(path).normalize();
+				connection->_staticPath = path.string();
 				return true;
 			}
 
-			_scripter.jsDefineInGlobal("request", r);
-			if(!executeForHeaders(r, connectionData->_points))
+			//////////////////////////////////////////////////////////////////////////
+			//резолв пути на структуру
 			{
+				ScripterScopedRequest ssr;
+				//после прошлой сборки мусора почистить неудаленные носители
+				_contextDataStorage.flushUnregisterCarriers();
+
+				JSObject *executePlan = JS_NewArrayObject(ecx()->_jsCx, 0, NULL);
+				if(!executePlan)
+				{
+					JSExceptionReporter(false);
+					return false;
+				}
+				JSObject *executePlanData = JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL);
+				if(!executePlanData)
+				{
+					JSExceptionReporter(false);
+					return false;
+				}
+
+				bool res = true;
+				std::string staticPath;
+				Request *r(new Request(connection));
+				if(!r->initForHeaders())
+				{
+					JSExceptionReporter(false);
+					res = false;
+				}
+
+				if(res && !r->jsRegisterProp("plan", executePlan, true))
+				{
+					(JSExceptionReporter)false;
+					res = false;
+				}
+				if(res && !r->jsRegisterProp("planData", executePlanData, true))
+				{
+					(JSExceptionReporter)false;
+					return false;
+				}
+
+				ConnectionData *connectionData = new ConnectionData;
+				connectionData->_request = r;
+				if(res && !buildExecutePlan(Path(connection->_requestPath), executePlan, executePlanData, res, connection->_staticPath, connectionData->_points))
+				{
+					delete connectionData;
+					JSExceptionReporter(false);
+					res = false;
+				}
+
+				if(!res)
+				{
+					connection->_outStatus = 404;
+					connection->_outHeaders = "Content-Type: text/html; charset=utf-8\r\n";
+
+					connection->_outBody = ""
+						"<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1>"
+						"<p>The requested URL " + escxml(connection->_requestPath) + " was not found on this server.</p></body></html>";
+
+					delete connectionData;
+					return false;
+				}
+
+				if(!connection->_staticPath.empty())
+				{
+					delete connectionData;
+					return true;
+				}
+
+				_scripter.jsDefineInGlobal("request", r);
+				if(!executeForHeaders(r, connectionData->_points))
+				{
+					_scripter.jsDefineInGlobal("request");
+					delete connectionData;
+					return false;
+				}
 				_scripter.jsDefineInGlobal("request");
-				delete connectionData;
-				return false;
+
+
+				connection->_backendData = connectionData;
+
+				if(connection->_inContentLength)
+				{//надо вычитать тело
+					return true;
+				}
+
+				//тело вычитывать не нужно, обработать сразу
+				process(connection);
+				//return false;
 			}
-			_scripter.jsDefineInGlobal("request");
-
-
-			connection->_backendData = connectionData;
-
-			if(connection->_inContentLength)
-			{//надо вычитать тело
-				return true;
-			}
-
-			//тело вычитывать не нужно, обработать сразу
-			process(connection);
-			return false;
 		}
+
+#if USE_PROFILER
+		writeProfilerResult();
+#endif
 
 		return false;
 	}
@@ -1686,6 +1692,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 #if USE_PROFILER
 		ProfilerScopeHelper psh(g_profiler, NULL, "Router::process");
 #endif
+
 
 		ScripterScopedStackLimit sssl(_stackLimit);
 
@@ -1731,9 +1738,6 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		cleanup(connection->_backendData);
 		connection->_backendData = NULL;
 
-#if USE_PROFILER
-		writeProfilerResult();
-#endif
 		return res;
 	}
 
