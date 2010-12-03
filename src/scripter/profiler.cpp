@@ -480,7 +480,9 @@ namespace ccms
 		_user = (unsigned long long)sts.tv_sec*1000000000 + sts.tv_nsec;
 
 		struct rusage ru = {};
-		if(getrusage(RUSAGE_SELF, &ru))
+
+		if(getrusage(RUSAGE_THREAD, &ru))
+		//if(getrusage(RUSAGE_SELF, &ru))
 		{
 			//error
 			_user = 0;
@@ -702,4 +704,5 @@ namespace ccms
 
 	Profiler g_profiler;
 }
+
 #endif
