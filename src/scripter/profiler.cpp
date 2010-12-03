@@ -253,13 +253,13 @@ namespace ccms
 			{
 				allTime.add(iter->_ownTimes);
 				llAllCalls += iter->_ownCalls;
-				TDReportLines::iterator prevIter = iter-1;
-				if(iter->_name == prevIter->_name)
-				{
-					prevIter->add(*iter);
-					iter = lines.erase(iter);
-				}
-				else
+// 				TDReportLines::iterator prevIter = iter-1;
+// 				if(iter->_name == prevIter->_name)
+// 				{
+// 					prevIter->add(*iter);
+// 					iter = lines.erase(iter);
+// 				}
+// 				else
 				{
 					iter++;
 				}

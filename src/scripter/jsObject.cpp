@@ -171,7 +171,7 @@ namespace ccms
 		}
 		//////////////////////////////////////////////////////////////////////////
 #if USE_PROFILER
-		std::string name = typeid(*this_).name()+6;
+		std::string name = typeid(*this_).name();
 		name += ".call";
 		ProfilerScopeHelper psh(g_profiler, NULL, name.data());
 #endif
@@ -191,7 +191,7 @@ namespace ccms
 		}
 		//////////////////////////////////////////////////////////////////////////
 #if USE_PROFILER
-		std::string name = typeid(*this_).name()+6;
+		std::string name = typeid(*this_).name();
 		name += ".construct";
 		ProfilerScopeHelper psh(g_profiler, NULL, name.data());
 #endif
@@ -454,7 +454,7 @@ namespace ccms
 		char *s;
 		jsval id2 = id;
 		JS_ConvertArguments(cx, 1, &id2, "s", &s);
-		std::string name = typeid(*this_).name()+6;
+		std::string name = typeid(*this_).name();
 		name += ".";
 		name += isGet?"get_":"set_";
 		name += s;
@@ -511,7 +511,7 @@ namespace ccms
 
 		//////////////////////////////////////////////////////////////////////////
 #if USE_PROFILER
-		std::string name = typeid(*this_).name()+6;
+		std::string name = typeid(*this_).name();
 		name += ".call_";
 		name += JS_GetFunctionName(func);
 		ProfilerScopeHelper psh(g_profiler, NULL, name.data());
@@ -547,7 +547,7 @@ namespace ccms
 		{
 			//////////////////////////////////////////////////////////////////////////
 #if USE_PROFILER
-			std::string name = typeid(*this_).name()+6;
+			std::string name = typeid(*this_).name();
 			name += ".call_toString";
 			ProfilerScopeHelper psh(g_profiler, NULL, name.data());
 #endif
