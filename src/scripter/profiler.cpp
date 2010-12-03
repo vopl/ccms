@@ -646,7 +646,8 @@ namespace ccms
 
 			for(; iter!=end; iter++)
 			{
-				iter->second.accumuleMetrics(times, calls, true, true);
+				times.add(iter->second._times);
+				calls += iter->second._calls;
 			}
 		}
 		else

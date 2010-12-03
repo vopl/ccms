@@ -79,7 +79,7 @@ let res =
 		/*
 			<own|childs|all>_(([avg_]<usr|sys|real>)|calls)[_%]
 		*/
-		fields:['own_real', 'own_calls', 'own_usr', 'own_sys'],
+		fields:['own_real_%', 'childs_real_%', 'own_real', 'childs_real', 'own_calls', 'childs_calls'],
 		orderField:'own_real',
 		linesAmount:20,
 
