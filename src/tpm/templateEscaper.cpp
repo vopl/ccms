@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "tpm/templateEscaper.hpp"
-#include "scripter/profiler.hpp"
 
 namespace ccms
 {
@@ -14,12 +13,6 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool TemplateEscaper::print(std::ostream &out, const char *data, size_t size) const
 	{
-		//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "TemplateEscaper::print");
-#endif
-		//////////////////////////////////////////////////////////////////////////
-
 		switch(_type)
 		{
 		case etetNull:
@@ -127,11 +120,6 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool TemplateEscaper::printWithTail(std::ostream &out, const char *data, size_t size) const
 	{
-		//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "TemplateEscaper::printWithTail");
-#endif
-		//////////////////////////////////////////////////////////////////////////
 		if(!size)
 		{
 			return true;

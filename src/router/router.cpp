@@ -1566,6 +1566,10 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::probe(Connection4Backend *connection)
 	{
+#if USE_PROFILER
+		ProfilerScopeHelper psh(g_profiler, NULL, "Router::probe");
+#endif
+
 		ScripterScopedStackLimit sssl(_stackLimit);
 
 		//сначала отсмотреть статику
@@ -1679,6 +1683,10 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	bool Router::process(Connection4Backend *connection)
 	{
+#if USE_PROFILER
+		ProfilerScopeHelper psh(g_profiler, NULL, "Router::process");
+#endif
+
 		ScripterScopedStackLimit sssl(_stackLimit);
 
 		ConnectionData *cd = (ConnectionData *)connection->_backendData;
@@ -1732,6 +1740,9 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	//////////////////////////////////////////////////////////////////////////
 	void Router::cronTick(std::ostream &err)
 	{
+#if USE_PROFILER
+		ProfilerScopeHelper psh(g_profiler, NULL, "Router::cronTick");
+#endif
 		_crontab->tick();
 		_cache->tick();
 

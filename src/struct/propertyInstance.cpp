@@ -2,7 +2,6 @@
 #include "struct/propertyInstance.hpp"
 #include "router/request.hpp"
 #include "router/router.hpp"
-#include "scripter/profiler.hpp"
 
 namespace ccms
 {
@@ -107,17 +106,11 @@ namespace ccms
 				return true;
 			}
 			assert(owner);
-#if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "PropertyInstance::render.f_exec");
-#endif
 			*rval = ecx()->_scripter->f_exec(_function, owner->thisJsobj(), argc, argv);
 			return true;
 		}
 		else
 		{
-#if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "PropertyInstance::render.str");
-#endif
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, _value.data(), _value.size()));
 			return true;
 		}
@@ -225,9 +218,6 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	void PropertyInstance::update(bool force)
 	{
-#if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "PropertyInstance::update");
-#endif
 		bool needRead = !_file.empty();
 
 #ifdef NDEBUG
@@ -240,9 +230,6 @@ namespace ccms
 		//следить время модификации файла
 		if(needRead && !force && _traceFile)
 		{
-#if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "PropertyInstance::update.mtime");
-#endif
 			//тут тормоз
 			time_t mt = boost::filesystem::last_write_time(_file);
 			if(_fileMTime >= mt)
@@ -255,10 +242,6 @@ namespace ccms
 		//грузить содержимое файла
 		if(needRead)
 		{
-#if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "PropertyInstance::update.readFile");
-#endif
-
 			//форс или трассировка 
 			std::ifstream in(_file.string().c_str(), std::ios::binary);
 			in.seekg(0, std::ios::end);
@@ -275,10 +258,6 @@ namespace ccms
 		{
 			if(needRead || !_function || force)
 			{
-#if USE_PROFILER
-				ProfilerScopeHelper psh(g_profiler, NULL, "PropertyInstance::update.compile");
-#endif
-
 				std::string name4Error = _file.string();
 // 				if(_parent)
 // 				{

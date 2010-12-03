@@ -32,9 +32,6 @@ namespace ccms
 			TVBufPtrs &paramValuesPtrs,
 			TVBufLens &paramValuesLens)
 		{
-#if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::bindOne");
-#endif
 			JSContext *cx = ecx()->_jsCx;
 			switch(JS_TypeOfValue(cx, v))
 			{
@@ -130,10 +127,6 @@ namespace ccms
 			TVBufPtrs &paramValuesPtrs, 
 			TVBufLens &paramValuesLens)
 		{
-#if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::bindMulti");
-#endif
-
 			nParams = 0;
 			paramValuesPtrs.clear();
 			paramValuesLens.clear();
@@ -486,9 +479,6 @@ namespace ccms
 				{
 					if(nParams>0)
 					{
-#if USE_PROFILER
-						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecParams");
-#endif
 						{
 #if USE_PROFILER
 							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [raw]").c_str());
@@ -498,9 +488,6 @@ namespace ccms
 					}
 					else
 					{
-#if USE_PROFILER
-						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecParams_nulls");
-#endif
 						{
 #if USE_PROFILER
 							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [raw]").c_str());
@@ -513,9 +500,6 @@ namespace ccms
 				{
 					if(nParams>0)
 					{
-#if USE_PROFILER
-						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecPrepared");
-#endif
 						{
 #if USE_PROFILER
 							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [prepared]").c_str());
@@ -525,9 +509,6 @@ namespace ccms
 					}
 					else
 					{
-#if USE_PROFILER
-						ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecPrepared_nulls");
-#endif
 						{
 #if USE_PROFILER
 							ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [prepared]").c_str());
@@ -541,9 +522,6 @@ namespace ccms
 			{
 				if(eem_sql & mode)
 				{
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexec");
-#endif
 					{
 #if USE_PROFILER
 						ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [once]").c_str());
@@ -553,9 +531,6 @@ namespace ccms
 				}
 				else
 				{
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::PQexecPrepared_nulls");
-#endif
 					{
 #if USE_PROFILER
 						ProfilerScopeHelper psh(g_profiler, NULL, (std::string(sql)+"; [prepared]").c_str());
@@ -578,10 +553,6 @@ namespace ccms
 											* PGresult contains the result tuples */
 
 				{
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "pgimpl::eval::makeResult");
-#endif
-
 					bool b = false;
 
 					assert(eem_exec & mode || eem_query & mode);

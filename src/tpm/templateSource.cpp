@@ -2,7 +2,6 @@
 #include "tpm/templateSource.hpp"
 #include "tpm/template.hpp"
 #include "router/execContext.hpp"
-#include "scripter/profiler.hpp"
 
 namespace ccms
 {
@@ -262,11 +261,6 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool TemplateSource::print(JSObject *obj, std::ostream &out, const TemplateEscaper &escaper)
 	{
-		//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::print");
-#endif
-		//////////////////////////////////////////////////////////////////////////
 
 		TemplateEscaper thisEscaper(_etet, &escaper);
 		const TemplateEscaper &useEscaper = etetNull==_etet?escaper:thisEscaper;
@@ -326,24 +320,11 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool TemplateSource::printJsval(JSObject *obj_, std::ostream &out, const TemplateEscaper &escaper, jsval jsv)
 	{
-		//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval");
-#endif
-		//////////////////////////////////////////////////////////////////////////
-
-
 		JSType jst = JS_TypeOfValue(ecx()->_jsCx, jsv);
 		switch(jst)
 		{
 		case JSTYPE_XML:
 			{
-				//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-				ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval_xml");
-#endif
-				//////////////////////////////////////////////////////////////////////////
-
 				if(!JS_CallFunctionName(ecx()->_jsCx, JSVAL_TO_OBJECT(jsv), "toXMLString", 0, NULL, &jsv))
 				{
 					return false;
@@ -375,11 +356,6 @@ namespace ccms
 		case JSTYPE_NULL:
 		case JSTYPE_LIMIT:
 			{
-				//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-				ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval_simple");
-#endif
-				//////////////////////////////////////////////////////////////////////////
 				char *s;
 				if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "s", &s))
 				{
@@ -451,12 +427,6 @@ namespace ccms
 				//if can print itself
 				if(JS_HasProperty(ecx()->_jsCx, objv, "print", &found) && found)
 				{
-					//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval_object.print");
-#endif
-					//////////////////////////////////////////////////////////////////////////
-
 					jsval rval;
 					if(!JS_CallFunctionName(ecx()->_jsCx, objv, "print", 0, NULL, &rval))
 					{
@@ -468,11 +438,6 @@ namespace ccms
 
 				if(JS_HasProperty(ecx()->_jsCx, objv, "render", &found) && found)
 				{
-					//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval_object.render");
-#endif
-					//////////////////////////////////////////////////////////////////////////
 					jsval rval;
 					if(!JS_CallFunctionName(ecx()->_jsCx, objv, "render", 0, NULL, &rval))
 					{
@@ -483,11 +448,6 @@ namespace ccms
 
 				if(JSTYPE_FUNCTION == jst)
 				{//real function
-					//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval_call");
-#endif
-					//////////////////////////////////////////////////////////////////////////
 					jsval rval;
 					if(!JS_CallFunctionValue(ecx()->_jsCx, obj_, jsv, 0, NULL, &rval))
 					{
@@ -498,11 +458,6 @@ namespace ccms
 				else
 				{//object
 					//to string
-					//////////////////////////////////////////////////////////////////////////
-#if USE_PROFILER
-					ProfilerScopeHelper psh(g_profiler, NULL, "TemplateSource::printJsval_object.toString");
-#endif
-					//////////////////////////////////////////////////////////////////////////
 					char *s;
 					if(!JS_ConvertArguments(ecx()->_jsCx, 1, &jsv, "s", &s))
 					{
