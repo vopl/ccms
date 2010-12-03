@@ -2,7 +2,7 @@
 #define _ccms_profiler_hpp_
 
 
-#define USE_PROFILER 1
+#define USE_PROFILER 0
 
 #if USE_PROFILER
 
