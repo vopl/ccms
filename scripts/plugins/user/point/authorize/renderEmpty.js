@@ -8,7 +8,7 @@ if(!t)
 	}
 	else
 	{
-		submitUrl += ':'+request.env.SERVER_PORTSSL;
+		//submitUrl += ':'+request.env.SERVER_PORTSSL;
 	}
 	submitUrl = "https://"+submitUrl+this.path;
 
