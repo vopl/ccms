@@ -41,3 +41,9 @@ msgstr "Не верный логин или пароль"
 
 msgid "Login must be not empty"
 msgstr "Логин не должен быть пустым"
+
+msgid "Register"
+msgstr "Зарегистрироваться"
+
+msgid "Restore password"
+msgstr "Восстановить пароль"

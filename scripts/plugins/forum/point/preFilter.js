@@ -27,16 +27,27 @@
 	ui.blocks.header.push(t);
 
 
+	let voting = <form>
+		Сколько?<br/>
+		
+		<input type='radio' value='1'/> один<br/>
+		<input type='radio' value='1' checked="1"/> четыре<br/>
+		<input type='radio' value='1'/> сорок семь<br/>
+		<input type='radio' value='1'/> больше ста<br/>
+		<input type='submit' value='голос'/><br/>
+	</form>;
 
-	ui.blocks.right.push(ui.skin.sidebar('rcontent1', 'rheader1'));
-	ui.blocks.right.push(ui.skin.sidebar('rcontent2', 'rheader2'));
-	ui.blocks.right.push(ui.skin.sidebar('rcontent3', 'rheader3'));
+	ui.blocks.right.push(ui.skin.sidebar(voting, 'Опрос'));
+	ui.blocks.right.push(ui.skin.sidebar(voting, 'Блок справа'));
+	ui.blocks.right.push(ui.skin.sidebar(voting, 'Блок справа'));
 
-	ui.blocks.left.push(ui.skin.sidebar('lcontent1', 'lheader1'));
-	ui.blocks.left.push(ui.skin.sidebar('lcontent2', 'lheader2'));
-	ui.blocks.left.push(ui.skin.sidebar('lcontent3', 'lheader3'));
 
-	ui.blocks.footer.push(ui.skin.sidebar('fcontent3', 'fheader3'));
+	let counter1 = <div style="width:70px;height:30px;background:gray;margin-left:0.3em;margin-right:0.3em;float:left"/>;
+	ui.blocks.footer.push(counter1);
+	ui.blocks.footer.push(counter1);
+	ui.blocks.footer.push(counter1);
+	ui.blocks.footer.push(<hr/>);
+	ui.blocks.footer.push(<div style="float:right">Разработка и поддержка: ООО Рога и копыта</div>);
 
 
 	ui.blocks.styles.forum = this.parent.path+'/main.css';

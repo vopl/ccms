@@ -16,13 +16,22 @@
 {
 	background: #D0D0D0;
 	border-bottom: 1px solid #565656;
+	padding: 0.3em;
 }
 
 .breadcrumbs
 {
 	padding-left: 0.3em;
+	padding-right: 0.3em;
 
 	border-top: 1px solid #565656;
 	border-bottom: 1px solid #565656;
 	background: #c0c0c0;
 }
+
+input
+{
+	border: 1px solid #000;
+	margin: 2px;
+}
+
