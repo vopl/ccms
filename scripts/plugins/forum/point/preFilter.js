@@ -23,7 +23,7 @@
 	t = t.clone();
 
 	t.logo = ui.skin.image('/dog.png');
-	t.auth = ui.skin.sidebar(t.auth.render(), "Auth");
+	t.auth = ui.skin.sidebar(t.auth.render(), "Авторизация");
 	ui.blocks.header.push(t);
 
 

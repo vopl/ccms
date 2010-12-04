@@ -1,19 +1,30 @@
 ﻿let t = arguments.callee.t;
 if(!t)
 {
+	let submitUrl = request.env.host || "";
+	if(submitUrl.match(/.*?\:\d+$/))
+	{
+		submitUrl = submitUrl.replace(/\:(\d+)/, ':'+request.env.SERVER_PORTSSL);
+	}
+	else
+	{
+		submitUrl += ':'+request.env.SERVER_PORTSSL;
+	}
+	submitUrl = "https://"+submitUrl+this.path;
+
 	t = router.createTemplate();
 	let xml = <div>
 		<div>{t(_('Not authorized'))}</div>
 		
 		<div>{t.msg}</div>
 		<div>
-			<form method="POST" action={this.path}>
+			<form method="POST" action={submitUrl}>
 		
 				<input type="hidden" name="do" value="login"/>
 				<input type="hidden" name="backUrl" value={t.backUrl}/>
 		
 				<div><input name="login" value={t.login}/></div>
-				<div><input name="password" value={t.password}/></div>
+				<div><input type="password" name="password" value={t.password}/></div>
 				<div>
 					<input id={this.id+'_remember'} name="remember" type="checkbox" value='1' {t.remember}="1"/>
 					<label for={this.id+'_remember'}>{t(_('Remember'))}</label>
