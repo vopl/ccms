@@ -10,7 +10,7 @@ if(!t)
 	{
 		//submitUrl += ':'+request.env.SERVER_PORTSSL;
 	}
-	submitUrl = "https://"+submitUrl+this.path;
+	submitUrl = "https://"+submitUrl;
 
 	t = router.createTemplate();
 	let xml = <div>
@@ -18,7 +18,7 @@ if(!t)
 		
 		<div>{t.msg}</div>
 		<div>
-			<form method="POST" action={submitUrl}>
+			<form method="POST" action={submitUrl+this.path}>
 		
 				<input type="hidden" name="do" value="login"/>
 				<input type="hidden" name="backUrl" value={t.backUrl}/>
@@ -33,8 +33,8 @@ if(!t)
 			</form>
 		</div>
 		<div>
-			<a href={this.parent.childs.register.path}>{t(_('Register'))}</a>
-			<a href={this.parent.childs.restorepswd.path}>{t(_('Restore password'))}</a>
+			<a href={submitUrl+this.parent.childs.register.path}>{t(_('Register'))}</a>
+			<a href={submitUrl+this.parent.childs.restorepswd.path}>{t(_('Restore password'))}</a>
 		</div>
 	</div>;
 	t.compile(xml);
