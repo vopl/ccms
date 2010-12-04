@@ -112,6 +112,11 @@ namespace ccms
 #if USE_PROFILER
 		std::size_t _profilerAccumuleRequests;
 		std::ofstream _profilerLog;
+		enum EProfilerLogMode
+		{
+			eplmTable,
+			eplmTree,
+		} _profilerLogMode;
 		std::vector<int> _profilerFields;
 		int _profilerOrderField;
 		size_t _profilerLinesAmount;

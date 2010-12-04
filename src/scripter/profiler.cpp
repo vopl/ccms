@@ -10,6 +10,8 @@
 #include "utils/ncvt.h"
 #include "utils/crc32.hpp"
 
+#include <iomanip>
+
 #ifdef WIN32
 #else
 #	include <sys/time.h>
@@ -113,8 +115,8 @@ namespace ccms
 	template <class T>
 	void Profiler::walkPoint(
 		std::deque<T> &container, 
-		std::deque<std::pair<std::string, size_t> > &processedStack, 
-		std::map<std::string, size_t> &processedAll, 
+		std::deque<std::pair<std::string, size_t> > *processedStack, 
+		std::map<std::string, size_t> *processedAll, 
 		const Point &p, 
 		size_t level)
 	{
@@ -122,9 +124,10 @@ namespace ccms
 		int prevInAllIdx = -1;
 		bool needStore = false;
 		{
+			if(processedStack)
 			{
-				std::deque<std::pair<std::string, size_t> >::iterator iter = processedStack.begin();
-				std::deque<std::pair<std::string, size_t> >::iterator end = processedStack.end();
+				std::deque<std::pair<std::string, size_t> >::iterator iter = processedStack->begin();
+				std::deque<std::pair<std::string, size_t> >::iterator end = processedStack->end();
 
 				for(; iter!=end; iter++)
 				{
@@ -136,9 +139,10 @@ namespace ccms
 				}
 			}
 
+			if(processedAll)
 			{
-				typename std::map<std::string, size_t>::iterator iter = processedAll.find(p.getName());
-				if(processedAll.end() != iter) prevInAllIdx = iter->second;
+				typename std::map<std::string, size_t>::iterator iter = processedAll->find(p.getName());
+				if(processedAll->end() != iter) prevInAllIdx = iter->second;
 			}
 
 			T cur(
@@ -153,9 +157,9 @@ namespace ccms
 				container.push_back(cur);
 			}
 
-			if(prevInAllIdx<0)
+			if(processedAll && prevInAllIdx<0)
 			{
-				processedAll[p.getName()] = container.size()-1;
+				(*processedAll)[p.getName()] = container.size()-1;
 			}
 
 		}
@@ -167,18 +171,18 @@ namespace ccms
 		Point::TMChilds::const_iterator end = childs.end();
 
 
-		if(needStore)
+		if(processedStack && needStore)
 		{
-			processedStack.push_back(std::make_pair(p.getName(), container.size()-1));
+			processedStack->push_back(std::make_pair(p.getName(), container.size()-1));
 		}
 		for(; iter!=end; iter++)
 		{
 			walkPoint(container, processedStack, processedAll, iter->second, level+1);
 		}
 
-		if(needStore)
+		if(processedStack && needStore)
 		{
-			processedStack.pop_back();
+			processedStack->pop_back();
 		}
 	}
 
@@ -312,66 +316,43 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	template<class T>
-	void Profiler::dumpTableCell(std::ostream &out, const char *delim, T value)
+	void Profiler::dumpMetricCell(std::ostream &out, T value)
 	{
-		std::streamsize oldWidth = out.width(15);
-		out<<value<<delim;
-		out.width(oldWidth);
+		out<<std::left<<std::setw(15)<<value;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	void Profiler::dumpTable(
-		std::ostream &out, const char *delim, 
-		size_t outFormatsAmount,
-		int *outFormats, 
-		int orderFormat, 
-		size_t amount)
+	void Profiler::dumpLines(
+		const TDReportLines &lines, 
+		std::ostream &out, 
+		size_t outFormatsAmount, int *outFormats, 
+		size_t amount,
+		bool isTable)
 	{
-		//linearize
-		typedef std::deque<ReportLine> TDReportLines;
-		TDReportLines lines;
-		{
-			std::deque<std::pair<std::string, size_t> > processedStack;
-			std::map<std::string, size_t> processedAll;
-			walkPoint(lines, processedStack, processedAll, _rootPoint);
-		}
-
-		//remove root
-		lines.pop_front();
-
-		//merge equal names
 		Times allTime;
-		unsigned long long llAllCalls = 0;
+		size_t allCalls = 0;
 		if(lines.size() > 1)
 		{
-			std::sort(lines.begin(), lines.end(), PredName());
-			TDReportLines::iterator iter = ++lines.begin();
-			TDReportLines::iterator end = lines.end();
+			TDReportLines::const_iterator iter = ++lines.begin();
+			TDReportLines::const_iterator end = lines.end();
 
 			for(; iter != end; iter++)
 			{
 				allTime.add(iter->_ownTimes);
-				llAllCalls += iter->_ownCalls;
+				allCalls += iter->_ownCalls;
 			}
 		}
 
-
-
-		
-		//sort
-		std::sort(lines.begin(), lines.end(), Pred4Table(orderFormat));
-
 		//out
 		//std::streamsize oldPrecision = out.precision(8);
- 		//std::ios::fmtflags oldFlags = out.setf(std::ios::scientific);
+		//std::ios::fmtflags oldFlags = out.setf(std::ios::scientific);
 #define T2S(t) (double(t)/1e9)
 		double allTimeUser = T2S(allTime._user);
 		double allTimeSystem = T2S(allTime._system);
 		double allTimeReal = T2S(allTime._real);
-		double allAvgTimeUser = llAllCalls?allTimeUser/llAllCalls:0;
-		double allAvgTimeSystem = llAllCalls?allTimeSystem/llAllCalls:0;
-		double allAvgTimeReal = llAllCalls?allTimeReal/llAllCalls:0;
+		double allAvgTimeUser = allCalls?allTimeUser/allCalls:0;
+		double allAvgTimeSystem = allCalls?allTimeSystem/allCalls:0;
+		double allAvgTimeReal = allCalls?allTimeReal/allCalls:0;
 		out<<"u: "<<allTimeUser<<"\t s:"<<allTimeSystem<<"\t r:"<<allTimeReal<<"\r\n";
 
 		for(size_t formatIdx(0); formatIdx<outFormatsAmount; formatIdx++)
@@ -432,15 +413,24 @@ namespace ccms
 				break;
 			}
 
-			dumpTableCell(out, delim, title.c_str());
+			dumpMetricCell(out, title.c_str());
 		}
 		out<<"\r\n";
 
-		TDReportLines::iterator iter = lines.begin();
-		TDReportLines::iterator end = lines.end();
+		TDReportLines::const_iterator iter = lines.begin();
+		TDReportLines::const_iterator end = lines.end();
 		for(size_t counter(0); iter!=end && counter <= amount; iter++, counter++)
 		{
-			ReportLine &rl = *iter;
+			const ReportLine &rl = *iter;
+
+			if(!isTable)
+			{
+				for(size_t i(1); i<rl._level; i++)
+				{
+					out<<" ";
+				}
+			}
+
 			for(size_t formatIdx(0); formatIdx<outFormatsAmount; formatIdx++)
 			{
 				int format = outFormats[formatIdx];
@@ -452,73 +442,73 @@ namespace ccms
 				case epmkUser:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, allTimeUser?(T2S(rl.getMetric(format))/allTimeUser*100):0);
+						dumpMetricCell(out, allTimeUser?(T2S(rl.getMetric(format))/allTimeUser*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, T2S(rl.getMetric(format)));
+						dumpMetricCell(out, T2S(rl.getMetric(format)));
 					}
 					break;
 
 				case epmkSystem:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, allTimeSystem?(T2S(rl.getMetric(format))/allTimeSystem*100):0);
+						dumpMetricCell(out, allTimeSystem?(T2S(rl.getMetric(format))/allTimeSystem*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, T2S(rl.getMetric(format)));
+						dumpMetricCell(out, T2S(rl.getMetric(format)));
 					}
 					break;
 				default:
 				case epmkReal:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, allTimeReal?(T2S(rl.getMetric(format))/allTimeReal*100):0);
+						dumpMetricCell(out, allTimeReal?(T2S(rl.getMetric(format))/allTimeReal*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, T2S(rl.getMetric(format)));
+						dumpMetricCell(out, T2S(rl.getMetric(format)));
 					}
 					break;
 				case epmkAvgUser:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, allAvgTimeUser?(T2S(rl.getMetric(format))/allAvgTimeUser*100):0);
+						dumpMetricCell(out, allAvgTimeUser?(T2S(rl.getMetric(format))/allAvgTimeUser*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, T2S(rl.getMetric(format)));
+						dumpMetricCell(out, T2S(rl.getMetric(format)));
 					}
 					break;
 				case epmkAvgSystem:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, allAvgTimeSystem?(T2S(rl.getMetric(format))/allAvgTimeSystem*100):0);
+						dumpMetricCell(out, allAvgTimeSystem?(T2S(rl.getMetric(format))/allAvgTimeSystem*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, T2S(rl.getMetric(format)));
+						dumpMetricCell(out, T2S(rl.getMetric(format)));
 					}
 					break;
 				case epmkAvgReal:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, allAvgTimeReal?(T2S(rl.getMetric(format))/allAvgTimeReal*100):0);
+						dumpMetricCell(out, allAvgTimeReal?(T2S(rl.getMetric(format))/allAvgTimeReal*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, T2S(rl.getMetric(format)));
+						dumpMetricCell(out, T2S(rl.getMetric(format)));
 					}
 					break;
 				case epmkCalls:
 					if(isPercent)
 					{
-						dumpTableCell(out, delim, llAllCalls?(double(rl.getMetric(format))/llAllCalls*100):0);
+						dumpMetricCell(out, allCalls?(double(rl.getMetric(format))/allCalls*100):0);
 					}
 					else
 					{
-						dumpTableCell(out, delim, rl.getMetric(format));
+						dumpMetricCell(out, rl.getMetric(format));
 					}
 					break;
 				}
@@ -529,8 +519,50 @@ namespace ccms
 		}
 		out.flush();
 
- 		//out.precision(oldPrecision);
- 		//out.setf(oldFlags);
+		//out.precision(oldPrecision);
+		//out.setf(oldFlags);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	void Profiler::dumpTable(
+		std::ostream &out,
+		size_t outFormatsAmount,
+		int *outFormats, 
+		int orderFormat, 
+		size_t amount)
+	{
+		//linearize
+		TDReportLines lines;
+		{
+			std::deque<std::pair<std::string, size_t> > processedStack;
+			std::map<std::string, size_t> processedAll;
+			walkPoint(lines, &processedStack, &processedAll, _rootPoint);
+		}
+
+		//remove root
+		lines.pop_front();
+
+		//sort
+		std::sort(lines.begin(), lines.end(), Pred4Table(orderFormat));
+
+		dumpLines(lines, out, outFormatsAmount, outFormats, amount);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void Profiler::dumpTree(
+		std::ostream &out, 
+		size_t outFormatsAmount,
+		int *outFormats)
+	{
+		//linearize
+		TDReportLines lines;
+		walkPoint(lines, NULL, NULL, _rootPoint);
+
+		//remove root
+		lines.pop_front();
+
+		dumpLines(lines, out, outFormatsAmount, outFormats, (size_t)-1, false);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

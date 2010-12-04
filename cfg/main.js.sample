@@ -76,6 +76,9 @@ let res =
 	{
 		accumuleRequests:4,
 		log:'../logs/profiler',
+		//logMode:'table',
+		logMode:'tree',
+
 		/*
 			<own|childs|all>_(([avg_]<usr|sys|real>)|calls)[_%]
 		*/

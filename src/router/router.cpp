@@ -1266,6 +1266,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		, _stackLimit(500000)
 #if USE_PROFILER
 		, _profilerAccumuleRequests(100)
+		, _profilerLogMode(eplmTable)
 		, _profilerOrderField(0)
 		, _profilerLinesAmount(20)
 #endif
@@ -1324,6 +1325,8 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 #if USE_PROFILER
 		_profilerAccumuledAmount = 0;
 		_profilerAccumuleRequests = getConfigUlong("profiler.accumuleRequests");
+
+		_profilerLogMode = getConfigString("profiler.logMode")=="tree"?eplmTree:eplmTable;
 		_profilerLog.open(getConfigString("profiler.log").c_str(), std::ios::binary);
 
 		std::vector<std::string> fields = getConfigArrayString("profiler.fields");
@@ -2119,7 +2122,15 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			{
 				time_t t = time(NULL);
 				_profilerLog<<"requests: "<<_profilerAccumuledAmount<<"; "<<ctime(&t);
-				g_profiler.dumpTable(_profilerLog, " ", _profilerFields.size(), _profilerFields.size()?&_profilerFields[0]:0, _profilerOrderField, _profilerLinesAmount);
+
+				if(_profilerLogMode == eplmTree)
+				{
+					g_profiler.dumpTree(_profilerLog, _profilerFields.size(), _profilerFields.size()?&_profilerFields[0]:NULL);
+				}
+				else
+				{
+					g_profiler.dumpTable(_profilerLog, _profilerFields.size(), _profilerFields.size()?&_profilerFields[0]:NULL, _profilerOrderField, _profilerLinesAmount);
+				}
 				g_profiler.reset();
 				_profilerAccumuledAmount = 0;
 			}

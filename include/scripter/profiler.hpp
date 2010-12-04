@@ -2,7 +2,7 @@
 #define _ccms_profiler_hpp_
 
 
-#define USE_PROFILER 0
+#define USE_PROFILER 1
 
 #if USE_PROFILER
 
@@ -53,30 +53,6 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	class Profiler
 	{
-	public:
-		Profiler();
-		~Profiler();
-
-		void start();
-		void stop();
-		void reset();
-
-		void enter(JSContext *cx, const char *name);
-		void leave();
-
-		void dumpTable(
-			std::ostream &out, const char *delim, 
-			size_t outFormatsAmount,
-			int *outFormats, 
-			int orderFormat, 
-			size_t amount = (size_t)-1);
-		void dumpTree(
-			std::ostream &out, const char *delim, 
-			int kind, int area);
-
-		template<class T>
-		void dumpTableCell(std::ostream &out, const char *delim, T value);
-
 	private:
 		//////////////////////////////////////////////////////////////////////////
 		struct Times
@@ -123,16 +99,6 @@ namespace ccms
 			void accumuleTimes(Times &times, bool own, bool childs)const;
 			void accumuleCalls(size_t &calls, bool own, bool childs)const;
 		};
-		Point _rootPoint;
-		Point *_currentPoint;
-
-	private:
-		template <class T>
-		void walkPoint(
-			std::deque<T> &container, 
-			std::deque<std::pair<std::string, size_t> > &processedStack, 
-			std::map<std::string, size_t> &processedAll, 
-			const Point &p, size_t level=0);
 
 		struct ReportLine
 		{
@@ -149,7 +115,6 @@ namespace ccms
 			void add(const ReportLine &rl);
 			unsigned long long getMetric(int format) const;
 		};
-
 		//////////////////////////////////////////////////////////////////////////
 		struct PredName
 		{
@@ -162,6 +127,49 @@ namespace ccms
 			bool operator()(const Profiler::ReportLine &l, const Profiler::ReportLine &r);
 		};
 
+		Point _rootPoint;
+		Point *_currentPoint;
+
+	public:
+		Profiler();
+		~Profiler();
+
+		void start();
+		void stop();
+		void reset();
+
+		void enter(JSContext *cx, const char *name);
+		void leave();
+
+		void dumpTable(
+			std::ostream &out, 
+			size_t outFormatsAmount,
+			int *outFormats, 
+			int orderFormat, 
+			size_t amount = (size_t)-1);
+		void dumpTree(
+			std::ostream &out, 
+			size_t outFormatsAmount,
+			int *outFormats);
+
+		template<class T>
+		void dumpMetricCell(std::ostream &out, T value);
+
+		typedef std::deque<ReportLine> TDReportLines;
+		void dumpLines(
+			const TDReportLines &lines, 
+			std::ostream &out,
+			size_t outFormatsAmount, int *outFormats, 
+			size_t amount = (size_t)-1,
+			bool isTable = true);
+
+	private:
+		template <class T>
+		void walkPoint(
+			std::deque<T> &container, 
+			std::deque<std::pair<std::string, size_t> > *processedStack, 
+			std::map<std::string, size_t> *processedAll, 
+			const Point &p, size_t level=0);
 
 	private:
 		static void s_newScriptHook(JSContext  *cx,
