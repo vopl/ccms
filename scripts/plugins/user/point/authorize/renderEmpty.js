@@ -2,7 +2,7 @@
 if(!t)
 {
 	t = router.createTemplate();
-	let xml = <table border="1"><tr><td>
+	let xml = <div style="text-align:left; padding-left:0.3em">
 		<div>{t(_('Not authorized'))}</div>
 		
 		<div>{t.msg}</div>
@@ -17,13 +17,13 @@ if(!t)
 				<div>
 					<input id={this.id+'_remember'} name="remember" type="checkbox" value='1' {t.remember}="1"/>
 					<label for={this.id+'_remember'}>{t(_('Remember'))}</label>
+					<input type='submit'/>
 				</div>
-				<div><input type='submit'/></div>
 			</form>
 		</div>
 		<div><a href={this.parent.childs.register.path}>{t(_('Register'))}</a>
 		<a href={this.parent.childs.restorepswd.path}>{t(_('Restore password'))}</a></div>
-	</td></tr></table>;
+	</div>;
 	t.compile(xml);
 	arguments.callee.t = t;
 }
