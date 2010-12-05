@@ -108,7 +108,7 @@ namespace ccms
 		{
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			"abcdefghijklmnopqrstuvwxyz"
-			"0123456789_."
+			"0123456789_-"
 		};
 	}
 	bool Hash::mkstr64(const unsigned char *sum_, size_t len, jsval *rval)

@@ -582,8 +582,15 @@ impl.selectTableoid = function selectTableoid()
 }
 
 
+impl.afterSync = function afterSync()
+{
+	if(this.conf.afterSync)
+	{
+		this.conf.afterSync.call(this.iface, this.ormImpl.iface);
+	}
+}
+
 //////////////////////////////////////////////////////////
-//создать индексы
 impl.setSyncedFlag = function setSyncedFlag(flag)
 {
 	this.synced = flag;

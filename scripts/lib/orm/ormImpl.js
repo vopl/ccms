@@ -38,10 +38,10 @@ let impl =
 
 	fkeyActions:
 	{
-		'cascade':true,
-		'restrict':true,
-		'setNull':true,
-		'noAction':true,
+		'cascade':'CASCADE',
+		'restrict':'RESTRICT',
+		'setNull':'SET NULL',
+		'noAction':'NO ACTION',
 	},
 	
 	tableoid2categoryImpl:{},
@@ -127,8 +127,10 @@ impl.prepareCategoryConf_fields = function prepareCategoryConf_fields(conf, fiel
 			if(!value.target) throw Error("target must be setted for field "+name);
 			if(!value.onDelete) value.onDelete = 'cascade';
 			if(!(value.onDelete in this.fkeyActions)) throw Error("bad onDelete for field "+name);
+			value.onDelete = this.fkeyActions[value.onDelete];
 			if(!value.onUpdate) value.onUpdate = 'cascade';
 			if(!(value.onUpdate in this.fkeyActions)) throw Error("bad onUpdate for field "+name);
+			value.onUpdate = this.fkeyActions[value.onUpdate];
 		}
 	}
 }
@@ -364,6 +366,7 @@ impl.sync2db = function sync2db(options)
 			}
 		}
 		
+		for each(let categoryImpl in categoryImpls) categoryImpl.afterSync();
 		for each(let categoryImpl in categoryImpls) categoryImpl.setSyncedFlag(true);
 		
 		this.iface.db.exec('COMMIT');

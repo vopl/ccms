@@ -9,11 +9,15 @@ function levelHelper(level)
 	return res;
 }
 
-
+let image;
+if(forum.image_id)
+{
+	image = orm.query("SELECT * FROM {Image} WHERE id=$1", forum.image_id)[0];
+}
 
 
 return <>
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
 	<input type='hidden' name='save' value='1'/>
 	<input type='hidden' name='id' value={forum.id?forum.id:''}/>
 	tree_pid:<select name="tree_pid">
@@ -46,7 +50,18 @@ return <>
 	</select><br/>
 	map_title:<input type='string' name='map_title' value={forum.map_title?forum.map_title:''}/><br/>
 	map_path:<input type='string' name='map_path' value={forum.map_path?forum.map_path:''}/><br/>
-	
+
+	{(function(){
+		if(image)
+		{
+			return <>
+				<img src={'/filestore/'+image.location_thumb}/>
+				del:<input type='checkbox' name='image_del' value='1'/><br/>
+				</>;
+		}
+		return '';
+	})()}
+	image:<input type='file' name='image'/><br/>
 	description:<input type='string' name='description' value={forum.description?forum.description:''}/><br/>
 	
 	topic_allow:<input type='checkbox' name='topic_allow' value='1' {forum.topic_allow?'checked':'data-checked'}='1'/><br/>

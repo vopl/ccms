@@ -86,9 +86,10 @@ let res =
 		orderField:'own_real',
 		linesAmount:20,
 
-	}
+	},
 
 
+	filestore:'../filestore',
 };
 
 return res;

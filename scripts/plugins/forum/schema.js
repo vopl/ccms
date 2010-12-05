@@ -5,8 +5,10 @@ if(!install)
 {
 	orm.delCategory('ForumMaped');
 	orm.delCategory('Forum');
+	orm.delCategory('ForumImage');
 	orm.delCategory('ForumPost');
-	orm.delCategory('ForumPostAttachment');
+	orm.delCategory('ForumPostImage');
+	orm.delCategory('ForumPostFile');
 	return;
 }
 
@@ -63,11 +65,21 @@ orm.addCategory({
 		topics_navigate_rpage:{type:'boolean', default:true,},
 		topics_navigate_page_size:{type:'integer', default:20,},
 		topics_navigate_rpage_size:{type:'integer', default:20,},
+
+		image_id:{type:'fkey',target:'Image', onUpdate:'setNull', onDelete:'setNull'},
 	},
 });
 
 
-
+///////////////////////////////////////////////////////////
+orm.addCategory({
+	name:'ForumImage',
+	fields:
+	{
+		forum_id:{type:'fkey',target:'Forum',},
+		image_id:{type:'fkey',target:'Image',},
+	}
+});
 
 ///////////////////////////////////////////////////////////
 orm.addCategory({
@@ -96,14 +108,21 @@ orm.addCategory({
 
 ///////////////////////////////////////////////////////////
 orm.addCategory({
-	name:'ForumPostAttachment',
-	base:'BaseCategory',
+	name:'ForumPostImage',
 	fields:
 	{
-		post_id:{type:'fkey',target:'ForumPost',},
-		server_name:'string',
-		client_name:'string',
-		size:'integer',
-		comment:'string',
-	},
+		forum_id:{type:'fkey',target:'Forum',},
+		image_id:{type:'fkey',target:'Image',},
+		kind:'string',//tiny, small, normal
+	}
+});
+
+///////////////////////////////////////////////////////////
+orm.addCategory({
+	name:'ForumPostFile',
+	fields:
+	{
+		forum_id:{type:'fkey',target:'Forum',},
+		file_id:{type:'fkey',target:'File',},
+	}
 });

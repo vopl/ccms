@@ -1953,6 +1953,14 @@ namespace ccms{ namespace magick{
 
 	bool Image::call_magick(uintN argc, jsval *argv, jsval *rval)
 	{
+		if(!argc)
+		{
+			IMTRY()
+				std::string m = _imgStub->magick();
+				*rval = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, m.data(), m.size()));
+				return true;
+			IMCATCH(return false);
+		}
 		if(argc!=1)
 		{
 			JS_ReportError(ecx()->_jsCx, "Image.magick must be called with 1 arg");

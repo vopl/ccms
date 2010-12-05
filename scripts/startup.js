@@ -38,6 +38,10 @@ if(!router.plugins.nsTree.isInstalled)
 {
 	router.plugins.nsTree.install();
 }
+if(!router.plugins.filestore.isInstalled)
+{
+	router.plugins.filestore.install();
+}
 if(!router.plugins.forum.isInstalled)
 {
 	router.plugins.forum.install();

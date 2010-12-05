@@ -5,6 +5,7 @@
 	{
 		nsTree:0,
 		user:0,
+		filestore:0,
 	},
 	
 	operations:
