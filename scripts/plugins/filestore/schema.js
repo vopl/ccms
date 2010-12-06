@@ -1,13 +1,6 @@
-let PATH_TO_FILESTORE = './../www/filestore/';
-let URL_TO_FILESTORE = '/filestore/';
-
-
-
-
-
-
 var orm = arguments[0];
 var install = arguments[1];
+var fc = arguments[2];
 
 if(!install)
 {
@@ -16,23 +9,23 @@ if(!install)
 }
 
 
-let createTrigger = function(orm, catName)
+let createTriggerFile = function(orm)
 {
-	let dbr = orm.query('SELECT COUNT(*) AS count FROM information_schema.triggers WHERE trigger_schema=$1 AND trigger_name=$2 AND event_object_table=$3', orm.schema, 'FileCleanup_trigger', catName);
+	let dbr = orm.query('SELECT COUNT(*) AS count FROM information_schema.triggers WHERE trigger_schema=$1 AND trigger_name=$2 AND event_object_table=$3', orm.schema, 'FileCleanup_trigger', 'File');
 	if(!dbr[0].count)
 	{
-		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunction"() RETURNS trigger AS $BODY$\n\
+		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionFile"() RETURNS trigger AS $BODY$\n\
 			BEGIN\n\
-				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("location") VALUES (old.location);\n\
+				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("location") VALUES (old."location");\n\
 				 RETURN old;\n\
 			END $BODY$\n\
 			LANGUAGE plpgsql;');
 
 		orm.exec('CREATE TRIGGER "FileCleanup_trigger"\
 			  AFTER DELETE\
-			  ON "'+orm.schema+'"."'+catName+'"\
+			  ON "'+orm.schema+'"."File"\
 			  FOR EACH ROW\
-			  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunction"();');
+			  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunctionFile"();');
 	}
 }
 
@@ -52,7 +45,7 @@ orm.addCategory({
 		comment:'text',
 	},
 	
-	afterSync: function(orm){return createTrigger(orm, "File")},
+	afterSync: function(orm){return createTriggerFile(orm)},
 
 	methods:
 	{
@@ -86,11 +79,13 @@ orm.addCategory({
 			}
 			
 			newVals.location = hash.md5(Math.random(),Math.random(),Math.random(),uniq);
+			newVals.location = newVals.location.replace(/(..)(..)(.*)/, "files/$1/$2/$3");
 			newVals.location += '.'+newVals.type;
 			
 			try
 			{
-				throw Error('move from '+param.nameServer+' to '+ PATH_TO_FILESTORE+newVals.location);
+				fc.mkDir4File(newVals.location);
+				fc.import(param.nameServer, newVals.location);
 			}
 			catch(e)
 			{
@@ -127,6 +122,32 @@ orm.addCategory({
 });
 
 
+
+
+
+
+
+let createTriggerImage = function(orm)
+{
+	let dbr = orm.query('SELECT COUNT(*) AS count FROM information_schema.triggers WHERE trigger_schema=$1 AND trigger_name=$2 AND event_object_table=$3', orm.schema, 'FileCleanup_trigger', 'Image');
+	if(!dbr[0].count)
+	{
+		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionImage"() RETURNS trigger AS $BODY$\n\
+			BEGIN\n\
+				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("location") VALUES (old."location"), (old."location_thumb");\n\
+				 RETURN old;\n\
+			END $BODY$\n\
+			LANGUAGE plpgsql;');
+
+		orm.exec('CREATE TRIGGER "FileCleanup_trigger"\
+			  AFTER DELETE\
+			  ON "'+orm.schema+'"."Image"\
+			  FOR EACH ROW\
+			  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunctionImage"();');
+	}
+}
+
+
 ///////////////////////////////////////////////////////////
 orm.addCategory({
 	name:'Image',
@@ -141,7 +162,7 @@ orm.addCategory({
 		height_thumb:'integer',
 	},
 
-	afterSync: function(orm){return createTrigger(orm, "Image")},
+	afterSync: function(orm){return createTriggerImage(orm)},
 	methods:
 	{
 		setFromRequest:function setFromRequest(param, addData)
@@ -234,15 +255,17 @@ orm.addCategory({
 
 			//сохранить
 			newVals.location = hash.md5(Math.random(),Math.random(),Math.random(),uniq);
+			newVals.location = newVals.location.replace(/(..)(..)(.*)/, "images/$1/$2/$3");
 			newVals.location_thumb = newVals.location+'.thumb';
 			newVals.location += '.'+newVals.type;
 			newVals.location_thumb += '.'+newVals.type;
 			
 			try
 			{
-				mi.write(PATH_TO_FILESTORE + newVals.location);
+				fc.mkDir4File(newVals.location);
+				mi.write(fc.pathAbs(newVals.location));
 				//newVals.location = absFile(newVals.location);
-				mit.write(PATH_TO_FILESTORE + newVals.location_thumb);
+				mit.write(fc.pathAbs(newVals.location_thumb));
 				//newVals.location_thumb = absFile(newVals.location_thumb);
 			}
 			catch(e)
@@ -274,11 +297,10 @@ orm.addCategory({
 			let dbr = orm.query('SELECT * FROM {FileCleanup}');
 			for each(let rec in dbr)
 			{
-				warn("unlink "+PATH_TO_FILESTORE+rec.location);
-				// if(isFile(PATH_TO_FILESTORE+rec.location))
-				// {
-					// unlink(PATH_TO_FILESTORE+rec.location);
-				// }
+				if(fc.isFile(rec.location))
+				{
+					fc.rm(rec.location);
+				}
 			}
 			orm.exec('DELETE FROM {FileCleanup}');
 		},

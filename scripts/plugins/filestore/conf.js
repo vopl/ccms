@@ -1,17 +1,19 @@
 ﻿var plug=
 {
 	name:'filestore',
+	container:router.createService('fileContainer'),
 	
 	installImpl:function()
 	{
-		exec("schema.js", orm, true);
+		this.container.base = router.getConfig().filestore;
+		exec("schema.js", orm, true, this.container);
 		this.runCron();
 		return true;
 	},
 
 	uninstallImpl:function()
 	{
-		exec("schema.js", orm, false);
+		exec("schema.js", orm, false, this.container);
 		this.stopCron();
 		return true;
 	},
@@ -19,7 +21,8 @@
 
 	deserializeImpl:function()
 	{
-		exec("schema.js", orm, true);
+		this.container.base = router.getConfig().filestore;
+		exec("schema.js", orm, true, this.container);
 		this.runCron();
 		return true;
 	},

@@ -15,6 +15,7 @@
 #include "hash/hash.hpp"
 
 #include "router/log.hpp"
+#include "router/fileContainer.hpp"
 
 namespace ccms
 {
@@ -2874,6 +2875,12 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		if(!strcmp(name, "log"))
 		{
 			*rval = mkp(new Log, ROOTNAME)->thisJsval();
+			return true;
+		}
+
+		if(!strcmp(name, "fileContainer"))
+		{
+			*rval = mkp(new FileContainer, ROOTNAME)->thisJsval();
 			return true;
 		}
 

@@ -45,6 +45,7 @@ SET(INCLUDE_ROUTER
 	../../include/router/router.hpp
 	../../include/router/cache.hpp
 	../../include/router/log.hpp
+	../../include/router/fileContainer.hpp
 )
 SOURCE_GROUP(include\\router FILES ${INCLUDE_ROUTER})
 
@@ -59,6 +60,7 @@ SET(SRC_ROUTER
 	../../src/router/router.cpp
 	../../src/router/cache.cpp
 	../../src/router/log.cpp
+	../../src/router/fileContainer.cpp
 )
 SOURCE_GROUP(src\\router FILES ${SRC_ROUTER})
 
