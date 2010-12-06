@@ -5,8 +5,6 @@
 #include "magick/drawable.hpp"
 #include "magick/imageAttributes.hpp"
 
-#include <Magick++/Options.h>
-
 
 namespace ccms{ namespace magick{
 
