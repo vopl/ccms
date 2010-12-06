@@ -113,7 +113,17 @@ orm.addCategory({
 				newVals.comment = addData.comment;
 			}
 
-			return this.set(newVals);
+			
+			if(this.fc)
+			{
+				if(this.location)
+				{
+					orm.exec("INSERT INTO {FileCleanup} (fc, location) VALUES($1, $2)", this.fc, this.location);
+				}
+			}
+			
+			let res = this.set(newVals);
+			return res;
 		},
 
 		getError:function getError()
@@ -347,7 +357,20 @@ orm.addCategory({
 				return false;
 			}
 			
-			return this.set(newVals);
+			if(this.fc)
+			{
+				if(this.location)
+				{
+					orm.exec("INSERT INTO {FileCleanup} (fc, location) VALUES($1, $2)", this.fc, this.location);
+				}
+				if(this.location_thumb)
+				{
+					orm.exec("INSERT INTO {FileCleanup} (fc, location) VALUES($1, $2)", this.fc, this.location_thumb);
+				}
+			}
+			
+			let res = this.set(newVals);
+			return res;
 		},
 	},
 });

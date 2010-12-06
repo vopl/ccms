@@ -600,6 +600,7 @@ ELSE(MSVC)
 	TARGET_LINK_LIBRARIES(entry pq)
 	
     TARGET_LINK_LIBRARIES(entry Magick++)
+    TARGET_LINK_LIBRARIES(entry MagickCore)
     TARGET_LINK_LIBRARIES(entry boost_system)
     TARGET_LINK_LIBRARIES(entry boost_filesystem)
     TARGET_LINK_LIBRARIES(entry boost_thread)

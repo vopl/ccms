@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib CORE_DB_Magick++_.lib CORE_DB_magick_.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib CORE_DB_magick_.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib CORE_RL_magick_.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
