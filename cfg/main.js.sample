@@ -89,7 +89,7 @@ let res =
 	},
 
 
-	filestore:'../filestore',
+	filestore:'../www/filestore',
 };
 
 return res;
