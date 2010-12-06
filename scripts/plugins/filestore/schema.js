@@ -11,22 +11,20 @@ if(!install)
 
 let createTriggerFile = function(orm)
 {
-	let dbr = orm.query('SELECT COUNT(*) AS count FROM information_schema.triggers WHERE trigger_schema=$1 AND trigger_name=$2 AND event_object_table=$3', orm.schema, 'FileCleanup_trigger', 'File');
-	if(!dbr[0].count)
-	{
-		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionFile"() RETURNS trigger AS $BODY$\n\
-			BEGIN\n\
-				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("fc", "location") VALUES (old."fc", old."location");\n\
-				 RETURN old;\n\
-			END $BODY$\n\
-			LANGUAGE plpgsql;');
+	orm.exec('DROP TRIGGER IF EXISTS "FileCleanup_trigger" ON "'+orm.schema+'"."File" CASCADE');
+	
+	orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionFile"() RETURNS trigger AS $BODY$\n\
+		BEGIN\n\
+			 INSERT INTO "'+orm.schema+'"."FileCleanup" ("fc", "location") VALUES (old."fc", old."location");\n\
+			 RETURN old;\n\
+		END $BODY$\n\
+		LANGUAGE plpgsql;');
 
-		orm.exec('CREATE TRIGGER "FileCleanup_trigger"\
-			  AFTER DELETE\
-			  ON "'+orm.schema+'"."File"\
-			  FOR EACH ROW\
-			  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunctionFile"();');
-	}
+	orm.exec('CREATE TRIGGER "FileCleanup_trigger"\
+		  AFTER DELETE\
+		  ON "'+orm.schema+'"."File"\
+		  FOR EACH ROW\
+		  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunctionFile"();');
 }
 
 ///////////////////////////////////////////////////////////
@@ -150,22 +148,20 @@ orm.addCategory({
 
 let createTriggerImage = function(orm)
 {
-	let dbr = orm.query('SELECT COUNT(*) AS count FROM information_schema.triggers WHERE trigger_schema=$1 AND trigger_name=$2 AND event_object_table=$3', orm.schema, 'FileCleanup_trigger', 'Image');
-	if(!dbr[0].count)
-	{
-		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionImage"() RETURNS trigger AS $BODY$\n\
-			BEGIN\n\
-				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("fc", "location") VALUES (old."fc", old."location"), (old."fc", old."location_thumb");\n\
-				 RETURN old;\n\
-			END $BODY$\n\
-			LANGUAGE plpgsql;');
+	orm.exec('DROP TRIGGER IF EXISTS "FileCleanup_trigger" ON "'+orm.schema+'"."Image" CASCADE');
+	
+	orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionImage"() RETURNS trigger AS $BODY$\n\
+		BEGIN\n\
+			 INSERT INTO "'+orm.schema+'"."FileCleanup" ("fc", "location") VALUES (old."fc", old."location"), (old."fc", old."location_thumb");\n\
+			 RETURN old;\n\
+		END $BODY$\n\
+		LANGUAGE plpgsql;');
 
-		orm.exec('CREATE TRIGGER "FileCleanup_trigger"\
-			  AFTER DELETE\
-			  ON "'+orm.schema+'"."Image"\
-			  FOR EACH ROW\
-			  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunctionImage"();');
-	}
+	orm.exec('CREATE TRIGGER "FileCleanup_trigger"\
+		  AFTER DELETE\
+		  ON "'+orm.schema+'"."Image"\
+		  FOR EACH ROW\
+		  EXECUTE PROCEDURE "'+orm.schema+'"."FileCleanup_triggerFunctionImage"();');
 }
 
 
