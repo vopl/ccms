@@ -1,6 +1,6 @@
 var orm = arguments[0];
 var install = arguments[1];
-var fc = arguments[2];
+var fcs = global.fcs;
 
 if(!install)
 {
@@ -16,7 +16,7 @@ let createTriggerFile = function(orm)
 	{
 		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionFile"() RETURNS trigger AS $BODY$\n\
 			BEGIN\n\
-				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("location") VALUES (old."location");\n\
+				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("fc", "location") VALUES (old."fc", old."location");\n\
 				 RETURN old;\n\
 			END $BODY$\n\
 			LANGUAGE plpgsql;');
@@ -40,6 +40,8 @@ orm.addCategory({
 		name:'string',
 		size:'integer',
 		type:'string',
+
+		fc:'string',
 		location:'string',
 		
 		comment:'text',
@@ -49,9 +51,18 @@ orm.addCategory({
 
 	methods:
 	{
-		setFromRequest:function setFromRequest(param, addData)
+		setFromRequest:function setFromRequest(param, addData, fc)
 		{
-			let newVals = {};
+			if(!fc) fc = 'public';
+			
+			if(!(fc in fcs))
+			{
+				throw Error("wrong fileContainer ("+fc+"), see keys in global.fcs");
+			}
+			
+			
+			let newVals = {fc:fc};
+			fc = global.fcs[fc];
 			
 			newVals.type = /.*?(\.(.+))/.exec(param.nameClient)[2];
 			newVals.type = newVals.type.toLowerCase();
@@ -112,10 +123,10 @@ orm.addCategory({
 	},
 	categoryMethods:
 	{
-		makeFromRequest:function makeFromRequest(param, addData)
+		makeFromRequest:function makeFromRequest(param, addData, fc)
 		{
 			let rec = this.make({});
-			rec.setFromRequest(param, addData);
+			rec.setFromRequest(param, addData, fc);
 			return rec;
 		},
 	},
@@ -134,7 +145,7 @@ let createTriggerImage = function(orm)
 	{
 		orm.exec('CREATE OR REPLACE FUNCTION "'+orm.schema+'"."FileCleanup_triggerFunctionImage"() RETURNS trigger AS $BODY$\n\
 			BEGIN\n\
-				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("location") VALUES (old."location"), (old."location_thumb");\n\
+				 INSERT INTO "'+orm.schema+'"."FileCleanup" ("fc", "location") VALUES (old."fc", old."location"), (old."fc", old."location_thumb");\n\
 				 RETURN old;\n\
 			END $BODY$\n\
 			LANGUAGE plpgsql;');
@@ -165,9 +176,19 @@ orm.addCategory({
 	afterSync: function(orm){return createTriggerImage(orm)},
 	methods:
 	{
-		setFromRequest:function setFromRequest(param, addData)
+		setFromRequest:function setFromRequest(param, addData, fc)
 		{
-			let newVals = {};
+			if(!fc) fc = 'public';
+			
+			if(!(fc in fcs))
+			{
+				throw Error("wrong fileContainer ("+fc+"), see keys in global.fcs");
+			}
+			
+			
+			let newVals = {fc:fc};
+			fc = global.fcs[fc];
+			
 			newVals.type = /.*?(\.(.+))/.exec(param.nameClient)[2];
 			newVals.type = newVals.type.toLowerCase();
 			switch(newVals.type)
@@ -287,6 +308,7 @@ orm.addCategory({
 	name:'FileCleanup',
 	fields:
 	{
+		fc:'string',
 		location:'string',
 	},
 	
@@ -297,9 +319,17 @@ orm.addCategory({
 			let dbr = orm.query('SELECT * FROM {FileCleanup}');
 			for each(let rec in dbr)
 			{
-				if(fc.isFile(rec.location))
+				if(rec.fc in global.fcs)
 				{
-					fc.rm(rec.location, true);
+					let fc = global.fcs[rec.fc];
+					if(fc.isFile(rec.location))
+					{
+						fc.rm(rec.location);
+					}
+				}
+				else
+				{
+					warn("unknown fc: " + dumps(rec));
 				}
 			}
 			orm.exec('DELETE FROM {FileCleanup}');

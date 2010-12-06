@@ -1,32 +1,42 @@
 ﻿var plug=
 {
 	name:'filestore',
-	container:router.createService('fileContainer'),
 	
 	installImpl:function()
 	{
-		this.container.base = router.getConfig().filestore;
-		exec("schema.js", orm, true, this.container);
+		this.createFcs();
+		exec("schema.js", orm, true);
 		this.runCron();
 		return true;
 	},
 
 	uninstallImpl:function()
 	{
-		exec("schema.js", orm, false, this.container);
+		exec("schema.js", orm, false);
 		this.stopCron();
+		delete global.fcs;
 		return true;
 	},
 
 
 	deserializeImpl:function()
 	{
-		this.container.base = router.getConfig().filestore;
-		exec("schema.js", orm, true, this.container);
+		this.containerPublic.base = router.getConfig().filestorePublic;
+		this.containerPrivate.base = router.getConfig().filestorePrivate;
+		exec("schema.js", orm, true);
 		this.runCron();
 		return true;
 	},
-	
+
+	createFcs:function()
+	{
+		global.fcs = {};
+		global.fcs.public = router.createService('fileContainer');
+		global.fcs.private = router.createService('fileContainer');
+		
+		global.fcs.public.base = router.getConfig().filestore.public;
+		global.fcs.private.base = router.getConfig().filestore.private;
+	},
 
 
 	runCron:function()

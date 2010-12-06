@@ -89,7 +89,11 @@ let res =
 	},
 
 
-	filestore:'../www/filestore',
+	filestore:
+	{
+		public:'../www/filestore',
+		private:'../filestore',
+	},
 };
 
 return res;

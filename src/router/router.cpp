@@ -2381,17 +2381,18 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			_rootInstance.reset();
 		}
 
-		_crontab.reset();
 		deletePermanent("crontab");
+		_crontab->reset();
+		_crontab.reset();
 
-		_cache.reset();
 		deletePermanent("cache");
+		_cache.reset();
 
-		_plugins.reset();
 		deletePermanent("plugins");
+		_plugins.reset();
 
-		_i18n.reset();
 		deletePermanent("i18n");
+		_i18n.reset();
 
 		_scripter.jsDefineInGlobal("router");
 

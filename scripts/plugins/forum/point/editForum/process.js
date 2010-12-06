@@ -24,8 +24,8 @@
 	let image = orm.Image.load({id:forum.image_id});
 	if('image' in request.params && request.params.image.nameServer)
 	{
-		if(!image) image = orm.Image.makeFromRequest(request.params.image, {width:undefined, height:undefined, width_thumb:100, height_thumb:100});
-		else image.setFromRequest(request.params.image, {width:undefined, height:undefined, width_thumb:100, height_thumb:100});
+		if(!image) image = orm.Image.makeFromRequest(request.params.image, {width:undefined, height:undefined, width_thumb:100, height_thumb:100}, 'public');
+		else image.setFromRequest(request.params.image, {width:undefined, height:undefined, width_thumb:100, height_thumb:100}, 'public');
 
 		let error = image.getError();
 

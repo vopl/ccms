@@ -1929,7 +1929,7 @@ namespace ccms
 					return false;
 				}
 #else
-				char fil[4096] = "/tmp/ccms_ta_XXXXXX";
+				char fil[256] = "/tmp/ccms_ta_XXXXXX";
 				if(!mktemp(fil))
 				{
 					std::cerr<<"TransportAsio::readParamsStep_fdData unable to obtain temporary file name: "<<strerror(errno)<<"("<<errno<<")"<<std::endl;

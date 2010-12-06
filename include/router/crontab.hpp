@@ -35,6 +35,7 @@ namespace ccms
 		bool del(TaskId id);
 
 		void tick();
+		void reset();
 
 		bool call_add(uintN argc, jsval *argv, jsval *rval);
 		bool call_del(uintN argc, jsval *argv, jsval *rval);

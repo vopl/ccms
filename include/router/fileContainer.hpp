@@ -16,9 +16,9 @@ namespace ccms
 
 		bool xetter_base(jsval *vp, bool isGet);
 
-		//pathAbs('a/b/../c')   /usr/ccms/filestore/a/b/c
+		//pathAbs('a/b/../c')   /usr/ccms/filestore/a/c
 		bool call_pathAbs(uintN argc, jsval *argv, jsval *rval);
-		//pathRel('a/b/../c')   a/b/c
+		//pathRel('/usr/ccms/filestore/a/b/../c')   a/c
 		bool call_pathRel(uintN argc, jsval *argv, jsval *rval);
 
 		//stat('a/b/../c')   {type:'file', size:220}
