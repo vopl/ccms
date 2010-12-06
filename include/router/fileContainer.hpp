@@ -37,6 +37,7 @@ namespace ccms
 
 	private:
 		bool mkPath(jsval jsv, boost::filesystem::path &res, bool abs = true);
+		bool rmEmptyDirsFor(const boost::filesystem::path &filePath, jsval flag);
 	};
 	typedef JsPtr<FileContainer> FileContainerPtr;
 

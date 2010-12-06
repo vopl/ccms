@@ -299,7 +299,7 @@ orm.addCategory({
 			{
 				if(fc.isFile(rec.location))
 				{
-					fc.rm(rec.location);
+					fc.rm(rec.location, true);
 				}
 			}
 			orm.exec('DELETE FROM {FileCleanup}');

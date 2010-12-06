@@ -274,9 +274,9 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool FileContainer::call_rmDir(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(1 != argc)
+		if(1 != argc && 2 != argc)
 		{
-			JS_ReportError(ecx()->_jsCx, "FileContainer.rmDir must be called with 1 arg");
+			JS_ReportError(ecx()->_jsCx, "FileContainer.rmDir must be called with 1 or 2 args");
 			return false;
 		}
 
@@ -310,6 +310,8 @@ namespace ccms
 			return false;
 		}
 
+		rmEmptyDirsFor(p, argv[1]);
+
 		*rval = JSVAL_TRUE;
 		return true;
 	}
@@ -317,9 +319,9 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool FileContainer::call_move(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(2 != argc)
+		if(2 != argc && 3 != argc)
 		{
-			JS_ReportError(ecx()->_jsCx, "FileContainer.move must be called with 2 args");
+			JS_ReportError(ecx()->_jsCx, "FileContainer.move must be called with 2 or 3 args");
 			return false;
 		}
 
@@ -341,6 +343,8 @@ namespace ccms
 			JS_ReportError(ecx()->_jsCx, "FileContainer.move failed");
 			return false;
 		}
+
+		rmEmptyDirsFor(from, argv[2]);
 
 		*rval = JSVAL_TRUE;
 		return true;
@@ -436,9 +440,9 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool FileContainer::call_rm(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(1 != argc)
+		if(1 != argc && 2 != argc)
 		{
-			JS_ReportError(ecx()->_jsCx, "FileContainer.rm must be called with 1 arg");
+			JS_ReportError(ecx()->_jsCx, "FileContainer.rm must be called with 1 or 2 args");
 			return false;
 		}
 
@@ -465,6 +469,8 @@ namespace ccms
 			JS_ReportError(ecx()->_jsCx, "FileContainer.rm failed");
 			return false;
 		}
+
+		rmEmptyDirsFor(p, argv[1]);
 
 		*rval = JSVAL_TRUE;
 		return true;
@@ -538,6 +544,31 @@ namespace ccms
 		}
 
 		return false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool FileContainer::rmEmptyDirsFor(const boost::filesystem::path &filePath, jsval flag)
+	{
+		try
+		{
+			boost::filesystem::path p = filePath.parent_path();
+			while(!p.empty() && p != _base)
+			{
+				boost::filesystem::directory_iterator di(p);
+				if(di != boost::filesystem::directory_iterator())
+				{
+					break;
+				}
+
+				boost::filesystem::remove(p);
+				p = p.parent_path();
+			}
+		}
+		catch(...)
+		{
+		}
+
+		return true;
 	}
 
 }
