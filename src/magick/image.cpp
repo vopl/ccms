@@ -5,6 +5,8 @@
 #include "magick/drawable.hpp"
 #include "magick/imageAttributes.hpp"
 
+#include <Magick++/Options.h>
+
 
 namespace ccms{ namespace magick{
 
@@ -177,8 +179,6 @@ namespace ccms{ namespace magick{
 	//////////////////////////////////////////////////////////////////////////
 	bool Image::construct(uintN argc, jsval *argv)
 	{
-		_imgStub = NULL;
-
 		//конструкторы всякие
 		bool constructed = false;
 		if(!argc)
@@ -211,12 +211,16 @@ namespace ccms{ namespace magick{
 
 			if(!constructed)
 			{//объект не прошел, трактовать как строку spec
-				char *imageSpec_;
-				JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &imageSpec_);
-
 				IMTRY()
-					_impl.reset(new Magick::Image(imageSpec_));
+					_impl.reset(new Magick::Image());
 				IMCATCH(return false)
+				jsval jsv;
+				if(!call_read(1, argv, &jsv))
+				{
+					_impl.reset();
+					return false;
+				}
+
 				constructed = true;
 			}
 
@@ -253,7 +257,6 @@ namespace ccms{ namespace magick{
 
 		if(constructed)
 		{
-			_imgStub = _impl.get();
 			return true;
 		}
 
@@ -305,7 +308,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->adaptiveBlur(radius, sigma);
+			_impl->adaptiveBlur(radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -326,7 +329,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 3, argv, "uui", &width, &height, &offset)) return false;
 
 		IMTRY()
-			_imgStub->adaptiveThreshold(width, height, offset);
+			_impl->adaptiveThreshold(width, height, offset);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -346,7 +349,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "i", &type))return false;
 
 		IMTRY()
-			_imgStub->addNoise((::Magick::NoiseType)type);
+			_impl->addNoise((::Magick::NoiseType)type);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -367,7 +370,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "uu", &ctype, &ntype))return false;
 
 		IMTRY()
-			_imgStub->addNoiseChannel((::Magick::ChannelType)ctype, (::Magick::NoiseType)ntype);
+			_impl->addNoiseChannel((::Magick::ChannelType)ctype, (::Magick::NoiseType)ntype);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -384,7 +387,7 @@ namespace ccms{ namespace magick{
 
 			IMTRY()
 				::Magick::DrawableAffine da(sx_, sy_, rx_, ry_, tx_, ty_);
-				_imgStub->affineTransform(da);
+				_impl->affineTransform(da);
 			IMCATCH(return false);
 		}
 		else if(1 == argc)
@@ -400,7 +403,7 @@ namespace ccms{ namespace magick{
 			}
 
 			IMTRY()
-				_imgStub->affineTransform(affine->getImpl());
+				_impl->affineTransform(affine->getImpl());
 			IMCATCH(return false);
 		}
 		else
@@ -437,7 +440,7 @@ namespace ccms{ namespace magick{
 			if(geometry)
 			{
 				IMTRY()
-					_imgStub->annotate(text, *geometry);
+					_impl->annotate(text, *geometry);
 				IMCATCH(return false);
 			}
 			else if(JSVAL_IS_NUMBER(argv[1]))
@@ -445,7 +448,7 @@ namespace ccms{ namespace magick{
 				uint32 gravityType;
 				if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "u", &gravityType))return false;
 				IMTRY()
-					_imgStub->annotate(text, (::Magick::GravityType)gravityType);
+					_impl->annotate(text, (::Magick::GravityType)gravityType);
 				IMCATCH(return false);
 			}
 			else
@@ -466,7 +469,7 @@ namespace ccms{ namespace magick{
 			uint32 gravityType;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+2, "u", &gravityType))return false;
 			IMTRY()
-				_imgStub->annotate(text, *geometry, (::Magick::GravityType)gravityType);
+				_impl->annotate(text, *geometry, (::Magick::GravityType)gravityType);
 			IMCATCH(return false);
 		}
 		else
@@ -482,7 +485,7 @@ namespace ccms{ namespace magick{
 			jsdouble degress;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv+2, "ud", &gravityType, &degress))return false;
 			IMTRY()
-				_imgStub->annotate(text, *geometry, (::Magick::GravityType)gravityType, degress);
+				_impl->annotate(text, *geometry, (::Magick::GravityType)gravityType, degress);
 			IMCATCH(return false);
 		}
 
@@ -516,7 +519,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->blur(radius, sigma);
+			_impl->blur(radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -563,7 +566,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->blurChannel((::Magick::ChannelType)channel, radius, sigma);
+			_impl->blurChannel((::Magick::ChannelType)channel, radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -586,13 +589,13 @@ namespace ccms{ namespace magick{
 			}
 
 			IMTRY()
-				_imgStub->border(*geometry);
+				_impl->border(*geometry);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				_imgStub->border();
+				_impl->border();
 			IMCATCH(return false);
 		}
 
@@ -616,7 +619,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->channel((::Magick::ChannelType)channel);
+			_impl->channel((::Magick::ChannelType)channel);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -646,15 +649,15 @@ namespace ccms{ namespace magick{
 				return false;
 			}
 			IMTRY()
-				_imgStub->channelDepth((::Magick::ChannelType)channel, depth);
-				depth = _imgStub->channelDepth((::Magick::ChannelType)channel);
+				_impl->channelDepth((::Magick::ChannelType)channel, depth);
+				depth = _impl->channelDepth((::Magick::ChannelType)channel);
 				*rval = INT_TO_JSVAL((int)depth);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				uint32 depth = _imgStub->channelDepth((::Magick::ChannelType)channel);
+				uint32 depth = _impl->channelDepth((::Magick::ChannelType)channel);
 				*rval = INT_TO_JSVAL((int)depth);
 			IMCATCH(return false);
 		}
@@ -690,7 +693,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->charcoal(radius, sigma);
+			_impl->charcoal(radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -710,7 +713,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->chop(*geometry);
+			_impl->chop(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -730,7 +733,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &cdl)) return false;
 
 		IMTRY()
-			_imgStub->cdl(cdl);
+			_impl->cdl(cdl);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -756,7 +759,7 @@ namespace ccms{ namespace magick{
 			}
 
 			IMTRY()
-				_imgStub->colorize(opacity, *color);
+				_impl->colorize(opacity, *color);
 			IMCATCH(return false);
 		}
 		else if(4 == argc)
@@ -775,7 +778,7 @@ namespace ccms{ namespace magick{
 			}
 
 			IMTRY()
-				_imgStub->colorize(ropacity, gopacity, bopacity, *color);
+				_impl->colorize(ropacity, gopacity, bopacity, *color);
 			IMCATCH(return false);
 		}
 		else
@@ -873,7 +876,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->colorMatrix(order, &matrix[0]);
+			_impl->colorMatrix(order, &matrix[0]);
 		IMCATCH(return false);
 		
 		*rval = JSVAL_VOID;
@@ -888,13 +891,13 @@ namespace ccms{ namespace magick{
 			char *str;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &str)) return false;
 			IMTRY()
-				_imgStub->comment(str);
+				_impl->comment(str);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				_imgStub->comment();
+				_impl->comment();
 			IMCATCH(return false);
 		}
 
@@ -910,13 +913,13 @@ namespace ccms{ namespace magick{
 			uint32 v;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "u", &v)) return false;
 			IMTRY()
-				_imgStub->compose((::Magick::CompositeOperator)v);
+				_impl->compose((::Magick::CompositeOperator)v);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				_imgStub->compose();
+				_impl->compose();
 			IMCATCH(return false);
 		}
 
@@ -942,7 +945,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			*rval = BOOLEAN_TO_JSVAL(_imgStub->compare(obj->getImpl()));
+			*rval = BOOLEAN_TO_JSVAL(_impl->compare(obj->getImpl()));
 		IMCATCH(return false);
 
 		return true;
@@ -980,13 +983,13 @@ namespace ccms{ namespace magick{
 			if(geometry)
 			{
 				IMTRY()
-					_imgStub->composite(image->getImpl(), *geometry);
+					_impl->composite(image->getImpl(), *geometry);
 				IMCATCH(return false);
 			}
 			else
 			{
 				IMTRY()
-					_imgStub->composite(image->getImpl(), (::Magick::GravityType)gravity);
+					_impl->composite(image->getImpl(), (::Magick::GravityType)gravity);
 				IMCATCH(return false);
 			}
 		}
@@ -1000,13 +1003,13 @@ namespace ccms{ namespace magick{
 			if(geometry)
 			{
 				IMTRY()
-					_imgStub->composite(image->getImpl(), *geometry, (::Magick::CompositeOperator)compose);
+					_impl->composite(image->getImpl(), *geometry, (::Magick::CompositeOperator)compose);
 				IMCATCH(return false);
 			}
 			else
 			{
 				IMTRY()
-					_imgStub->composite(image->getImpl(), (::Magick::GravityType)gravity, (::Magick::CompositeOperator)compose);
+					_impl->composite(image->getImpl(), (::Magick::GravityType)gravity, (::Magick::CompositeOperator)compose);
 				IMCATCH(return false);
 			}
 		}
@@ -1028,7 +1031,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "u", &sharpen)) return false;
 
 		IMTRY()
-			_imgStub->contrast(sharpen);
+			_impl->contrast(sharpen);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1085,7 +1088,7 @@ namespace ccms{ namespace magick{
 		order--;
 
 		IMTRY()
-			_imgStub->convolve(order, &matrix[0]);
+			_impl->convolve(order, &matrix[0]);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1110,7 +1113,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->crop(*geometry);
+			_impl->crop(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1130,7 +1133,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "u", &amount)) return false;
 
 		IMTRY()
-			_imgStub->cycleColormap(amount);
+			_impl->cycleColormap(amount);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1141,7 +1144,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_despeckle(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->despeckle();
+			_impl->despeckle();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1186,11 +1189,11 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(points.size())
 			{
-				_imgStub->distort((::Magick::DistortImageMethod)method, points.size(), &points[0], bestfit);
+				_impl->distort((::Magick::DistortImageMethod)method, points.size(), &points[0], bestfit);
 			}
 			else
 			{
-				_imgStub->distort((::Magick::DistortImageMethod)method, 0, NULL, bestfit);
+				_impl->distort((::Magick::DistortImageMethod)method, 0, NULL, bestfit);
 			}
 		IMCATCH(return false);
 
@@ -1213,7 +1216,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->draw(list);
+			_impl->draw(list);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1237,7 +1240,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->edge(radius);
+			_impl->edge(radius);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1270,7 +1273,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->emboss(radius, sigma);
+			_impl->emboss(radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1281,7 +1284,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_enhance(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->enhance();
+			_impl->enhance();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1292,7 +1295,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_equalize(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->equalize();
+			_impl->equalize();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1303,7 +1306,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_erase(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->erase();
+			_impl->erase();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1356,19 +1359,19 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(color && gravityType!=-1)
 			{
-				_imgStub->extent(*geometry, *color, (::Magick::GravityType)gravityType);
+				_impl->extent(*geometry, *color, (::Magick::GravityType)gravityType);
 			}
 			else if(color)
 			{
-				_imgStub->extent(*geometry, *color);
+				_impl->extent(*geometry, *color);
 			}
 			else if(gravityType!=-1)
 			{
-				_imgStub->extent(*geometry, (::Magick::GravityType)gravityType);
+				_impl->extent(*geometry, (::Magick::GravityType)gravityType);
 			}
 			else
 			{
-				_imgStub->extent(*geometry);
+				_impl->extent(*geometry);
 			}
 		IMCATCH(return false);
 
@@ -1380,7 +1383,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_flip(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->flip();
+			_impl->flip();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1458,22 +1461,22 @@ namespace ccms{ namespace magick{
 			{
 				if(bgColor)
 				{
-					_imgStub->floodFillColor(*geometry, *fillColor, *bgColor);
+					_impl->floodFillColor(*geometry, *fillColor, *bgColor);
 				}
 				else
 				{
-					_imgStub->floodFillColor(*geometry, *fillColor);
+					_impl->floodFillColor(*geometry, *fillColor);
 				}
 			}
 			else
 			{
 				if(bgColor)
 				{
-					_imgStub->floodFillColor(x, y, *fillColor, *bgColor);
+					_impl->floodFillColor(x, y, *fillColor, *bgColor);
 				}
 				else
 				{
-					_imgStub->floodFillColor(x, y, *fillColor);
+					_impl->floodFillColor(x, y, *fillColor);
 				}
 			}
 		IMCATCH(return false);
@@ -1495,7 +1498,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 4, argv, "iiuu", &x, &y, &opacity, &method)) return false;
 
 		IMTRY()
-			_imgStub->floodFillOpacity(x, y, opacity, (::Magick::PaintMethod)method);
+			_impl->floodFillOpacity(x, y, opacity, (::Magick::PaintMethod)method);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1572,22 +1575,22 @@ namespace ccms{ namespace magick{
 			{
 				if(bgColor)
 				{
-					_imgStub->floodFillTexture(*geometry, texture->getImpl(), *bgColor);
+					_impl->floodFillTexture(*geometry, texture->getImpl(), *bgColor);
 				}
 				else
 				{
-					_imgStub->floodFillTexture(*geometry, texture->getImpl());
+					_impl->floodFillTexture(*geometry, texture->getImpl());
 				}
 			}
 			else
 			{
 				if(bgColor)
 				{
-					_imgStub->floodFillTexture(x, y, texture->getImpl(), *bgColor);
+					_impl->floodFillTexture(x, y, texture->getImpl(), *bgColor);
 				}
 				else
 				{
-					_imgStub->floodFillTexture(x, y, texture->getImpl());
+					_impl->floodFillTexture(x, y, texture->getImpl());
 				}
 			}
 		IMCATCH(return false);
@@ -1600,7 +1603,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_flop(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->flop();
+			_impl->flop();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1680,11 +1683,11 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(geometry)
 			{
-				_imgStub->frame(*geometry);
+				_impl->frame(*geometry);
 			}
 			else
 			{
-				_imgStub->frame(x, y, innerBevel, outerBevel);
+				_impl->frame(x, y, innerBevel, outerBevel);
 			}
 		IMCATCH(return false);
 
@@ -1713,11 +1716,11 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(channelType == -1)
 			{
-				_imgStub->fx(expression);
+				_impl->fx(expression);
 			}
 			else
 			{
-				_imgStub->fx(expression, (::Magick::ChannelType)channelType);
+				_impl->fx(expression, (::Magick::ChannelType)channelType);
 			}
 		IMCATCH(return false);
 
@@ -1739,7 +1742,7 @@ namespace ccms{ namespace magick{
 			jsdouble v;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &v)) return false;
 			IMTRY()
-				_imgStub->gamma(v);
+				_impl->gamma(v);
 			IMCATCH(return false);
 		}
 		if(3 == argc)
@@ -1747,11 +1750,11 @@ namespace ccms{ namespace magick{
 			jsdouble vr,vg,vb;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 3, argv, "ddd", &vr,&vg,&vb)) return false;
 			IMTRY()
-				_imgStub->gamma(vr,vg,vb);
+				_impl->gamma(vr,vg,vb);
 			IMCATCH(return false);
 		}
 
-		return JS_NewDoubleValue(ecx()->_jsCx, _imgStub->gamma(), rval);
+		return JS_NewDoubleValue(ecx()->_jsCx, _impl->gamma(), rval);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -1769,7 +1772,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "dd", &width, &sigma))return false;
 		
 		IMTRY()
-			_imgStub->gaussianBlur(width, sigma);
+			_impl->gaussianBlur(width, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1792,7 +1795,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 3, argv, "udd", &channel, &width, &sigma))return false;
 
 		IMTRY()
-			_imgStub->gaussianBlurChannel((::Magick::ChannelType)channel, width, sigma);
+			_impl->gaussianBlurChannel((::Magick::ChannelType)channel, width, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1804,7 +1807,7 @@ namespace ccms{ namespace magick{
 	{
 		::Magick::Blob blob;
 		IMTRY()
-			_imgStub->write(&blob);
+			_impl->write(&blob);
 		IMCATCH(return false);
 
 		std::string base64 = blob.base64();
@@ -1830,7 +1833,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->haldClut(image->getImpl());
+			_impl->haldClut(image->getImpl());
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1850,7 +1853,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &factor)) return false;
 
 		IMTRY()
-			_imgStub->implode(factor);
+			_impl->implode(factor);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1875,7 +1878,7 @@ namespace ccms{ namespace magick{
 		if(argc==1)
 		{
 			IMTRY()
-				_imgStub->inverseFourierTransform(image->getImpl());
+				_impl->inverseFourierTransform(image->getImpl());
 			IMCATCH(return false);
 		}
 		else
@@ -1884,7 +1887,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "b", &magnitude)) return false;
 
 			IMTRY()
-				_imgStub->inverseFourierTransform(image->getImpl(), magnitude);
+				_impl->inverseFourierTransform(image->getImpl(), magnitude);
 			IMCATCH(return false);
 		}
 
@@ -1906,13 +1909,13 @@ namespace ccms{ namespace magick{
 			char *label;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &label)) return false;
 			IMTRY()
-				_imgStub->label(label);
+				_impl->label(label);
 			IMCATCH(return false);
 		}
 
 		std::string label;
 		IMTRY()
-			label = _imgStub->label();
+			label = _impl->label();
 		IMCATCH(return false);
 
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, label.data(), label.size()));
@@ -1937,13 +1940,13 @@ namespace ccms{ namespace magick{
 			jsdouble mid_point;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+2, "d", &mid_point)) return false;
 			IMTRY()
-				_imgStub->level(black_point, white_point, mid_point);
+				_impl->level(black_point, white_point, mid_point);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				_imgStub->level(black_point, white_point);
+				_impl->level(black_point, white_point);
 			IMCATCH(return false);
 		}
 
@@ -1956,7 +1959,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				std::string m = _imgStub->magick();
+				std::string m = _impl->magick();
 				*rval = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, m.data(), m.size()));
 				return true;
 			IMCATCH(return false);
@@ -1970,7 +1973,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &format)) return false;
 
 		IMTRY()
-			_imgStub->magick(format);
+			_impl->magick(format);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -1996,13 +1999,13 @@ namespace ccms{ namespace magick{
 			jsdouble mid_point;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+3, "d", &mid_point)) return false;
 			IMTRY()
-				_imgStub->levelChannel((::Magick::ChannelType)channel, black_point, white_point, mid_point);
+				_impl->levelChannel((::Magick::ChannelType)channel, black_point, white_point, mid_point);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				_imgStub->levelChannel((::Magick::ChannelType)channel, black_point, white_point);
+				_impl->levelChannel((::Magick::ChannelType)channel, black_point, white_point);
 			IMCATCH(return false);
 		}
 
@@ -2014,7 +2017,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_magnify(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->magnify();
+			_impl->magnify();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2040,7 +2043,7 @@ namespace ccms{ namespace magick{
 		if(argc==1)
 		{
 			IMTRY()
-				_imgStub->map(image->getImpl());
+				_impl->map(image->getImpl());
 			IMCATCH(return false);
 		}
 		else
@@ -2049,7 +2052,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "b", &dither)) return false;
 
 			IMTRY()
-				_imgStub->map(image->getImpl(), dither);
+				_impl->map(image->getImpl(), dither);
 			IMCATCH(return false);
 		}
 
@@ -2081,7 +2084,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 4, argv+1, "uiiu", &opacity, &x, &y, &method)) return false;
 
 		IMTRY()
-			_imgStub->matteFloodfill(*target, opacity, x, y, (::Magick::PaintMethod)method);
+			_impl->matteFloodfill(*target, opacity, x, y, (::Magick::PaintMethod)method);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2100,7 +2103,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->medianFilter();
+				_impl->medianFilter();
 			IMCATCH(return false);
 		}
 		else
@@ -2109,7 +2112,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &radius)) return false;
 
 			IMTRY()
-				_imgStub->medianFilter(radius);
+				_impl->medianFilter(radius);
 			IMCATCH(return false);
 		}
 
@@ -2121,7 +2124,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_minify(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->minify();
+			_impl->minify();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2143,7 +2146,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 3, argv, "ddd", &brightness, &saturation, &hue)) return false;
 
 		IMTRY()
-			_imgStub->modulate(brightness, saturation, hue);
+			_impl->modulate(brightness, saturation, hue);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2163,7 +2166,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 3, argv, "ddd", &radius, &sigma, &angle)) return false;
 
 		IMTRY()
-			_imgStub->motionBlur(radius, sigma, angle);
+			_impl->motionBlur(radius, sigma, angle);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2182,7 +2185,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->negate();
+				_impl->negate();
 			IMCATCH(return false);
 		}
 		else
@@ -2191,7 +2194,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "b", &grayscale)) return false;
 
 			IMTRY()
-				_imgStub->negate(grayscale);
+				_impl->negate(grayscale);
 			IMCATCH(return false);
 		}
 
@@ -2203,7 +2206,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_normalize(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->normalize();
+			_impl->normalize();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2222,7 +2225,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->oilPaint();
+				_impl->oilPaint();
 			IMCATCH(return false);
 		}
 		else
@@ -2231,7 +2234,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &radius)) return false;
 
 			IMTRY()
-				_imgStub->oilPaint(radius);
+				_impl->oilPaint(radius);
 			IMCATCH(return false);
 		}
 
@@ -2252,7 +2255,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "u", &opacity)) return false;
 
 		IMTRY()
-			_imgStub->opacity(opacity);
+			_impl->opacity(opacity);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2280,7 +2283,7 @@ namespace ccms{ namespace magick{
 
 
 		IMTRY()
-			_imgStub->opaque(*opaqueColor, *penColor);
+			_impl->opaque(*opaqueColor, *penColor);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2301,7 +2304,7 @@ namespace ccms{ namespace magick{
 
 
 		IMTRY()
-			_imgStub->ping(spec);
+			_impl->ping(spec);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2320,7 +2323,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->quantize();
+				_impl->quantize();
 			IMCATCH(return false);
 		}
 		else
@@ -2329,7 +2332,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &measureError)) return false;
 
 			IMTRY()
-				_imgStub->quantize(measureError);
+				_impl->quantize(measureError);
 			IMCATCH(return false);
 		}
 
@@ -2355,7 +2358,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 3, argv, "uud", &channel, &operator_, &rvalue)) return false;
 
 			IMTRY()
-				_imgStub->quantumOperator((::Magick::ChannelType)channel, (::Magick::MagickEvaluateOperator)operator_, rvalue);
+				_impl->quantumOperator((::Magick::ChannelType)channel, (::Magick::MagickEvaluateOperator)operator_, rvalue);
 			IMCATCH(return false);
 		}
 		else
@@ -2369,7 +2372,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 6, argv, "iiuuuud", &x, &y, &columns, &rows, &channel, &operator_, &rvalue)) return false;
 
 			IMTRY()
-				_imgStub->quantumOperator(x, y, columns, rows, (::Magick::ChannelType)channel, (::Magick::MagickEvaluateOperator)operator_, rvalue);
+				_impl->quantumOperator(x, y, columns, rows, (::Magick::ChannelType)channel, (::Magick::MagickEvaluateOperator)operator_, rvalue);
 			IMCATCH(return false);
 		}
 
@@ -2407,11 +2410,11 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(argPointers.size())
 			{
-				_imgStub->process(name, argPointers.size(), (const char **)&argPointers[0]);
+				_impl->process(name, argPointers.size(), (const char **)&argPointers[0]);
 			}
 			else
 			{
-				_imgStub->process(name, 0, NULL);
+				_impl->process(name, 0, NULL);
 			}
 		IMCATCH(return false);
 
@@ -2431,7 +2434,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->raise();
+				_impl->raise();
 			IMCATCH(return false);
 		}
 		else
@@ -2447,7 +2450,7 @@ namespace ccms{ namespace magick{
 			if(1 == argc)
 			{
 				IMTRY()
-					_imgStub->raise(*geometry);
+					_impl->raise(*geometry);
 				IMCATCH(return false);
 			}
 			else
@@ -2456,7 +2459,7 @@ namespace ccms{ namespace magick{
 				if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "b", &raisedFlag)) return false;
 
 				IMTRY()
-					_imgStub->raise(*geometry, raisedFlag);
+					_impl->raise(*geometry, raisedFlag);
 				IMCATCH(return false);
 			}
 		}
@@ -2483,7 +2486,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->randomThreshold(*geometry);
+			_impl->randomThreshold(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2510,7 +2513,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "u", &channel)) return false;
 
 		IMTRY()
-			_imgStub->randomThresholdChannel(*geometry, (::Magick::ChannelType)channel);
+			_impl->randomThresholdChannel(*geometry, (::Magick::ChannelType)channel);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2546,11 +2549,24 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(geometry)
 			{
-				_imgStub->read(*geometry, spec);
+				_impl->read(*geometry, spec);
 			}
 			else
 			{
-				_imgStub->read(spec);
+				//animation will be dropped in this way
+				//_impl->read(spec);
+
+				//do not drop animation
+				_impl->fileName(spec);
+
+				MagickCore::ExceptionInfo exceptionInfo;
+				MagickCore::GetExceptionInfo(&exceptionInfo);
+				MagickCore::Image* image = ReadImage(_impl->imageInfo(), &exceptionInfo);
+
+				_impl->replaceImage(image);
+				Magick::throwException( exceptionInfo );
+				if(image) Magick::throwException(image->exception);
+				(void) MagickCore::DestroyExceptionInfo(&exceptionInfo);
 			}
 		IMCATCH(return false);
 
@@ -2569,7 +2585,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->reduceNoise();
+				_impl->reduceNoise();
 			IMCATCH(return false);
 		}
 		else
@@ -2578,7 +2594,7 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &order)) return false;
 
 			IMTRY()
-				_imgStub->reduceNoise(order);
+				_impl->reduceNoise(order);
 			IMCATCH(return false);
 		}
 
@@ -2604,7 +2620,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->resize(*geometry);
+			_impl->resize(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2639,13 +2655,13 @@ namespace ccms{ namespace magick{
 		if(geometry)
 		{
 			IMTRY()
-				_imgStub->roll(*geometry);
+				_impl->roll(*geometry);
 			IMCATCH(return false);
 		}
 		else
 		{
 			IMTRY()
-				_imgStub->roll(columns, rows);
+				_impl->roll(columns, rows);
 			IMCATCH(return false);
 		}
 
@@ -2666,7 +2682,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &degrees)) return false;
 
 		IMTRY()
-			_imgStub->rotate(degrees);
+			_impl->rotate(degrees);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2691,7 +2707,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->sample(*geometry);
+			_impl->sample(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2716,7 +2732,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->scale(*geometry);
+			_impl->scale(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2749,7 +2765,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->segment(clusterThreshold, smoothingThreshold);
+			_impl->segment(clusterThreshold, smoothingThreshold);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2779,7 +2795,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->shade(azimuth, elevation, colorShading);
+			_impl->shade(azimuth, elevation, colorShading);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2806,7 +2822,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->sharpen(radius, sigma);
+			_impl->sharpen(radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2840,7 +2856,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->sharpenChannel((::Magick::ChannelType)channel, radius, sigma);
+			_impl->sharpenChannel((::Magick::ChannelType)channel, radius, sigma);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2865,7 +2881,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->shave(*geometry);
+			_impl->shave(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2885,7 +2901,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "dd", &xShearAngle, &yShearAngle)) return false;
 
 		IMTRY()
-			_imgStub->shear(xShearAngle, yShearAngle);
+			_impl->shear(xShearAngle, yShearAngle);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2908,7 +2924,7 @@ namespace ccms{ namespace magick{
 		if(2 == argc)
 		{
 			IMTRY()
-				_imgStub->sigmoidalContrast(sharpen, contrast);
+				_impl->sigmoidalContrast(sharpen, contrast);
 			IMCATCH(return false);
 		}
 		else
@@ -2916,7 +2932,7 @@ namespace ccms{ namespace magick{
 			jsdouble midpoint;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+2, "d", &midpoint)) return false;
 			IMTRY()
-				_imgStub->sigmoidalContrast(sharpen, contrast, midpoint);
+				_impl->sigmoidalContrast(sharpen, contrast, midpoint);
 			IMCATCH(return false);
 		}
 
@@ -2930,7 +2946,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->solarize();
+				_impl->solarize();
 			IMCATCH(return false);
 		}
 		else
@@ -2938,7 +2954,7 @@ namespace ccms{ namespace magick{
 			jsdouble factor;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &factor)) return false;
 			IMTRY()
-				_imgStub->solarize(factor);
+				_impl->solarize(factor);
 			IMCATCH(return false);
 		}
 
@@ -2964,7 +2980,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->splice(*geometry);
+			_impl->splice(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -2977,7 +2993,7 @@ namespace ccms{ namespace magick{
 		if(!argc)
 		{
 			IMTRY()
-				_imgStub->spread();
+				_impl->spread();
 			IMCATCH(return false);
 		}
 		else
@@ -2985,7 +3001,7 @@ namespace ccms{ namespace magick{
 			uint32 amount;
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "u", &amount)) return false;
 			IMTRY()
-				_imgStub->spread(amount);
+				_impl->spread(amount);
 			IMCATCH(return false);
 		}
 
@@ -3030,11 +3046,11 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(arguments.size())
 			{
-				_imgStub->sparseColor((::Magick::ChannelType)channel, (::Magick::SparseColorMethod)method, arguments.size(), &arguments[0]);
+				_impl->sparseColor((::Magick::ChannelType)channel, (::Magick::SparseColorMethod)method, arguments.size(), &arguments[0]);
 			}
 			else
 			{
-				_imgStub->sparseColor((::Magick::ChannelType)channel, (::Magick::SparseColorMethod)method, 0, NULL);
+				_impl->sparseColor((::Magick::ChannelType)channel, (::Magick::SparseColorMethod)method, 0, NULL);
 			}
 		IMCATCH(return false);
 
@@ -3059,7 +3075,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->stegano(image->getImpl());
+			_impl->stegano(image->getImpl());
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3083,7 +3099,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->stereo(image->getImpl());
+			_impl->stereo(image->getImpl());
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3103,7 +3119,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &degrees)) return false;
 
 		IMTRY()
-			_imgStub->swirl(degrees);
+			_impl->swirl(degrees);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3127,7 +3143,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->texture(image->getImpl());
+			_impl->texture(image->getImpl());
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3147,7 +3163,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "d", &threshold)) return false;
 
 		IMTRY()
-			_imgStub->threshold(threshold);
+			_impl->threshold(threshold);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3185,11 +3201,11 @@ namespace ccms{ namespace magick{
 		IMTRY()
 			if(cropGeometry)
 			{
-				_imgStub->transform(*imageGeometry, *cropGeometry);
+				_impl->transform(*imageGeometry, *cropGeometry);
 			}
 			else
 			{
-				_imgStub->transform(*imageGeometry);
+				_impl->transform(*imageGeometry);
 			}
 		IMCATCH(return false);
 
@@ -3215,7 +3231,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->transparent(*color);
+			_impl->transparent(*color);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3246,7 +3262,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->transparentChroma(*colorLow, *colorHigh);
+			_impl->transparentChroma(*colorLow, *colorHigh);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3257,7 +3273,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_trim(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->trim();
+			_impl->trim();
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3273,12 +3289,12 @@ namespace ccms{ namespace magick{
 			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "u", &type)) return false;
 
 			IMTRY()
-				_imgStub->type((::Magick::ImageType)type);
+				_impl->type((::Magick::ImageType)type);
 			IMCATCH(return false);
 		}
 
 		IMTRY()
-			type = _imgStub->type();
+			type = _impl->type();
 		IMCATCH(return false);
 
 		*rval = INT_TO_JSVAL(type);
@@ -3297,7 +3313,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 4, argv, "dddd", &raduis, &sigma, &amount, &threshold)) return false;
 
 		IMTRY()
-			_imgStub->unsharpmask(raduis, sigma, amount, threshold);
+			_impl->unsharpmask(raduis, sigma, amount, threshold);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3316,7 +3332,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 5, argv, "udddd", &channel, &raduis, &sigma, &amount, &threshold)) return false;
 
 		IMTRY()
-			_imgStub->unsharpmaskChannel((::Magick::ChannelType)channel, raduis, sigma, amount, threshold);
+			_impl->unsharpmaskChannel((::Magick::ChannelType)channel, raduis, sigma, amount, threshold);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3343,7 +3359,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->wave(amplitude, waveLength);
+			_impl->wave(amplitude, waveLength);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3363,7 +3379,7 @@ namespace ccms{ namespace magick{
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &spec)) return false;
 
 		IMTRY()
-			_imgStub->write(spec);
+			_impl->write(spec);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3388,7 +3404,7 @@ namespace ccms{ namespace magick{
 		}
 
 		IMTRY()
-			_imgStub->zoom(*geometry);
+			_impl->zoom(*geometry);
 		IMCATCH(return false);
 
 		*rval = JSVAL_VOID;
@@ -3405,7 +3421,7 @@ namespace ccms{ namespace magick{
 	{
 		::Magick::Image::ImageStatistics statistics = {};
 		IMTRY()
-			_imgStub->statistics(&statistics);
+			_impl->statistics(&statistics);
 		IMCATCH(return false);
 
 
@@ -3478,7 +3494,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_modifyImage(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->modifyImage();
+			_impl->modifyImage();
 		IMCATCH(return false);
 		*rval = JSVAL_VOID;
 		return true;
@@ -3489,7 +3505,7 @@ namespace ccms{ namespace magick{
 	{
 		int32 value;
 		IMTRY()
-			value = _imgStub->registerId();
+			value = _impl->registerId();
 		IMCATCH(return false);
 		*rval = INT_TO_JSVAL(value);
 		return true;
@@ -3499,7 +3515,7 @@ namespace ccms{ namespace magick{
 	bool Image::call_unregisterId(uintN argc, jsval *argv, jsval *rval)
 	{
 		IMTRY()
-			_imgStub->unregisterId();
+			_impl->unregisterId();
 		IMCATCH(return false);
 		*rval = JSVAL_VOID;
 		return true;

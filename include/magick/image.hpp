@@ -139,7 +139,6 @@ namespace ccms {namespace magick
 		::Magick::Image &getImpl() const;
 		private:
 			boost::shared_ptr< ::Magick::Image> _impl;
-			::Magick::Image *_imgStub;
 			ImageAttributes *_attributes;
 
 	};

@@ -257,7 +257,33 @@ orm.addCategory({
 			//масштабировать в addData.width x addData.height
 			if(addData.width || addData.height)
 			{
-				mi.scale((addData.width?addData.width:'')+'x'+(addData.height?addData.height:''));
+				let needScale = false;
+				if(addData.width && addData.height)
+				{
+					if(mi.attributes().columns()!=addData.width || mi.attributes().rows()!=addData.height)
+					{
+						needScale = true;
+					}
+				}
+				else if(addData.width)
+				{
+					if(mi.attributes().columns()!=addData.width)
+					{
+						needScale = true;
+					}
+				}
+				else if(addData.height)
+				{
+					if(mi.attributes().rows()!=addData.height)
+					{
+						needScale = true;
+					}
+				}
+				
+				if(needScale)
+				{
+					mi.scale((addData.width?addData.width:'')+'x'+(addData.height?addData.height:''));
+				}
 			}
 			newVals.width = mi.attributes().columns();
 			newVals.height = mi.attributes().rows();
@@ -265,7 +291,33 @@ orm.addCategory({
 			//масштабировать в addData.width x addData.height
 			if(addData.width_thumb || addData.height_thumb)
 			{
-				mit.scale((addData.width_thumb?addData.width_thumb:'')+'x'+(addData.height_thumb?addData.height_thumb:''));
+				let needScale = false;
+				if(addData.width_thumb && addData.height_thumb)
+				{
+					if(mi.attributes().columns()!=addData.width_thumb || mi.attributes().rows()!=addData.height_thumb)
+					{
+						needScale = true;
+					}
+				}
+				else if(addData.width_thumb)
+				{
+					if(mi.attributes().columns()!=addData.width_thumb)
+					{
+						needScale = true;
+					}
+				}
+				else if(addData.height_thumb)
+				{
+					if(mi.attributes().rows()!=addData.height_thumb)
+					{
+						needScale = true;
+					}
+				}
+				
+				if(needScale)
+				{
+					mit.scale((addData.width_thumb?addData.width_thumb:'')+'x'+(addData.height_thumb?addData.height_thumb:''));
+				}
 			}
 			else
 			{
