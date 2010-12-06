@@ -1925,14 +1925,14 @@ namespace ccms
 					!GetTempFileNameA(dir, "ccms_ta_", 0, fil))
 					//if(tmpnam_s(buf, sizeof(buf)))
 				{
-					std::cerr<<"TransportAsio::readParamsStep_fdData: unable to obtail temporary file name"<<std::endl;
+					std::cerr<<"TransportAsio::readParamsStep_fdData: unable to obtain temporary file name"<<std::endl;
 					return false;
 				}
 #else
 				char fil[4096] = "/tmp/ccms_ta_XXXXXX";
 				if(mktemp(fil))
 				{
-					std::cerr<<"TransportAsio::readParamsStep_fdData unable to obtail temporary file name"<<std::endl;
+					std::cerr<<"TransportAsio::readParamsStep_fdData unable to obtain temporary file name: "<<strerror(errno)<<"("<<errno<<")"<<std::endl;
 					return false;
 				}
 #endif
