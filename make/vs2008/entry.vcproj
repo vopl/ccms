@@ -2129,10 +2129,18 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="hash"
+				Name="crypto"
 				>
 				<File
-					RelativePath="..\..\src\hash\hash.cpp"
+					RelativePath="..\..\src\crypto\hash.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\crypto\rand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\crypto\utils.cpp"
 					>
 				</File>
 			</Filter>
@@ -2821,10 +2829,18 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="hash"
+				Name="crypto"
 				>
 				<File
-					RelativePath="..\..\include\hash\hash.hpp"
+					RelativePath="..\..\include\crypto\hash.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\crypto\rand.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\crypto\utils.hpp"
 					>
 				</File>
 			</Filter>

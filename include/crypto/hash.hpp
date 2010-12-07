@@ -32,10 +32,6 @@ namespace ccms
 		bool call_sha256_(uintN argc, jsval *argv, jsval *rval);
 		bool call_sha384_(uintN argc, jsval *argv, jsval *rval);
 		bool call_sha512_(uintN argc, jsval *argv, jsval *rval);
-
-	private:
-		bool mkstr16(const unsigned char *sum, size_t len, jsval *rval);
-		bool mkstr64(const unsigned char *sum, size_t len, jsval *rval);
 	};
 
 	typedef JsPtr<Hash> HashPtr;

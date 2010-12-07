@@ -21,15 +21,17 @@ SOURCE_GROUP(src\\db FILES ${SRC_DB})
 
 
 ################################
-SET(INCLUDE_HASH
-	../../include/hash/hash.hpp
+SET(INCLUDE_CRYPTO
+	../../include/crypto/hash.hpp
+	../../include/crypto/rand.hpp
 )
-SOURCE_GROUP(include\\hash FILES ${INCLUDE_HASH})
+SOURCE_GROUP(include\\crypto FILES ${INCLUDE_CRYPTO})
 
-SET(SRC_HASH
-	../../src/hash/hash.cpp
+SET(SRC_CRYPTO
+	../../src/crypto/hash.cpp
+	../../src/crypto/rand.cpp
 )
-SOURCE_GROUP(src\\hash FILES ${SRC_HASH})
+SOURCE_GROUP(src\\crypto FILES ${SRC_CRYPTO})
 
 
 
@@ -552,7 +554,7 @@ SOURCE_GROUP(src\\entry FILES ${ENTRY})
 
 
 ADD_EXECUTABLE(entry 
-	${INCLUDE_HASH} ${SRC_HASH}
+	${INCLUDE_CRYPTO} ${SRC_CRYPTO}
 	${INCLUDE_DB} ${SRC_DB}
 	${INCLUDE_ROUTER} ${SRC_ROUTER}
 	${INCLUDE_SCRIPTER} ${SRC_SCRIPTER} ${HDR_SRC_SCRIPTER}
