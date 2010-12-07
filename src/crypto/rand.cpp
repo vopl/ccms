@@ -100,16 +100,13 @@ namespace ccms
 		{
 			unsigned long long llval;
 			RAND_bytes((unsigned char *)&llval, sizeof(llval));
-			jsdouble dval = double(llval) / ULLONG_MAX;
-			v = (Integral)(dval*(to-from+1) + from);
+			v = (Integral)(double(llval) / ULLONG_MAX * (to-from+1) + from);
 		}
 	}}
 
 	//////////////////////////////////////////////////////////////////////////
 	bool Rand::call_abc(uintN argc, jsval *argv, jsval *rval)
 	{
-		const int32 *abc = NULL;
-
 		if(!argc)
 		{
 			JS_ReportError(ecx()->_jsCx , "Rand.abc must be called with 1 or 2 args");
@@ -246,9 +243,7 @@ namespace ccms
 		unsigned long long llval;
 		RAND_bytes((unsigned char *)&llval, sizeof(llval));
 
-		jsdouble val = double(llval) / ULLONG_MAX;
-
-		val = val*(to-from) + from;
+		double val = double(llval) / ULLONG_MAX * (to-from) + from;
 
 		return JS_NewDoubleValue(ecx()->_jsCx, val, rval)?true:false;
 	}
