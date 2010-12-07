@@ -92,6 +92,19 @@ namespace ccms
 		return false;
 	}
 
+	namespace crypto {namespace impl
+	{
+		//////////////////////////////////////////////////////////////////////////
+		template <class Integral>
+		void randIntRange(Integral &v, const Integral &from, const Integral &to)
+		{
+			unsigned long long llval;
+			RAND_bytes((unsigned char *)&llval, sizeof(llval));
+			jsdouble dval = double(llval) / ULLONG_MAX;
+			v = (Integral)(dval*(to-from+1) + from);
+		}
+	}}
+
 	//////////////////////////////////////////////////////////////////////////
 	bool Rand::call_abc(uintN argc, jsval *argv, jsval *rval)
 	{
@@ -108,11 +121,11 @@ namespace ccms
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &abc8)) return false;
 		size_t abc8len = strlen(abc8);
 
-		std::vector<utf8::uint32_t> abc32(abc8len);
+		std::vector<utf8::uint32_t> abc32;
+		std::back_insert_iterator<std::vector<utf8::uint32_t> > bi32(abc32);
 		try
 		{
-			std::vector<utf8::uint32_t>::iterator iterEnd = utf8::utf8to32(abc8, abc8+abc8len, abc32.begin());
-			abc32.erase(iterEnd, abc32.end());
+			utf8::utf8to32(abc8, abc8+abc8len, bi32);
 		}
 		catch(...)
 		{
@@ -134,16 +147,16 @@ namespace ccms
 		std::vector<utf8::uint32_t> res32(amount);
 		for(int i(0); i<amount; i++)
 		{
-			unsigned long long vll;
-			RAND_bytes((unsigned char *)&vll, sizeof(vll));
-			res32[i] = abc32[vll % abc32.size()];
+			uint32 v;
+			crypto::impl::randIntRange(v, (uint32)0, (uint32)abc32.size()-1);
+			res32[i] = abc32[v];
 		}
 
-		std::vector<utf8::uint8_t> res8(res32.size()*5+1);
+		std::string res8;
+		std::back_insert_iterator<std::string> bi8(res8);
 		try
 		{
-			std::vector<utf8::uint8_t>::iterator iterEnd = utf8::utf32to8(res32.begin(), res32.end(), res8.begin());
-			res8.erase(iterEnd, res8.end());
+			utf8::utf32to8(res32.begin(), res32.end(), bi8);
 		}
 		catch(...)
 		{
@@ -151,7 +164,7 @@ namespace ccms
 			return false;
 		}
 
-		JSString *res = JS_NewStringCopyN(ecx()->_jsCx, (char *)&res8[0], res8.size());
+		JSString *res = JS_NewStringCopyN(ecx()->_jsCx, res8.data(), res8.size());
 		if(!res)
 		{
 			return false;
@@ -197,26 +210,8 @@ namespace ccms
 			return false;
 		}
 
-		size_t range = (size_t)(to - from);
-		size_t bits = 0;
-		size_t tmp = range;
-		while(tmp)
-		{
-			bits++;
-			tmp = tmp>>1;
-		}
-
-		std::vector<unsigned char> sbuf(bits/8+1);
-		RAND_bytes(&sbuf[0], sbuf.size());
-
-		int val = 0;
-		for(size_t i(0); i<sbuf.size(); i++)
-		{
-			val = val<<8;
-			val |= sbuf[i];
-		}
-		val = val % range;
-		val = val+from;
+		int32 val;
+		crypto::impl::randIntRange(val, from, to);
 
 		*rval = INT_TO_JSVAL(val);
 		return true;
