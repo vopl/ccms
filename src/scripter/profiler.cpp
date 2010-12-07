@@ -409,7 +409,7 @@ namespace ccms
 			case epmmUnit:
 				break;
 			case epmmPercent:
-				title += "%";
+				title += "_%";
 				break;
 			}
 
