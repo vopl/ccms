@@ -39,7 +39,7 @@ let forumTree = global.cache.process({
 
 
 return <>
-	вложенные форумы
+
 {(function(){
 	let res = <></>;
 

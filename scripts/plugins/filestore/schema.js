@@ -329,8 +329,8 @@ orm.addCategory({
 			{
 				mit.scale('100x100');
 			}
-			newVals.width_thumb = mi.attributes().columns();
-			newVals.height_thumb = mi.attributes().rows();
+			newVals.width_thumb = mit.attributes().columns();
+			newVals.height_thumb = mit.attributes().rows();
 
 			//сохранить
 			newVals.location = rand.str(32);//hash.md5(Math.random(),Math.random(),Math.random(),uniq);

@@ -1,23 +1,106 @@
 ﻿let target = request.planData.forums.back;
+
+if(!target.topic_allow)
+{
+	return <></>;
+}
 let forumPath = request.planData.nonPagePath?request.planData.nonPagePath:request.path;
 let page = request.planData.page?request.planData.page:1;
 
-let limit=20;
-let offset = (page-1)*limit;
-let topics = global.cache.process({
-		key:'forum.topic.'+target.id+'.'+limit+'.'+offset,
-		provider:function()
-		{
-			return orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL ORDER BY id DESC LIMIT $2 OFFSET $3', target.id, limit, offset);
-		},
-		events:["forum.topic"],
-});
 
 
-let topicsXml = <>навигация по темам</>;
+let topicsXml = <></>;
+{
+	let topicsInf = orm.query('SELECT COUNT(*) FROM {ForumPost} WHERE tree_pid IS NULL AND forum_id=$1', target.id)[0].count;
+	let topics24 = orm.query("SELECT COUNT(*) FROM {ForumPost} WHERE tree_pid IS NULL AND forum_id=$1 AND ctime>(now()-interval '24 hours')", target.id)[0].count;
+	let topics168 = orm.query("SELECT COUNT(*) FROM {ForumPost} WHERE tree_pid IS NULL AND forum_id=$1 AND ctime>(now()-interval '168 hours')", target.id)[0].count;
+
+	let postsInf = orm.query('SELECT COUNT(*) FROM {ForumPost} WHERE tree_pid IS NOT NULL AND forum_id=$1', target.id)[0].count;
+	let posts24 = orm.query("SELECT COUNT(*) FROM {ForumPost} WHERE tree_pid IS NOT NULL AND forum_id=$1 AND ctime>(now()-interval '24 hours')", target.id)[0].count;
+	let posts168 = orm.query("SELECT COUNT(*) FROM {ForumPost} WHERE tree_pid IS NOT NULL AND forum_id=$1 AND ctime>(now()-interval '168 hours')", target.id)[0].count;
+
+	let topicLast = orm.query("SELECT * FROM {ForumPost} WHERE tree_pid IS NULL AND forum_id=$1 ORDER BY ctime DESC LIMIT 1", target.id)[0];
+	let topicLastXml;
+	if(topicLast)
+	{
+		let topicUserLast = orm.query("SELECT * FROM {User} WHERE id=$1", topicLast.user_id)[0];
+
+		topicLastXml = <>
+			{topicUserLast.login} <a href={target.path+'/'+topicLast.map_path}>{topicLast.map_title}</a>
+		</>
+	}
+	let postLast = orm.query("SELECT * FROM {ForumPost} WHERE tree_pid IS NOT NULL AND forum_id=$1 ORDER BY ctime DESC LIMIT 1", target.id)[0];
+	let postLastXml;
+	if(postLast)
+	{
+		let postUserLast = orm.query("SELECT * FROM {User} WHERE id=$1", postLast.user_id)[0];
+
+		postLastXml = <>
+			{postUserLast.login} <b>{postLast.map_title}</b>
+		</>
+	}
+
+	topicsXml += <div>
+	<table border="1">
+		<tr>
+			<th>
+				
+			</th>
+			<th>
+				Всего
+			</th>
+			<th>
+				За неделю
+			</th>
+			<th>
+				За сутки
+			</th>
+			<th>
+				Последний
+			</th>
+		</tr>
+		<tr>
+			<th>
+				Тем
+			</th>
+			<td>
+				{topicsInf}
+			</td>
+			<td>
+				{topics168}
+			</td>
+			<td>
+				{topics24}
+			</td>
+			<td>
+				{topicLastXml}
+			</td>
+		</tr>
+		<tr>
+			<th>
+				Сообщений
+			</th>
+			<td>
+				{postsInf}
+			</td>
+			<td>
+				{posts168}
+			</td>
+			<td>
+				{posts24}
+			</td>
+			<td>
+				{postLastXml}
+			</td>
+		</tr>
+	</table>
+	</div>;
+
+}
+
 if(target.topics_navigate_date)
 {
-	topicsXml+=<><br/>по датам за последние 10 дней</>;
+	topicsXml+=<>по датам за последние 10 дней</>;
 	
 	let dbr = orm.query('SELECT DISTINCT ctime::DATE FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL ORDER BY ctime DESC LIMIT 10', target.id);
 	if(!dbr.length) dbr = [{ctime:new Date()}];
@@ -73,14 +156,8 @@ if(target.topics_navigate_rpage)
 }
 
 
-return <>
-
-топики для форума {target.map_title} <br/>
-топики разрешены: {target.topic_allow}<br/>
-	{target.topic_allow?'тут статистика по топикам и навигатор к ним':''}
-
-
-	<table border="1">{topicsXml}</table>
-	<a href={forumPath+'/addTopic?backUrl='+forumPath+"/"+(new Date()).tsd}>addTopic</a>
-	
-</>
+return <div>
+	Темы
+	<div>{topicsXml}</div>
+	<a href={forumPath+'/addTopic?backUrl='+forumPath+"/"+(new Date()).tsd}>Добавить тему</a>
+</div>;

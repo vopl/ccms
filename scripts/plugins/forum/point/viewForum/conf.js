@@ -16,6 +16,9 @@ var res=
 
 
 
+		renderLogo:{file:'renderLogo.js'},
+		renderModers:{file:'renderModers.js'},
+
 		renderNavigate:{file:'renderNavigate.js'},
 		renderHeader:{file:'./renderHeader.js'},
 		renderNavigateRow:{file:'./renderNavigateRow.js'},

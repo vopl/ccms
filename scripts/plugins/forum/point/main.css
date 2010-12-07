@@ -16,3 +16,19 @@ input
 	border: 1px solid #000;
 	margin: 2px;
 }
+
+
+.forum
+{
+}
+
+.forum-left
+{
+	float: left;
+	margin: 0.3em;
+}
+
+.forum-center
+{
+	overflow:hidden;
+}
