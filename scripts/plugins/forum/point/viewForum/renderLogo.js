@@ -13,7 +13,7 @@ if(!t)
 }
 t = t.clone();
 
-t.src = 'filestore/'+img.location_thumb;
+t.src = '/filestore/'+img.location_thumb;
 t.width = img.width_thumb;
 t.height = img.height_thumb;
 
