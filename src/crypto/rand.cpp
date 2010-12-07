@@ -65,7 +65,7 @@ namespace ccms
 		switch(base)
 		{
 		case 16:
-			bufLen = len/2+1;
+			bufLen = len/2;
 			break;
 		case 64:
 			bufLen = len*3/4+1;
