@@ -4,13 +4,16 @@ if(global.user.login != 'anonymous')
 }
 
 ///////////////////////////////////////////////////
-let captchaPassword = '';
 
+/*
+let captchaPassword = '';
 for(let i=0; i<3; i++)
 {
 	//captchaPassword += String.fromCharCode('a'.charCodeAt(0) + Math.floor(Math.random()*26));
 	captchaPassword += String.fromCharCode('a'.charCodeAt(0) + rand.int(0, 25));
 }
+*/
+let captchaPassword = rand.abc('abcdefghijklmnopqrstuvwxwz', 3);
 
 
 //let captchaCode = String(Math.random());

@@ -2,6 +2,7 @@
 #include "crypto/rand.hpp"
 #include <openssl/rand.h>
 #include "crypto/utils.hpp"
+#include "utils/utf8.h"
 
 namespace ccms
 {
@@ -11,6 +12,7 @@ namespace ccms
 	{
 		(JSExceptionReporter)jsRegisterMeth("str", &Rand::call_str, 1);
 		(JSExceptionReporter)jsRegisterMeth("str_", &Rand::call_str_, 1);
+		(JSExceptionReporter)jsRegisterMeth("abc", &Rand::call_abc, 2);
 		(JSExceptionReporter)jsRegisterMeth("int", &Rand::call_int, 2);
 		(JSExceptionReporter)jsRegisterMeth("double", &Rand::call_double, 2);
 		(JSExceptionReporter)jsRegisterMeth("bool", &Rand::call_bool, 0);
@@ -88,6 +90,75 @@ namespace ccms
 
 		assert(0);
 		return false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Rand::call_abc(uintN argc, jsval *argv, jsval *rval)
+	{
+		const int32 *abc = NULL;
+
+		if(!argc)
+		{
+			JS_ReportError(ecx()->_jsCx , "Rand.abc must be called with 1 or 2 args");
+			return false;
+		}
+
+
+		char *abc8;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &abc8)) return false;
+		size_t abc8len = strlen(abc8);
+
+		std::vector<utf8::uint32_t> abc32(abc8len);
+		try
+		{
+			std::vector<utf8::uint32_t>::iterator iterEnd = utf8::utf8to32(abc8, abc8+abc8len, abc32.begin());
+			abc32.erase(iterEnd, abc32.end());
+		}
+		catch(...)
+		{
+			JS_ReportError(ecx()->_jsCx, "Rand.abc first arg is invalid");
+			return false;
+		}
+
+		int32 amount = 1;
+		if(argc > 1)
+		{
+			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "i", &amount)) return false;
+			if(amount < 1)
+			{
+				JS_ReportError(ecx()->_jsCx , "Rand.abc second arg must be greater 1");
+				return false;
+			}
+		}
+
+		std::vector<utf8::uint32_t> res32(amount);
+		for(int i(0); i<amount; i++)
+		{
+			unsigned long long vll;
+			RAND_bytes((unsigned char *)&vll, sizeof(vll));
+			res32[i] = abc32[vll % abc32.size()];
+		}
+
+		std::vector<utf8::uint8_t> res8(res32.size()*5+1);
+		try
+		{
+			std::vector<utf8::uint8_t>::iterator iterEnd = utf8::utf32to8(res32.begin(), res32.end(), res8.begin());
+			res8.erase(iterEnd, res8.end());
+		}
+		catch(...)
+		{
+			JS_ReportError(ecx()->_jsCx, "Rand.abc internal error");
+			return false;
+		}
+
+		JSString *res = JS_NewStringCopyN(ecx()->_jsCx, (char *)&res8[0], res8.size());
+		if(!res)
+		{
+			return false;
+		}
+
+		*rval = STRING_TO_JSVAL(res);
+		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -202,4 +273,11 @@ namespace ccms
 		}
 		return true;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	JSBool Rand::onClassCall(JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+	{
+		return call_double(argc, argv, rval);
+	}
+
 }

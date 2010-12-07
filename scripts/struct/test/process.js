@@ -6,9 +6,6 @@ if(!t)
 	arguments.callee.header = t;
 }
 t = t.clone();
-t.auth = {print:function(){print(<tag>asdf</tag>.toXMLString())}};
-t.print();
-return;
 
 ui.blocks.center.push(this.render());
 ui.print();

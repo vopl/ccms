@@ -17,12 +17,16 @@ namespace ccms
 
 		bool call_str(uintN argc, jsval *argv, jsval *rval);
 		bool call_str_(uintN argc, jsval *argv, jsval *rval);
+		bool call_abc(uintN argc, jsval *argv, jsval *rval);
 		bool call_int(uintN argc, jsval *argv, jsval *rval);
 		bool call_double(uintN argc, jsval *argv, jsval *rval);
 		bool call_bool(uintN argc, jsval *argv, jsval *rval);
 
+		virtual JSBool onClassCall(JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
 	private:
 		bool call_strHelper(uintN argc, jsval *argv, jsval *rval, bool is16);
+
 
 	};
 
