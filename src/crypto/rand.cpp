@@ -10,8 +10,9 @@ namespace ccms
 		: JsObject(true, "Rand")
 	{
 		(JSExceptionReporter)jsRegisterMeth("str", &Rand::call_str, 1);
-		(JSExceptionReporter)jsRegisterMeth("int", &Rand::call_int, 0);
-		(JSExceptionReporter)jsRegisterMeth("double", &Rand::call_double, 0);
+		(JSExceptionReporter)jsRegisterMeth("str_", &Rand::call_str_, 1);
+		(JSExceptionReporter)jsRegisterMeth("int", &Rand::call_int, 2);
+		(JSExceptionReporter)jsRegisterMeth("double", &Rand::call_double, 2);
 		(JSExceptionReporter)jsRegisterMeth("bool", &Rand::call_bool, 0);
 	}
 
@@ -33,8 +34,19 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool Rand::call_str(uintN argc, jsval *argv, jsval *rval)
 	{
+		return call_strHelper(argc, argv, rval, true);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Rand::call_str_(uintN argc, jsval *argv, jsval *rval)
+	{
+		return call_strHelper(argc, argv, rval, false);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Rand::call_strHelper(uintN argc, jsval *argv, jsval *rval, bool is16)
+	{
 		int32 len=8;
-		int32 base=16;
 
 		if(argc > 0)
 		{
@@ -48,45 +60,30 @@ namespace ccms
 
 		if(argc > 1)
 		{
-			if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv+1, "i", &base)) return false;
-			if(base!=16 && base!=64)
-			{
-				JS_ReportError(ecx()->_jsCx , "Rand.str second arg must be a number 16 or 64");
-				return false;
-			}
-		}
-		if(argc > 2)
-		{
-			JS_ReportError(ecx()->_jsCx , "Rand.str must be called with 0, 1 or 2 args");
+			JS_ReportError(ecx()->_jsCx , "Rand.str must be called with 0, or 1 arg");
 			return false;
 		}
 
 		size_t bufLen;
-		switch(base)
+		if(is16)
 		{
-		case 16:
 			bufLen = len/2+1;
-			break;
-		case 64:
-			bufLen = len*3/4+1;
-			break;
-		default:
-			assert(0);
-			return false;
 		}
-		std::vector<unsigned char> buf(bufLen);
+		else
+		{
+			bufLen = len*3/4+1;
+		}
 
+		std::vector<unsigned char> buf(bufLen);
  		RAND_bytes(&buf[0], bufLen);
 
-		switch(base)
+		if(is16)
 		{
-		case 16:
 			return crypto::mkstr16(&buf[0], bufLen, rval, len);
-		case 64:
+		}
+		else
+		{
 			return crypto::mkstr64(&buf[0], bufLen, rval, len);
-		default:
-			assert(0);
-			return false;
 		}
 
 		assert(0);

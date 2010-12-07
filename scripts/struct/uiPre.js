@@ -35,7 +35,8 @@ ui.agent.capabilites.cookies = undefined;
 for(let stub in request.cookies) {ui.agent.capabilites.cookies = true; break;}
 if(!ui.agent.capabilites.cookies)
 {
-	request.pushHeader('Set-Cookie', 'uict='+hash.crc32_(Math.random())+'; path=/');
+	//request.pushHeader('Set-Cookie', 'uict='+hash.crc32_(Math.random())+'; path=/');
+	request.pushHeader('Set-Cookie', 'uict='+rand.str_(4)+'; path=/');
 }
 
 

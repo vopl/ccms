@@ -123,7 +123,8 @@ orm.addCategory({
 	{
 		setPassword:function(p)
 		{
-			let salt = hash.crc32_((new Date()).getTime(), Math.random(), uniq);
+			//let salt = hash.crc32_((new Date()).getTime(), Math.random(), uniq);
+			let salt = rand.str_(6);
 			this.password = salt+hash.md5_(salt, p);
 		},
 		checkPassword:function(p)

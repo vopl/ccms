@@ -45,7 +45,8 @@ try
 		}
 		delete this.cd.session.captcha;
 		
-		let confirmSecret = String(Math.random());
+		//let confirmSecret = String(Math.random());
+		let confirmSecret = rand.str(22);
 		
 		//влить пользователя в базу
 		let roles = [].concat(
