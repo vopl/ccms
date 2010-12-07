@@ -1337,7 +1337,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		{
 			_profilerFields.push_back(parseProfilerField(fields[i].c_str()));
 		}
-		_profilerOrderField = parseProfilerField(getConfigString("profiler.order").c_str());
+		_profilerOrderField = parseProfilerField(getConfigString("profiler.orderField").c_str());
 		_profilerLinesAmount = getConfigUlong("profiler.linesAmount");
 #endif
 		return true;
@@ -1574,7 +1574,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	{
 		{
 #if USE_PROFILER
-			ProfilerScopeHelper psh(g_profiler, NULL, "Router::probe");
+			ProfilerScopeHelper psh(g_profiler, NULL, ("Router::probe "+connection->_requestPath).c_str());
 #endif
 
 			ScripterScopedStackLimit sssl(_stackLimit);
@@ -1696,7 +1696,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	bool Router::process(Connection4Backend *connection)
 	{
 #if USE_PROFILER
-		ProfilerScopeHelper psh(g_profiler, NULL, "Router::process");
+		ProfilerScopeHelper psh(g_profiler, NULL, ("Router::process "+connection->_requestPath).c_str());
 #endif
 
 

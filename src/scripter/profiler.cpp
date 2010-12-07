@@ -333,7 +333,7 @@ namespace ccms
 		size_t allCalls = 0;
 		if(lines.size() > 1)
 		{
-			TDReportLines::const_iterator iter = ++lines.begin();
+			TDReportLines::const_iterator iter = lines.begin();
 			TDReportLines::const_iterator end = lines.end();
 
 			for(; iter != end; iter++)
@@ -350,9 +350,9 @@ namespace ccms
 		double allTimeUser = T2S(allTime._user);
 		double allTimeSystem = T2S(allTime._system);
 		double allTimeReal = T2S(allTime._real);
-		double allAvgTimeUser = allCalls?allTimeUser/allCalls:0;
-		double allAvgTimeSystem = allCalls?allTimeSystem/allCalls:0;
-		double allAvgTimeReal = allCalls?allTimeReal/allCalls:0;
+		double allAvgTimeUser = allTimeUser;
+		double allAvgTimeSystem = allTimeSystem;
+		double allAvgTimeReal = allTimeReal;
 		out<<"u: "<<allTimeUser<<"\t s:"<<allTimeSystem<<"\t r:"<<allTimeReal<<"\r\n";
 
 		for(size_t formatIdx(0); formatIdx<outFormatsAmount; formatIdx++)

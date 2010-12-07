@@ -74,16 +74,16 @@ let res =
 
 	profiler:
 	{
-		accumuleRequests:4,
+		accumuleRequests:40,
 		log:'../logs/profiler',
-		//logMode:'table',
-		logMode:'tree',
-
+		logMode:'table',
+		//logMode:'tree',
 		/*
 			<own|childs|all>_(([avg_]<usr|sys|real>)|calls)[_%]
 		*/
-		fields:['own_real_%', 'own_real', 'own_usr', 'own_calls', 'all_real', 'all_usr'],
-		orderField:'own_real',
+		//fields:['own_real_%', 'own_real', 'own_calls', 'all_real'],
+		fields:['all_real_%', 'all_avg_real_%', 'own_real_%', 'own_calls'],
+		orderField:'all_real',
 		linesAmount:20,
 
 	},
