@@ -14,7 +14,7 @@ if(!t)
 t = t.clone();
 
 t.src = 'filestore/'+img.location_thumb;
-t.width = 'filestore/'+img.width_thumb;
-t.height = 'filestore/'+img.height_thumb;
+t.width = img.width_thumb;
+t.height = img.height_thumb;
 
 return t;

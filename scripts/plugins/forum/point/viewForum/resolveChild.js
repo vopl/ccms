@@ -94,7 +94,7 @@ if(pathPart == 'addTopic')
 {
 	data.mode = 'add';
 	return {
-		title:_('add forum'),
+		title:_('add topic'),
 		point:this.parent.childs.editPost,
 	};
 }

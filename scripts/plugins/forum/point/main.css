@@ -16,6 +16,11 @@ input
 	border: 1px solid #000;
 	margin: 2px;
 }
+textarea
+{
+	border: 1px solid #000;
+	margin: 2px;
+}
 
 
 .forum

@@ -12,5 +12,5 @@ return <>
 	<input type='submit'/>
 </form>
 
-<pre>{dumps(request.plan, 2)}</pre>;
+<pre>dumps(request.plan, 2)}</pre>;
 </>
