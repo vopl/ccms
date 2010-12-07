@@ -574,7 +574,7 @@ ADD_EXECUTABLE(entry
 
 CREATE_PCH(entry ../../src/stdafx.h ../../src/stdafx.cpp)
 
-USE_PCH(entry ../../src/stdafx.h ${SRC_HASH})
+USE_PCH(entry ../../src/stdafx.h ${SRC_CRYPTO})
 USE_PCH(entry ../../src/stdafx.h ${SRC_DB})
 USE_PCH(entry ../../src/stdafx.h ${SRC_ROUTER})
 USE_PCH(entry ../../src/stdafx.h ${SRC_SCRIPTER})
