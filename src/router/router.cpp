@@ -13,8 +13,7 @@
 #include "mime/mime.hpp"
 #include "net/net.hpp"
 
-#include "crypto/hash.hpp"
-#include "crypto/rand.hpp"
+#include "crypto/crypto.hpp"
 
 #include "router/log.hpp"
 #include "router/fileContainer.hpp"
@@ -2357,11 +2356,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_scripter.jsDefineInGlobal("Magick", mkp(new magick::Magick, ROOTNAME));
 		_scripter.jsDefineInGlobal("Mime", mkp(new mime::Mime, ROOTNAME));
 		_scripter.jsDefineInGlobal("Net", mkp(new net::Net, ROOTNAME));
-		_scripter.jsDefineInGlobal("hash", mkp(new Hash, ROOTNAME));
-
-		RandPtr rand = mkp(new Rand, ROOTNAME);
-		rand->init();
-		_scripter.jsDefineInGlobal("rand", rand);
+		_scripter.jsDefineInGlobal("crypto", mkp(new crypto::Crypto, ROOTNAME));
 
 		_scripter.requestStop();
 	}

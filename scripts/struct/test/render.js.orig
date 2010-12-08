@@ -29,7 +29,7 @@ if(!arguments.callee.stat1)
 	let stat2 = arguments.callee.stat2;
 	for(let k=0; k<10000; k++)
 	{
-		let v = hash.sha1_(k, random());
+		let v = crypto.hash.sha1_(k, random());
 		if(!stat1[v.charAt(5)]) stat1[v.charAt(5)] = 0;
 		stat1[v.charAt(5)]++;
 
@@ -43,7 +43,7 @@ let stat2 = arguments.callee.stat2;
 let cnt = arguments.callee.cnt;
 for(let k=0; k<10000; k++)
 {
-	let v = hash.sha1_(k, random());
+	let v = crypto.hash.sha1_(k, random());
 	for(let j=0; j<v.length-1; j++)
 	{
 		stat1[v.charAt(j)]++;

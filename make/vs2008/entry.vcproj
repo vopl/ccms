@@ -2132,6 +2132,10 @@
 				Name="crypto"
 				>
 				<File
+					RelativePath="..\..\src\crypto\crypto.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\crypto\hash.cpp"
 					>
 				</File>
@@ -2831,6 +2835,10 @@
 			<Filter
 				Name="crypto"
 				>
+				<File
+					RelativePath="..\..\include\crypto\crypto.hpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\include\crypto\hash.hpp"
 					>

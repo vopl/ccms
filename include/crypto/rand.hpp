@@ -1,9 +1,9 @@
-#ifndef _ccms_rand_hpp_
-#define _ccms_rand_hpp_
+#ifndef _ccms_crypto_rand_hpp_
+#define _ccms_crypto_rand_hpp_
 
 #include "scripter/jsObject.hpp"
 
-namespace ccms
+namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
 	class Rand
@@ -31,6 +31,6 @@ namespace ccms
 	};
 
 	typedef JsPtr<Rand> RandPtr;
-}
+}}
 #endif
 

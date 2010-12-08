@@ -4,7 +4,7 @@
 #include "crypto/utils.hpp"
 #include "utils/utf8.h"
 
-namespace ccms
+namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
 	Rand::Rand()
@@ -16,6 +16,8 @@ namespace ccms
 		(JSExceptionReporter)jsRegisterMeth("int", &Rand::call_int, 2);
 		(JSExceptionReporter)jsRegisterMeth("double", &Rand::call_double, 2);
 		(JSExceptionReporter)jsRegisterMeth("bool", &Rand::call_bool, 0);
+
+		init();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -81,18 +83,18 @@ namespace ccms
 
 		if(is16)
 		{
-			return crypto::mkstr16(&buf[0], bufLen, rval, len);
+			return mkstr16(&buf[0], bufLen, rval, len);
 		}
 		else
 		{
-			return crypto::mkstr64(&buf[0], bufLen, rval, len);
+			return mkstr64(&buf[0], bufLen, rval, len);
 		}
 
 		assert(0);
 		return false;
 	}
 
-	namespace crypto {namespace impl
+	namespace impl
 	{
 		//////////////////////////////////////////////////////////////////////////
 		template <class Integral>
@@ -102,7 +104,7 @@ namespace ccms
 			RAND_bytes((unsigned char *)&llval, sizeof(llval));
 			v = (Integral)(double(llval) / ULLONG_MAX * (to-from+1) + from);
 		}
-	}}
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	bool Rand::call_abc(uintN argc, jsval *argv, jsval *rval)
@@ -270,4 +272,4 @@ namespace ccms
 		return call_double(argc, argv, rval);
 	}
 
-}
+}}

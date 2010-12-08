@@ -5,19 +5,10 @@ if(global.user.login != 'anonymous')
 
 ///////////////////////////////////////////////////
 
-/*
-let captchaPassword = '';
-for(let i=0; i<3; i++)
-{
-	//captchaPassword += String.fromCharCode('a'.charCodeAt(0) + Math.floor(Math.random()*26));
-	captchaPassword += String.fromCharCode('a'.charCodeAt(0) + rand.int(0, 25));
-}
-*/
-let captchaPassword = rand.abc('abcdefghijklmnopqrstuvwxwz', 3);
+let captchaPassword = crypto.rand.abc('abcdefghijklmnopqrstuvwxwz', 3);
 
 
-//let captchaCode = String(Math.random());
-let captchaCode = rand.str_(22);
+let captchaCode = crypto.rand.str_(22);
 
 this.cd.session.captcha = {};
 this.cd.session.captcha[captchaPassword] = captchaCode;
@@ -32,22 +23,19 @@ captchaImage.annotate(captchaPassword
 	.split(/\s*/).join(' ')
 	, Magick.CenterGravity);
 
-//let degress = (Math.random()*2-1)*5;
-let degress = rand.double(-5, 5);
+let degress = crypto.rand.double(-5, 5);
 if(degress < 0) degress -= 5;
 else degress += 5;
 captchaImage.swirl(degress);
 
 captchaImage.roll(20, 0);
-//degress = (Math.random()*2-1)*5;
-degress = rand.double(-5, 5);
+degress = crypto.rand.double(-5, 5);
 if(degress < 0) degress -= 5;
 else degress += 5;
 captchaImage.swirl(degress);
 
 captchaImage.roll(-40, 0);
-//degress = (Math.random()*2-1)*5;
-degress = rand.double(-5, 5);
+degress = crypto.rand.double(-5, 5);
 if(degress < 0) degress -= 5;
 else degress += 5;
 captchaImage.swirl(degress);

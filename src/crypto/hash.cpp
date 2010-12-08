@@ -7,7 +7,7 @@
 
 #include "crypto/utils.hpp"
 
-namespace ccms
+namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
 	Hash::Hash()
@@ -80,4 +80,4 @@ namespace ccms
 	ONE_METH(sha256_, SHA256, SHA256, 256, 64)
 	ONE_METH(sha384_, SHA512, SHA384, 384, 64)
 	ONE_METH(sha512_, SHA512, SHA512, 512, 64)
-}
+}}

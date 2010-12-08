@@ -1,9 +1,9 @@
-#ifndef _ccms_hash_hpp_
-#define _ccms_hash_hpp_
+#ifndef _ccms_crypto_hash_hpp_
+#define _ccms_crypto_hash_hpp_
 
 #include "scripter/jsObject.hpp"
 
-namespace ccms
+namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
 	class Hash
@@ -35,6 +35,6 @@ namespace ccms
 	};
 
 	typedef JsPtr<Hash> HashPtr;
-}
+}}
 #endif
 

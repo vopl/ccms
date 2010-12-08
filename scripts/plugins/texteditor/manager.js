@@ -4,7 +4,7 @@ let manager = {};
 manager.tes = {};
 
 ///////////////////////////////////////
-manager.setTe(teid, options)
+manager.setTe = function(teid, options)
 {
 	if(options)
 	{

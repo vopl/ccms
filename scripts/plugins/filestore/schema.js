@@ -89,7 +89,7 @@ orm.addCategory({
 				return false;
 			}
 			
-			newVals.location = rand.str(32);//hash.md5(Math.random(),Math.random(),Math.random(),uniq);
+			newVals.location = crypto.rand.str(32);
 			newVals.location = newVals.location.replace(/(..)(..)(.*)/, "files/$1/$2/$3");
 			newVals.location += '.'+newVals.type;
 			
@@ -335,7 +335,7 @@ orm.addCategory({
 			newVals.height_thumb = mit.attributes().rows();
 
 			//сохранить
-			newVals.location = rand.str(32);//hash.md5(Math.random(),Math.random(),Math.random(),uniq);
+			newVals.location = crypto.rand.str(32);
 			newVals.location = newVals.location.replace(/(..)(..)(.*)/, "images/$1/$2/$3");
 			newVals.location_thumb = newVals.location+'.thumb';
 			newVals.location += '.'+newVals.type;
