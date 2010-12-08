@@ -15,10 +15,11 @@ for(let idx=0; idx<src.length; idx++)
 	if(idx < src.length-1)
 	{
 		t.arr.push(this.properties.link(src[idx].href, src[idx].title));
-		t.arr.push(<> &#187;&#160;</>);
+		t.arr.push(<>&#187;</>);
 	}
 	else
 	{
+		t.arr.push(' ');
 		t.arr.push(src[idx].title);
 	}
 }
