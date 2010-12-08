@@ -5,6 +5,8 @@ var fcs = global.fcs;
 if(!install)
 {
 	orm.delCategory('File');
+	orm.delCategory('Image');
+	orm.delCategory('FileCleanup');
 	return;
 }
 

@@ -1,0 +1,45 @@
+
+crypto = 
+{
+	rand:
+	{
+		str:function()...
+		int:function()...
+	}
+
+	hash:
+	{
+		md5:object,
+		sha1:object,
+	},
+	
+
+	sync:
+	{
+		des:object,
+	}
+
+	async:
+	{
+		rsa:object,
+	}
+	
+}
+
+симетричный
+	
+	pswd = des.generatePswd(len)
+	c = des.encode(pswd, msg)
+	msg = des.decode(pswd, c)
+	
+	
+	
+асиметричный
+	keys = rsa.generateKeys() -> {public:'tratata',private:'pumpum'}
+	
+	c = rsa.encodePublic(keys.public, msg)
+	msg = rsa.decodePrivate(keys.private, c)
+	
+	c = rsa.encodePrivate(keys.private, msg)
+	msg = rsa.decodePublic(keys.public, c)
+	

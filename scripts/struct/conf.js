@@ -90,6 +90,7 @@
 	childs:
 	{
 		ui:'ui/conf.js',
+		dumper:'dumper/conf.js',
 		test:'test/conf.js',
 	},
 };

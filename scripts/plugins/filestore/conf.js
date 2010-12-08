@@ -21,8 +21,7 @@
 
 	deserializeImpl:function()
 	{
-		this.containerPublic.base = router.getConfig().filestorePublic;
-		this.containerPrivate.base = router.getConfig().filestorePrivate;
+		this.createFcs();
 		exec("schema.js", orm, true);
 		this.runCron();
 		return true;
@@ -31,6 +30,7 @@
 	createFcs:function()
 	{
 		global.fcs = {};
+
 		global.fcs.public = router.createService('fileContainer');
 		global.fcs.private = router.createService('fileContainer');
 		

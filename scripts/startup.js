@@ -42,6 +42,11 @@ if(!router.plugins.filestore.isInstalled)
 {
 	router.plugins.filestore.install();
 }
+if(!router.plugins.texteditor.isInstalled)
+{
+	router.plugins.texteditor.install();
+}
+
 if(!router.plugins.forum.isInstalled)
 {
 	router.plugins.forum.install();
@@ -53,9 +58,9 @@ let options =
 {
 	createSchema:'allow',
 	createSequence:'allow',
-	dropTable:'allow',
+	dropTable:'deny',
 	dropInheritance:'allow',
-	dropField:'allow',
+	dropField:'deny',
 	dropIndex:'allow',
 	dropConstraint:'allow',
 	
