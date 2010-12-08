@@ -6,7 +6,7 @@ let href = target.path;
 let res = <>
 	</>;
 
-res += 	<b><a href={href}>go {target.map_title}</a></b>;
+res += 	<b><a href={href}>{target.map_title}</a></b>;
 
 
 if(target.description)

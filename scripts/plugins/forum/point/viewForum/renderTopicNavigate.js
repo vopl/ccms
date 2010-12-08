@@ -26,7 +26,7 @@ let topicsXml = <></>;
 		let topicUserLast = orm.query("SELECT * FROM {User} WHERE id=$1", topicLast.user_id)[0];
 
 		topicLastXml = <>
-			{topicUserLast.login} <a href={target.path+'/'+topicLast.map_path}>{topicLast.map_title}</a>
+			{topicLast.ctime.ts}, {topicUserLast.login}, <a href={target.path+'/'+topicLast.map_path}>{topicLast.map_title}</a>
 		</>
 	}
 	let postLast = orm.query("SELECT * FROM {ForumPost} WHERE tree_pid IS NOT NULL AND forum_id=$1 ORDER BY ctime DESC LIMIT 1", target.id)[0];
@@ -36,7 +36,7 @@ let topicsXml = <></>;
 		let postUserLast = orm.query("SELECT * FROM {User} WHERE id=$1", postLast.user_id)[0];
 
 		postLastXml = <>
-			{postUserLast.login} <b>{postLast.map_title}</b>
+			{postLast.ctime.ts}, {postUserLast.login}, <b>{postLast.map_title}</b>
 		</>
 	}
 
