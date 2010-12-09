@@ -69,7 +69,20 @@ te.elements =
 
 
 	script:true,
+
+	custom:true,
 }
+
+te.parseContent = function parse(xhtml)
+{
+	//return DomTree
+}
+
+te.renderContent = function parse(domTree)
+{
+	//return xhtml
+}
+
 
 if(!te.options.engine) te.options.engine = "tmce";
 switch(te.options.engine)

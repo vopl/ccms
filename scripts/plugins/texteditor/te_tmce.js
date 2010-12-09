@@ -32,9 +32,9 @@ tmce.render = function render(isid, dataInt)
 
 	if(dataInt)
 	{
-		lt.content = data.content;
-		lt.files = data.files;
-		lt.images = data.images;
+		lt.content = this.renderContent(dataInt.content);
+		lt.files = dataInt.files;
+		lt.images = dataInt.images;
 	}
 	else
 	{
