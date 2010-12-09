@@ -1,15 +1,13 @@
-let teid = request.params.teid;
-if(!teid)
+dumpe(request.params);
+let isid = request.params.isid;
+if(!isid)
 {
 	request.setStatusCode(403);//Forbidden
 	return;
 }
 
-let sid = router.cd.global.session.id;
-let uid = global.user.id;
-
 //let manager = {};
-let instance = router.plugins.texteditor.manager.getInstance(teid, sid, uid);
+let instance = router.plugins.texteditor.manager.getInstance(isid);
 
 if(!instance)
 {
@@ -43,7 +41,7 @@ case 'getFiles':
 	res = instance.getFiles();
 	break;
 case 'drop':
-	res = manager.drop(instance);
+	res = manager.dropInstance(instance);
 	break;
 default:
 	request.setStatusCode(501);//Not Implemented

@@ -23,6 +23,8 @@ orm.addCategory({
 		data:'string',
 		
 		addr:'string',
+		
+		secret:'string',
 	},
 });
 
