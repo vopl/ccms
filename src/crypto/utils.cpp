@@ -30,12 +30,23 @@ namespace ccms
 		//////////////////////////////////////////////////////////////////////////
 		namespace impl
 		{
-			static const char Hash_s64[] = 
+			static const unsigned char Hash_s64[] = 
 			{
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				"abcdefghijklmnopqrstuvwxyz"
 				"0123456789_-"
 			};
+
+			static unsigned char Hash_64s[256] = {};
+			int init64sTable()
+			{
+				for(size_t i(0); i<64; i++)
+				{
+					Hash_64s[Hash_s64[i]] = i;
+				}
+				return rand();
+			}
+			static int stub = init64sTable();
 		}
 		bool mkstr64(const unsigned char *sum_, size_t len, jsval *rval, size_t maxOutLen)
 		{
@@ -94,5 +105,59 @@ namespace ccms
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, &sbuf[0], maxOutLen));
 			return true;
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		bool mk64str(const unsigned char *in, size_t len, unsigned char *out)
+		{
+			const unsigned char *sum = in;
+
+			size_t quartets = len / 4;
+
+			for(size_t i(0); i<quartets; i++)
+			{
+				unsigned char c4[4] = {impl::Hash_64s[in[0]], impl::Hash_64s[in[1]], impl::Hash_64s[in[2]], impl::Hash_64s[in[3]]};
+
+				*out = (c4[0] << 2) + ((c4[1] & 0x30) >> 4);
+				out++;
+				*out = ((c4[1] & 0xf) << 4) + ((c4[2] & 0x3c) >> 2);
+				out++;
+				*out = ((c4[2] & 0x3) << 6) + c4[3];
+				out++;
+
+				in += 4;
+			}
+
+			switch(len % 4)
+			{
+			case 0:
+				break;
+			case 1:
+				//out of format
+				return false;
+			case 2:
+				{
+					unsigned char c4[2] = {impl::Hash_64s[in[0]], impl::Hash_64s[in[1]]};
+
+					*out = (c4[0] << 2) + ((c4[1] & 0x30) >> 4);
+					out++;
+					in += 2;
+				}
+				break;
+			case 3:
+				{
+					unsigned char c4[3] = {impl::Hash_64s[in[0]], impl::Hash_64s[in[1]], impl::Hash_64s[in[2]]};
+
+					*out = (c4[0] << 2) + ((c4[1] & 0x30) >> 4);
+					out++;
+					*out = ((c4[1] & 0xf) << 4) + ((c4[2] & 0x3c) >> 2);
+					out++;
+					in += 3;
+				}
+
+			}
+
+			return true;
+		}
+
 	}
 }

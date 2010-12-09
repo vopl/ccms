@@ -15,20 +15,24 @@ namespace ccms {namespace crypto
 
 	public:
 		bool call_generateKey(uintN argc, jsval *argv, jsval *rval);
+
 		bool call_encode(uintN argc, jsval *argv, jsval *rval);
 		bool call_decode(uintN argc, jsval *argv, jsval *rval);
+
+		bool call_encodeJson(uintN argc, jsval *argv, jsval *rval);
+		bool call_decodeJson(uintN argc, jsval *argv, jsval *rval);
 
 	private:
 		virtual size_t keyBits();
 		virtual bool encode(
-			const unsigned char *key, size_t keyLen, 
+			const char *key, 
 			const unsigned char *msg, size_t msgLen,
-			const unsigned char *res, size_t &resLen)=0;
+			unsigned char *res, size_t &resLen)=0;
 
 		virtual bool decode(
-			const unsigned char *key, size_t keyLen, 
+			const char *key, 
 			const unsigned char *msg, size_t msgLen,
-			const unsigned char *res, size_t &resLen)=0;
+			unsigned char *res, size_t &resLen)=0;
 	};
 }}
 #endif

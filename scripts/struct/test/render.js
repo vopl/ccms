@@ -1,4 +1,9 @@
-﻿return "crypto.rand.abc('يباً من سحابة جزيئية قبل حوالي 100 مليون سنة生物集団においては、過疎でも過密でも個体の生存に適さないという個体群生態学的な側面を背景に持つ。セル・オートマトンのもっともよく知られた例でもある。1970年10月の『サイエンティフィック・アメリカン』誌のマーチン・ガードナーのコラム上で紹介されたところ多くの反響を呼んだ。興味深いことにライフゲームは万能チューリングマシンであることが証明されている。……', 54):"
-	+crypto.rand.abc('يباً من سحابة جزيئية قبل حوالي 100 مليون سنة生物集団においては、過疎でも過密でも個体の生存に適さないという個体群生態学的な側面を背景に持つ。セル・オートマトンのもっともよく知られた例でもある。1970年10月の『サイエンティフィック・アメリカン』誌のマーチン・ガードナーのコラム上で紹介されたところ多くの反響を呼んだ。興味深いことにライフゲームは万能チューリングマシンであることが証明されている。……', 54);
+﻿warn(crypto.sync.aes.generateKey());
+		let pswd = crypto.rand.str_(43);
+		let msg = {msg:crypto.rand.str_(4),a:'b',c:220};
+		let caes = crypto.sync.aes.encodeJson(pswd, msg);
+		let cdes = crypto.sync.des.encodeJson(pswd, msg);
+		let msg2 = crypto.sync.aes.decodeJson(pswd, caes);
+		dumpe([msg, cdes, caes, JSON.stringify(msg), msg2]);
 
-return "test";
+return;

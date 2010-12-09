@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="entry"
 	ProjectGUID="{741C9585-917F-44C3-BE38-41F4EC51BF4E}"
 	RootNamespace="entry"
@@ -2132,7 +2132,15 @@
 				Name="crypto"
 				>
 				<File
+					RelativePath="..\..\src\crypto\aes.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\crypto\crypto.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\crypto\des.cpp"
 					>
 				</File>
 				<File
@@ -2840,7 +2848,15 @@
 				Name="crypto"
 				>
 				<File
+					RelativePath="..\..\include\crypto\aes.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\crypto\crypto.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\crypto\des.hpp"
 					>
 				</File>
 				<File
