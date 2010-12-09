@@ -53,13 +53,16 @@ namespace ccms{ namespace crypto{
 		}
 
 		unsigned char ivec[AES_BLOCK_SIZE] = {};
-		unsigned char ecount_buf[AES_BLOCK_SIZE] = {};
+		//unsigned char ecount_buf[AES_BLOCK_SIZE] = {};
 
-		unsigned int num = 0;
-		AES_ctr128_encrypt(msg, res, msgLen, &akey, ivec, ecount_buf, &num);
+		int num = 0;
 
 		boost::int32_t crc32 = Crc32((const char *)msg, msgLen);
-		AES_ctr128_encrypt((unsigned char *)&crc32, res+msgLen, 4, &akey, ivec, ecount_buf, &num);
+		//AES_ctr128_encrypt((unsigned char *)&crc32, res, 4, &akey, ivec, ecount_buf, &num);
+		AES_cfb8_encrypt((unsigned char *)&crc32, res, 4, &akey, ivec, &num, AES_ENCRYPT);
+		//AES_ctr128_encrypt(msg, res+4, msgLen, &akey, ivec, ecount_buf, &num);
+		AES_cfb8_encrypt(msg, res+4, msgLen, &akey, ivec, &num, AES_ENCRYPT);
+
 
 		resLen = msgLen+4;
 
@@ -96,19 +99,20 @@ namespace ccms{ namespace crypto{
 		}
 
 		unsigned char ivec[AES_BLOCK_SIZE] = {};
-		unsigned char ecount_buf[AES_BLOCK_SIZE] = {};
+		//unsigned char ecount_buf[AES_BLOCK_SIZE] = {};
 
-		unsigned int num = 0;
-		AES_ctr128_encrypt(msg, res, msgLen, &akey, ivec, ecount_buf, &num);
+		int num = 0;
+		//AES_ctr128_encrypt(msg, res, msgLen, &akey, ivec, ecount_buf, &num);
+		AES_cfb8_encrypt(msg, res, msgLen, &akey, ivec, &num, AES_DECRYPT);
 
-		boost::int32_t crc32 = Crc32((const char *)res, msgLen-4);
+		boost::int32_t crc32 = Crc32((const char *)res+4, msgLen-4);
 
-		if(crc32 != *(const boost::int32_t *)(res + msgLen - 4))
+		if(crc32 != *(const boost::int32_t *)(res))
 		{
 			return false;
 		}
 
-		resLen = msgLen-4;
+		resLen = msgLen;
 
 		return true;
 	}

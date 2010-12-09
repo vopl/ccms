@@ -123,13 +123,13 @@ namespace ccms {namespace crypto
 		}
 		res.resize(resLength);
 
-		if(!utf8::is_valid(res.begin(), res.end()))
+		if(!utf8::is_valid(res.begin()+4, res.end()))
 		{
 			*rval = JSVAL_VOID;
 			return true;
 		}
 
-		JSString *str = JS_NewStringCopyN(ecx()->_jsCx, (char *)&res[0], res.size());
+		JSString *str = JS_NewStringCopyN(ecx()->_jsCx, (char *)&res[4], res.size()-4);
 		if(!str)
 		{
 			return false;
@@ -226,7 +226,7 @@ namespace ccms {namespace crypto
 		try
 		{
 			std::back_insert_iterator< std::vector<jschar> > bi(res16);
-			utf8::utf8to16(res8.begin(), res8.end(), bi);
+			utf8::utf8to16(res8.begin()+4, res8.end(), bi);
 		}
 		catch(...)
 		{

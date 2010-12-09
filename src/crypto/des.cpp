@@ -28,10 +28,14 @@ namespace ccms{ namespace crypto{
 		DES_key_schedule sched;
 		DES_string_to_key(key, &cbkey);
 		DES_set_key_unchecked(&cbkey, &sched);
+
 		int num = 0;
-		DES_ofb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num);
+
 		boost::int32_t crc32 = Crc32((const char *)msg, msgLen);
-		DES_ofb64_encrypt((unsigned char *)&crc32, res+msgLen, 4, &sched, &cbkey, &num);
+		//DES_ofb64_encrypt((unsigned char *)&crc32, res, 4, &sched, &cbkey, &num);
+		DES_cfb64_encrypt((unsigned char *)&crc32, res, 4, &sched, &cbkey, &num, DES_ENCRYPT);
+		//DES_ofb64_encrypt(msg, res+4, msgLen, &sched, &cbkey, &num);
+		DES_cfb64_encrypt(msg, res+4, msgLen, &sched, &cbkey, &num, DES_ENCRYPT);
 
 		resLen = msgLen+4;
 
@@ -49,17 +53,19 @@ namespace ccms{ namespace crypto{
 		DES_key_schedule sched;
 		DES_string_to_key(key, &cbkey);
 		DES_set_key_unchecked(&cbkey, &sched);
+
 		int num = 0;
-		DES_ofb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num);
+// 		DES_ofb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num);
+		DES_cfb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num, DES_DECRYPT);
 
-		boost::int32_t crc32 = Crc32((const char *)res, msgLen-4);
+		boost::int32_t crc32 = Crc32((const char *)res+4, msgLen-4);
 
-		if(crc32 != *(const boost::int32_t *)(res + msgLen - 4))
+		if(crc32 != *(const boost::int32_t *)(res))
 		{
 			return false;
 		}
 
-		resLen = msgLen-4;
+		resLen = msgLen;
 
 		return true;
 	}
