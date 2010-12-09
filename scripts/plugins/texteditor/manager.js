@@ -51,68 +51,54 @@ manager.getTe = function(teid, options)
 
 
 ///////////////////////////////////////
-manager.genIsid = function mkTesid(teid, sid, uid)
+manager.genIsid = function mkTesid(teid, uid)
 {
 	if(!teid) throw Error("manager.genIsid: teid must be setted");
 	if('object' == typeof(teid)) teid = teid.id;
 	if(!(teid in this.tes)) throw Error("manager.genIsid: invalud teid");
 
-	if(!sid) sid = router.cd.global.session.id;
 	if(!uid) uid = user.id;
 
 	let iKey = 
 	{
 		teid:teid,
-		sid:sid,
 		uid:uid,
 		iid:crypto.rand.str_(8),
 	};
 	let pswd = router.cd.global.session.secret;
-	//let isid = crypto.sym.aes.encodeJson(pswd, iKey);
-	let isid = JSON.stringify(iKey);
+	let isid = crypto.sym.des.encodeJson(pswd, iKey);
 	return isid;
 }
 
 ///////////////////////////////////////
-manager.getInstance = function getInstance(isid, sid, uid)
+manager.getInstance = function getInstance(isid, uid)
 {
-	if(!sid) sid = router.cd.global.session.id;
 	if(!uid) uid = user.id;
 	let pswd = router.cd.global.session.secret;
 
-//	let iKey = crypto.sym.aes.decodeJson(pswd, tesid);
-	let iKey;
-	try
-	{
-		iKey = JSON.parse(isid);
-	}
-	catch(e)
-	{
-		return undefined;
-	}
-
+	let iKey = crypto.sym.des.decodeJson(pswd, isid);
+	dumpe(iKey);
 
 	if(	!iKey || 
 		'object' != typeof(iKey) ||
 		iKey.uid != uid ||
-		iKey.sid != sid ||
 		!(iKey.teid in this.tes))
 	{
 		return undefined;
 	}
 
 
-	let te = this.tes[teid];
+	let te = this.tes[iKey.teid];
 
-	if(!(teKey.iid in this.instances))
+	if(!(iKey.iid in this.instances))
 	{
-		this.instances[teKey.iid] = this.mkInstance(teKey.iid, te);
+		this.instances[iKey.iid] = this.mkInstance(iKey.iid, te);
 	}
 
 	//assert(this.instances[teKey.iid].id == teKey.iid)
 	//assert(this.instances[teKey.iid].te.id == teKey.teid)
 
-	return this.instances[teKey.iid];
+	return this.instances[iKey.iid];
 }
 
 ///////////////////////////////////////////

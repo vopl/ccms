@@ -25,6 +25,9 @@ SET(INCLUDE_CRYPTO
 	../../include/crypto/hash.hpp
 	../../include/crypto/rand.hpp
 	../../include/crypto/utils.hpp
+	../../include/crypto/symBase.hpp
+	../../include/crypto/des.hpp
+	../../include/crypto/aes.hpp
 )
 SOURCE_GROUP(include\\crypto FILES ${INCLUDE_CRYPTO})
 
@@ -32,6 +35,9 @@ SET(SRC_CRYPTO
 	../../src/crypto/hash.cpp
 	../../src/crypto/rand.cpp
 	../../src/crypto/utils.cpp
+	../../src/crypto/symBase.cpp
+	../../src/crypto/des.cpp
+	../../src/crypto/aes.cpp
 )
 SOURCE_GROUP(src\\crypto FILES ${SRC_CRYPTO})
 

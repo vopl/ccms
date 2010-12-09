@@ -27,7 +27,6 @@ t.compile(<>
 tmce.render = function render(isid, dataInt)
 {
 	let lt = t.clone();
-	isid = "asdf";
 	lt.isid = isid;
 
 	if(dataInt)
