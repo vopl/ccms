@@ -6,8 +6,8 @@ function callback(v)
 	if(session.isNew)
 	{
 		//warn('insert session '+v.id);
-		orm.exec('INSERT INTO {Session} (id, ctime, atime, dtime, data, addr, remember) VALUES ($1,$2,$3,$4,$5,$6,$7)', 
-			v.id, v.ctime, v.atime, v.dtime, v.data, v.addr, v.remember);
+		orm.exec('INSERT INTO {Session} (id, ctime, atime, dtime, data, addr, remember, secret) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', 
+			v.id, v.ctime, v.atime, v.dtime, v.data, v.addr, v.remember, v.secret);
 	}
 	else
 	{
@@ -22,8 +22,8 @@ function callback(v)
 			//warn('f update session '+v.id);
 			// warn('session update fail!!!. Was deleted from cron?')
 			// dumpe(e);
-			orm.exec('INSERT INTO {Session} (id, ctime, atime, dtime, data, addr, remember) VALUES ($1,$2,$3,$4,$5,$6,$7)', 
-				v.id, v.ctime, v.atime, v.dtime, v.data, v.addr, v.remember);
+			orm.exec('INSERT INTO {Session} (id, ctime, atime, dtime, data, addr, remember, secret) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', 
+				v.id, v.ctime, v.atime, v.dtime, v.data, v.addr, v.remember, v.secret);
 		}
 	}
 }
@@ -63,6 +63,7 @@ if(!session)
 		dtime:now,
 		data:{},
 		addr:request.env.REMOTE_ADDR,
+		secret:crypto.rand.str_(22),
 		isNew:true,
 	};
 	request.pushHeader('Set-Cookie', 'sid='+session.id+'; path=/');

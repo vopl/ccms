@@ -62,17 +62,11 @@ namespace ccms {namespace crypto
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "SS", &key, &msg)) return false;
 
 		jschar *keyChars = JS_GetStringChars(key);
-		size_t *keyLength = JS_GetStringLength(key);
+		size_t keyLength = JS_GetStringLength(key);
 
 		jschar *msgChars = JS_GetStringChars(msg);
-		size_t *msgLength = JS_GetStringLength(msg);
+		size_t msgLength = JS_GetStringLength(msg);
 
-		if(!this->encode(
-			(unsigned char *)keyChars, keyLength*sizeof(jschar),
-			(unsigned char *)msgChars, msgLength*sizeof(jschar),
-			))
-
-		TRATATA
 		assert(0);
 		return false;
 	}

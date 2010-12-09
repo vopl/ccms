@@ -8,7 +8,7 @@ exec('lib/stdext.js');
 global.cache = exec('lib/cache.js');
 
 
-dumpe(crypto.sync.des.generateKey())
+
 
 // база данных
 global.db = router.createService('pg');
