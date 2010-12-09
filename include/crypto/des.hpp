@@ -1,13 +1,13 @@
 #ifndef _ccms_crypto_des_hpp_
 #define _ccms_crypto_des_hpp_
 
-#include "crypto/syncBase.hpp"
+#include "crypto/symBase.hpp"
 
 namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
 	class Des
-		: public SyncBase
+		: public SymBase
 	{
 	public:
 		Des();

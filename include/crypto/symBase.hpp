@@ -1,17 +1,17 @@
-#ifndef _ccms_crypto_syncBase_hpp_
-#define _ccms_crypto_syncBase_hpp_
+#ifndef _ccms_crypto_symBase_hpp_
+#define _ccms_crypto_symBase_hpp_
 
 #include "scripter/jsObject.hpp"
 
 namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
-	class SyncBase
+	class SymBase
 		: public JsObject
 	{
 	public:
-		SyncBase(const char *name);
-		~SyncBase();
+		SymBase(const char *name);
+		~SymBase();
 
 	public:
 		bool call_generateKey(uintN argc, jsval *argv, jsval *rval);

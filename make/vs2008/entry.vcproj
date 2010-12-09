@@ -2152,7 +2152,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\crypto\syncBase.cpp"
+					RelativePath="..\..\src\crypto\symBase.cpp"
 					>
 				</File>
 				<File
@@ -2868,7 +2868,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\crypto\syncBase.hpp"
+					RelativePath="..\..\include\crypto\symBase.hpp"
 					>
 				</File>
 				<File

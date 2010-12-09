@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "crypto/syncBase.hpp"
+#include "crypto/symBase.hpp"
 #include "crypto/utils.hpp"
 #include "utils/utf8.h"
 
@@ -7,26 +7,26 @@ namespace ccms {namespace crypto
 {
 
 	//////////////////////////////////////////////////////////////////////////
-	SyncBase::SyncBase(const char *name)
+	SymBase::SymBase(const char *name)
 		: JsObject(true, name)
 	{
-		(JSExceptionReporter)jsRegisterMeth("generateKey", &SyncBase::call_generateKey, 0);
+		(JSExceptionReporter)jsRegisterMeth("generateKey", &SymBase::call_generateKey, 0);
 
-		(JSExceptionReporter)jsRegisterMeth("encode", &SyncBase::call_encode, 2);
-		(JSExceptionReporter)jsRegisterMeth("decode", &SyncBase::call_decode, 2);
+		(JSExceptionReporter)jsRegisterMeth("encode", &SymBase::call_encode, 2);
+		(JSExceptionReporter)jsRegisterMeth("decode", &SymBase::call_decode, 2);
 
-		(JSExceptionReporter)jsRegisterMeth("encodeJson", &SyncBase::call_encodeJson, 2);
-		(JSExceptionReporter)jsRegisterMeth("decodeJson", &SyncBase::call_decodeJson, 2);
+		(JSExceptionReporter)jsRegisterMeth("encodeJson", &SymBase::call_encodeJson, 2);
+		(JSExceptionReporter)jsRegisterMeth("decodeJson", &SymBase::call_decodeJson, 2);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	SyncBase::~SyncBase()
+	SymBase::~SymBase()
 	{
 
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SyncBase::call_generateKey(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_generateKey(uintN argc, jsval *argv, jsval *rval)
 	{
 		size_t len = 0;
 		
@@ -56,7 +56,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SyncBase::call_encode(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_encode(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -69,7 +69,7 @@ namespace ccms {namespace crypto
 
 		size_t msgLength = strlen(msg);
 
-		std::vector<unsigned char> res(msgLength);
+		std::vector<unsigned char> res(msgLength+4);
 		size_t resLength = res.size();
 
 		if(!this->encode(
@@ -85,7 +85,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SyncBase::call_decode(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_decode(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -104,6 +104,12 @@ namespace ccms {namespace crypto
 			return true;
 		}
 
+		if(c.size() < 4)
+		{
+			*rval = JSVAL_VOID;
+			return true;
+		}
+
 		std::vector<unsigned char> res(c.size());
 		size_t resLength = res.size();
 
@@ -115,6 +121,7 @@ namespace ccms {namespace crypto
 			*rval = JSVAL_VOID;
 			return true;
 		}
+		res.resize(resLength);
 
 		if(!utf8::is_valid(res.begin(), res.end()))
 		{
@@ -146,7 +153,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SyncBase::call_encodeJson(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_encodeJson(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -160,7 +167,7 @@ namespace ccms {namespace crypto
 		if(!JS_Stringify(ecx()->_jsCx, argv+1, NULL, JSVAL_NULL, impl::stringifyCallback, &msg)) return false;
 
 
-		std::vector<unsigned char> res(msg.size());
+		std::vector<unsigned char> res(msg.size()+4);
 		size_t resLength = res.size();
 
 		if(!this->encode(
@@ -176,7 +183,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SyncBase::call_decodeJson(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_decodeJson(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -195,6 +202,13 @@ namespace ccms {namespace crypto
 			return true;
 		}
 
+		if(c.size() < 4)
+		{
+			*rval = JSVAL_VOID;
+			return true;
+		}
+
+
 		std::vector<unsigned char> res8(c.size());
 		size_t res8Length = res8.size();
 
@@ -206,6 +220,7 @@ namespace ccms {namespace crypto
 			*rval = JSVAL_VOID;
 			return true;
 		}
+		res8.resize(res8Length);
 
 		std::vector<jschar> res16;
 		try
@@ -245,7 +260,7 @@ namespace ccms {namespace crypto
 
 
 	//////////////////////////////////////////////////////////////////////////
-	size_t SyncBase::keyBits()
+	size_t SymBase::keyBits()
 	{
 		//для base64 очень приятны размеры, кратные 24
 		return 96;
