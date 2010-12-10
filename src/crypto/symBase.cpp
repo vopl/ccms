@@ -2,6 +2,9 @@
 #include "crypto/symBase.hpp"
 #include "crypto/utils.hpp"
 #include "utils/utf8.h"
+#include "utils/crc32.hpp"
+
+#include <js/jsapi.h>
 
 namespace ccms {namespace crypto
 {
@@ -64,24 +67,32 @@ namespace ccms {namespace crypto
 			return false;
 		}
 		char *key;
-		char *msg;
-		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "ss", &key, &msg)) return false;
+		JSString *mgsjss;
+		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "sS", &key, &mgsjss)) return false;
 
-		size_t msgLength = strlen(msg);
+		size_t msg16Length = JS_GetStringLength(mgsjss);
+		jschar *msg16 = JS_GetStringChars(mgsjss);
 
-		std::vector<unsigned char> res(msgLength+4);
-		size_t resLength = res.size();
+		std::vector<unsigned char> msg(4);
+		{
+			std::back_insert_iterator<std::vector<unsigned char> > bi(msg);
+			utf8::unchecked::utf16to8(msg16, msg16+msg16Length, bi);
+		}
+		*((boost::int32_t *)&msg[0]) = Crc32((const char *)&msg[4], msg.size()-4);
+
+		std::vector<unsigned char> res(msg.size());
 
 		if(!this->encrypt(
 			key,
-			(unsigned char *)msg, msgLength,
-			&res[0], resLength))
+			&msg[0],
+			&res[0],
+			msg.size()))
 		{
 			*rval = JSVAL_VOID;
 			return true;
 		}
 
-		return mkstr64(&res[0], resLength, rval);
+		return mkstr64(&res[0], res.size(), rval);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -111,19 +122,19 @@ namespace ccms {namespace crypto
 		}
 
 		std::vector<unsigned char> res(c.size());
-		size_t resLength = res.size();
 
 		if(!this->decrypt(
 			key,
-			(unsigned char *)&c[0], c.size(),
-			&res[0], resLength))
+			&c[0],
+			&res[0], 
+			c.size()))
 		{
 			*rval = JSVAL_VOID;
 			return true;
 		}
-		res.resize(resLength);
+		boost::int32_t crc32 = Crc32((const char *)&res[4], res.size()-4);
 
-		if(!utf8::is_valid(res.begin()+4, res.end()))
+		if(crc32 != *((boost::int32_t *)&res[0]))
 		{
 			*rval = JSVAL_VOID;
 			return true;
@@ -163,17 +174,18 @@ namespace ccms {namespace crypto
 		char *key;
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &key)) return false;
 
-		std::vector<unsigned char> msg;
+		std::vector<unsigned char> msg(4);
 		if(!JS_Stringify(ecx()->_jsCx, argv+1, NULL, JSVAL_NULL, impl::stringifyCallback, &msg)) return false;
+		*((boost::int32_t *)&msg[0]) = Crc32((const char *)&msg[4], msg.size()-4);
 
 
-		std::vector<unsigned char> res(msg.size()+4);
+		std::vector<unsigned char> res(msg.size());
 		size_t resLength = res.size();
 
 		if(!this->encrypt(
 			key,
-			&msg[0], msg.size(),
-			&res[0], resLength))
+			&msg[0],
+			&res[0], msg.size()))
 		{
 			*rval = JSVAL_VOID;
 			return true;
@@ -210,17 +222,21 @@ namespace ccms {namespace crypto
 
 
 		std::vector<unsigned char> res8(c.size());
-		size_t res8Length = res8.size();
-
 		if(!this->decrypt(
 			key,
-			(unsigned char *)&c[0], c.size(),
-			&res8[0], res8Length))
+			(unsigned char *)&c[0],
+			&res8[0], c.size()))
 		{
 			*rval = JSVAL_VOID;
 			return true;
 		}
-		res8.resize(res8Length);
+		boost::int32_t crc32 = Crc32((const char *)&res8[4], res8.size()-4);
+
+		if(crc32 != *((boost::int32_t *)&res8[0]))
+		{
+			*rval = JSVAL_VOID;
+			return true;
+		}
 
 		std::vector<jschar> res16;
 		try

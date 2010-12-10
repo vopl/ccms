@@ -26,10 +26,10 @@ namespace ccms{ namespace crypto{
 	//////////////////////////////////////////////////////////////////////////
 	bool Aes::encrypt(
 		const char *key, 
-		const unsigned char *msg, size_t msgLen,
-		unsigned char *res, size_t &resLen)
+		const unsigned char *in,
+		unsigned char *out,
+		size_t len)
 	{
-		assert(msgLen+4 == resLen);
 		size_t keyLength = strlen(key);
 		AES_KEY akey;
 		int i;
@@ -57,14 +57,8 @@ namespace ccms{ namespace crypto{
 
 		int num = 0;
 
-		boost::int32_t crc32 = Crc32((const char *)msg, msgLen);
-		//AES_ctr128_encrypt((unsigned char *)&crc32, res, 4, &akey, ivec, ecount_buf, &num);
-		AES_cfb8_encrypt((unsigned char *)&crc32, res, 4, &akey, ivec, &num, AES_ENCRYPT);
 		//AES_ctr128_encrypt(msg, res+4, msgLen, &akey, ivec, ecount_buf, &num);
-		AES_cfb8_encrypt(msg, res+4, msgLen, &akey, ivec, &num, AES_ENCRYPT);
-
-
-		resLen = msgLen+4;
+		AES_cfb8_encrypt(in, out, len, &akey, ivec, &num, AES_ENCRYPT);
 
 		return true;
 	}
@@ -72,10 +66,10 @@ namespace ccms{ namespace crypto{
 	//////////////////////////////////////////////////////////////////////////
 	bool Aes::decrypt(
 		const char *key, 
-		const unsigned char *msg, size_t msgLen,
-		unsigned char *res, size_t &resLen)
+		const unsigned char *in,
+		unsigned char *out,
+		size_t len)
 	{
-		assert(msgLen == resLen);
 		size_t keyLength = strlen(key);
 		AES_KEY akey;
 		int i;
@@ -103,16 +97,7 @@ namespace ccms{ namespace crypto{
 
 		int num = 0;
 		//AES_ctr128_encrypt(msg, res, msgLen, &akey, ivec, ecount_buf, &num);
-		AES_cfb8_encrypt(msg, res, msgLen, &akey, ivec, &num, AES_DECRYPT);
-
-		boost::int32_t crc32 = Crc32((const char *)res+4, msgLen-4);
-
-		if(crc32 != *(const boost::int32_t *)(res))
-		{
-			return false;
-		}
-
-		resLen = msgLen;
+		AES_cfb8_encrypt(in, out, len, &akey, ivec, &num, AES_DECRYPT);
 
 		return true;
 	}
