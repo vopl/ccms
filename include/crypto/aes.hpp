@@ -15,13 +15,13 @@ namespace ccms {namespace crypto
 
 		virtual size_t keyBits();
 
-		virtual bool encrypt(
+		virtual bool encode(
 			const unsigned char *key, size_t keyLength, 
 			const unsigned char *in,
 			unsigned char *out,
 			size_t len);
 
-		virtual bool decrypt(
+		virtual bool decode(
 			const unsigned char *key, size_t keyLength, 
 			const unsigned char *in,
 			unsigned char *out,

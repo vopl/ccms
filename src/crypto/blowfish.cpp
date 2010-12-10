@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#ifndef OPENSSL_NO_BLOWFISH
+
 #include "crypto/blowfish.hpp"
 #include <openssl/blowfish.h>
 #include "utils/crc32.hpp"
@@ -17,7 +20,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Blowfish::encrypt(
+	bool Blowfish::encode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -52,7 +55,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Blowfish::decrypt(
+	bool Blowfish::decode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -87,3 +90,5 @@ namespace ccms{ namespace crypto{
 	}
 
 }}
+
+#endif

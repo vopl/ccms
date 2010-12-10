@@ -13,13 +13,13 @@ namespace ccms {namespace crypto
 		Idea();
 		~Idea();
 
-		virtual bool encrypt(
+		virtual bool encode(
 			const unsigned char *key, size_t keyLength, 
 			const unsigned char *in,
 			unsigned char *out,
 			size_t len);
 
-		virtual bool decrypt(
+		virtual bool decode(
 			const unsigned char *key, size_t keyLength, 
 			const unsigned char *in,
 			unsigned char *out,

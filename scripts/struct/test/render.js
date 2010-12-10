@@ -12,13 +12,15 @@
 	
 	function test(name)
 	{
+		if(!(name in crypto)) return;
+
 		let alg = crypto[name];
 		
 		let lr = {};
-		lr.code = alg.encrypt(report.pswd, report.data);
-		lr.codeJson = alg.encryptJson(report.pswd, report.dataJson);
-		lr.res = alg.decrypt(report.pswd, lr.code);
-		lr.resJson = alg.decryptJson(report.pswd, lr.codeJson);
+		lr.code = alg.encode(report.pswd, report.data);
+		lr.codeJson = alg.encodeJson(report.pswd, report.dataJson);
+		lr.res = alg.decode(report.pswd, lr.code);
+		lr.resJson = alg.decodeJson(report.pswd, lr.codeJson);
 		
 		report[name] = lr;
 	}

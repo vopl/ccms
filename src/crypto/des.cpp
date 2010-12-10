@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#ifndef OPENSSL_NO_DES
+
 #include "crypto/des.hpp"
 #include <openssl/des.h>
 
@@ -16,7 +19,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::encrypt(
+	bool Des::encode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -28,14 +31,14 @@ namespace ccms{ namespace crypto{
 		DES_set_key_unchecked(&cbkey, &sched);
 
 		int num = 0;
-		//DES_ofb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num);
+		//DES_ofb64_encode(msg, res, msgLen, &sched, &cbkey, &num);
 		DES_cfb64_encrypt(in, out, len, &sched, &cbkey, &num, DES_ENCRYPT);
 
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::decrypt(
+	bool Des::decode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -53,3 +56,5 @@ namespace ccms{ namespace crypto{
 	}
 
 }}
+
+#endif

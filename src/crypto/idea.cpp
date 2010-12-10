@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#ifndef OPENSSL_NO_IDEA
+
 #include "crypto/idea.hpp"
 #include <openssl/idea.h>
 #include <openssl/md5.h>
@@ -17,7 +20,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Idea::encrypt(
+	bool Idea::encode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -48,7 +51,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Idea::decrypt(
+	bool Idea::decode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -78,3 +81,5 @@ namespace ccms{ namespace crypto{
 	}
 
 }}
+
+#endif

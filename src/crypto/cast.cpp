@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#ifndef OPENSSL_NO_CAST
+
 #include "crypto/cast.hpp"
 #include <openssl/cast.h>
 #include <openssl/md5.h>
@@ -17,7 +20,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Cast::encrypt(
+	bool Cast::encode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -34,7 +37,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Cast::decrypt(
+	bool Cast::decode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -51,3 +54,5 @@ namespace ccms{ namespace crypto{
 	}
 
 }}
+
+#endif

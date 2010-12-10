@@ -1,4 +1,7 @@
 #include "stdafx.h"
+
+#ifndef OPENSSL_NO_RC2
+
 #include "crypto/rc2.hpp"
 #include <openssl/rc2.h>
 
@@ -16,7 +19,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Rc2::encrypt(
+	bool Rc2::encode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -32,7 +35,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Rc2::decrypt(
+	bool Rc2::decode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -48,3 +51,5 @@ namespace ccms{ namespace crypto{
 	}
 
 }}
+
+#endif

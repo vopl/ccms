@@ -1,4 +1,8 @@
 #include "stdafx.h"
+
+#ifndef OPENSSL_NO_AES
+
+
 #include "crypto/aes.hpp"
 #include <openssl/sha.h>
 #include <openssl/aes.h>
@@ -23,7 +27,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Aes::encrypt(
+	bool Aes::encode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -55,14 +59,14 @@ namespace ccms{ namespace crypto{
 
 		int num = 0;
 
-		//AES_ctr128_encrypt(msg, res+4, msgLen, &akey, ivec, ecount_buf, &num);
+		//AES_ctr128_encode(msg, res+4, msgLen, &akey, ivec, ecount_buf, &num);
 		AES_cfb8_encrypt(in, out, len, &akey, ivec, &num, AES_ENCRYPT);
 
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Aes::decrypt(
+	bool Aes::decode(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
@@ -93,10 +97,12 @@ namespace ccms{ namespace crypto{
 		//unsigned char ecount_buf[AES_BLOCK_SIZE] = {};
 
 		int num = 0;
-		//AES_ctr128_encrypt(msg, res, msgLen, &akey, ivec, ecount_buf, &num);
+		//AES_ctr128_encode(msg, res, msgLen, &akey, ivec, ecount_buf, &num);
 		AES_cfb8_encrypt(in, out, len, &akey, ivec, &num, AES_DECRYPT);
 
 		return true;
 	}
 
 }}
+
+#endif
