@@ -2136,6 +2136,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\crypto\blowfish.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\crypto\cast.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\crypto\crypto.cpp"
 					>
 				</File>
@@ -2148,7 +2156,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\crypto\idea.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\crypto\rand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\crypto\rc2.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\crypto\rc4.cpp"
 					>
 				</File>
 				<File
@@ -2852,6 +2872,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\crypto\blowfish.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\crypto\cast.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\crypto\crypto.hpp"
 					>
 				</File>
@@ -2864,7 +2892,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\crypto\idea.hpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\crypto\rand.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\crypto\rc2.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\crypto\rc4.hpp"
 					>
 				</File>
 				<File

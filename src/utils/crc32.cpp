@@ -81,12 +81,16 @@ namespace ccms
 		0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 	};
 
-	boost::uint32_t Crc32(const char * buf, size_t len)
+	boost::uint32_t Crc32(const unsigned char * buf, size_t len)
 	{
 		boost::uint32_t crc = 0xFFFFFFFF;
 		while (len--)
-			crc = (crc >> 8) ^ Crc32Table[(crc ^ (unsigned char)*buf++) & 0xFF];
+			crc = (crc >> 8) ^ Crc32Table[(crc ^ *buf++) & 0xFF];
 		return crc ^ 0xFFFFFFFF;
+	}
+	boost::uint32_t Crc32(const char * buf, size_t len)
+	{
+		return Crc32((const unsigned char *) buf, len);
 	}
 
 

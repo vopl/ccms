@@ -14,13 +14,13 @@ namespace ccms {namespace crypto
 		~Des();
 
 		virtual bool encrypt(
-			const char *key, 
+			const unsigned char *key, size_t keyLength, 
 			const unsigned char *in,
 			unsigned char *out,
 			size_t len);
 
 		virtual bool decrypt(
-			const char *key, 
+			const unsigned char *key, size_t keyLength, 
 			const unsigned char *in,
 			unsigned char *out,
 			size_t len);

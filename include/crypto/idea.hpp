@@ -1,19 +1,17 @@
-#ifndef _ccms_crypto_aes_hpp_
-#define _ccms_crypto_aes_hpp_
+#ifndef _ccms_crypto_idea_hpp_
+#define _ccms_crypto_idea_hpp_
 
 #include "crypto/symBase.hpp"
 
 namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
-	class Aes
+	class Idea
 		: public SymBase
 	{
 	public:
-		Aes();
-		~Aes();
-
-		virtual size_t keyBits();
+		Idea();
+		~Idea();
 
 		virtual bool encrypt(
 			const unsigned char *key, size_t keyLength, 

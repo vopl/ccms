@@ -1,19 +1,17 @@
-#ifndef _ccms_crypto_aes_hpp_
-#define _ccms_crypto_aes_hpp_
+#ifndef _ccms_crypto_rc4_hpp_
+#define _ccms_crypto_rc4_hpp_
 
 #include "crypto/symBase.hpp"
 
 namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
-	class Aes
+	class Rc4
 		: public SymBase
 	{
 	public:
-		Aes();
-		~Aes();
-
-		virtual size_t keyBits();
+		Rc4();
+		~Rc4();
 
 		virtual bool encrypt(
 			const unsigned char *key, size_t keyLength, 

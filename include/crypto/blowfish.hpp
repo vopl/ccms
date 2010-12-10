@@ -1,19 +1,17 @@
-#ifndef _ccms_crypto_aes_hpp_
-#define _ccms_crypto_aes_hpp_
+#ifndef _ccms_crypto_blowfish_hpp_
+#define _ccms_crypto_blowfish_hpp_
 
 #include "crypto/symBase.hpp"
 
 namespace ccms {namespace crypto
 {
 	//////////////////////////////////////////////////////////////////////////
-	class Aes
+	class Blowfish
 		: public SymBase
 	{
 	public:
-		Aes();
-		~Aes();
-
-		virtual size_t keyBits();
+		Blowfish();
+		~Blowfish();
 
 		virtual bool encrypt(
 			const unsigned char *key, size_t keyLength, 

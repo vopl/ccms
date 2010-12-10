@@ -1,54 +1,45 @@
 #include "stdafx.h"
-#include "crypto/des.hpp"
-#include <openssl/des.h>
+#include "crypto/rc4.hpp"
+#include <openssl/rc4.h>
 
 namespace ccms{ namespace crypto{
 
 	//////////////////////////////////////////////////////////////////////////
-	Des::Des()
-		: SymBase("Des")
-	{
-	}
-	
-	//////////////////////////////////////////////////////////////////////////
-	Des::~Des()
+	Rc4::Rc4()
+		: SymBase("Rc4")
 	{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::encrypt(
+	Rc4::~Rc4()
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Rc4::encrypt(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
 		size_t len)
 	{
-		DES_cblock cbkey;
-		DES_key_schedule sched;
-		DES_string_to_key((const char *)key, &cbkey);
-		DES_set_key_unchecked(&cbkey, &sched);
+		RC4_KEY rc4key;
+		RC4_set_key(&rc4key, keyLength, key);
 
-		int num = 0;
-		//DES_ofb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num);
-		DES_cfb64_encrypt(in, out, len, &sched, &cbkey, &num, DES_ENCRYPT);
-
+		RC4(&rc4key, len, in, out);
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::decrypt(
+	bool Rc4::decrypt(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
 		size_t len)
 	{
-		DES_cblock cbkey;
-		DES_key_schedule sched;
-		DES_string_to_key((const char *)key, &cbkey);
-		DES_set_key_unchecked(&cbkey, &sched);
+		RC4_KEY rc4key;
+		RC4_set_key(&rc4key, keyLength, key);
 
-		int num = 0;
-		DES_cfb64_encrypt(in, out, len, &sched, &cbkey, &num, DES_DECRYPT);
-
+		RC4(&rc4key, len, in, out);
 		return true;
 	}
 

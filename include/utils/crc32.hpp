@@ -5,6 +5,7 @@
 
 namespace ccms
 {
+	boost::uint32_t Crc32(const unsigned char * buf, size_t len);
 	boost::uint32_t Crc32(const char * buf, size_t len);
 
 	struct CRC32_CTX

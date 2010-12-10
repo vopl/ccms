@@ -29,6 +29,11 @@ SET(INCLUDE_CRYPTO
 	../../include/crypto/symBase.hpp
 	../../include/crypto/des.hpp
 	../../include/crypto/aes.hpp
+	../../include/crypto/blowfish.hpp
+	../../include/crypto/cast.hpp
+	../../include/crypto/idea.hpp
+	../../include/crypto/rc2.hpp
+	../../include/crypto/rc4.hpp
 )
 SOURCE_GROUP(include\\crypto FILES ${INCLUDE_CRYPTO})
 
@@ -40,6 +45,11 @@ SET(SRC_CRYPTO
 	../../src/crypto/symBase.cpp
 	../../src/crypto/des.cpp
 	../../src/crypto/aes.cpp
+	../../src/crypto/blowfish.cpp
+	../../src/crypto/cast.cpp
+	../../src/crypto/idea.cpp
+	../../src/crypto/rc2.cpp
+	../../src/crypto/rc4.cpp
 )
 SOURCE_GROUP(src\\crypto FILES ${SRC_CRYPTO})
 

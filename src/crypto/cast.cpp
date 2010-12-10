@@ -1,53 +1,51 @@
 #include "stdafx.h"
-#include "crypto/des.hpp"
-#include <openssl/des.h>
+#include "crypto/cast.hpp"
+#include <openssl/cast.h>
+#include <openssl/md5.h>
 
 namespace ccms{ namespace crypto{
 
 	//////////////////////////////////////////////////////////////////////////
-	Des::Des()
-		: SymBase("Des")
-	{
-	}
-	
-	//////////////////////////////////////////////////////////////////////////
-	Des::~Des()
+	Cast::Cast()
+		: SymBase("Cast")
 	{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::encrypt(
+	Cast::~Cast()
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	bool Cast::encrypt(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
 		size_t len)
 	{
-		DES_cblock cbkey;
-		DES_key_schedule sched;
-		DES_string_to_key((const char *)key, &cbkey);
-		DES_set_key_unchecked(&cbkey, &sched);
+		CAST_KEY ckey;
+		CAST_set_key(&ckey, keyLength, key);
 
+		unsigned char ivec[CAST_BLOCK] = {};
 		int num = 0;
-		//DES_ofb64_encrypt(msg, res, msgLen, &sched, &cbkey, &num);
-		DES_cfb64_encrypt(in, out, len, &sched, &cbkey, &num, DES_ENCRYPT);
+		CAST_cfb64_encrypt(in, out, len, &ckey, ivec, &num, CAST_ENCRYPT);
 
 		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::decrypt(
+	bool Cast::decrypt(
 		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
 		size_t len)
 	{
-		DES_cblock cbkey;
-		DES_key_schedule sched;
-		DES_string_to_key((const char *)key, &cbkey);
-		DES_set_key_unchecked(&cbkey, &sched);
+		CAST_KEY ckey;
+		CAST_set_key(&ckey, keyLength, key);
 
+		unsigned char ivec[CAST_BLOCK] = {};
 		int num = 0;
-		DES_cfb64_encrypt(in, out, len, &sched, &cbkey, &num, DES_DECRYPT);
+		CAST_cfb64_encrypt(in, out, len, &ckey, ivec, &num, CAST_DECRYPT);
 
 		return true;
 	}

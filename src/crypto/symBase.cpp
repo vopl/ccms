@@ -66,7 +66,7 @@ namespace ccms {namespace crypto
 			JS_ReportError(ecx()->_jsCx, "%s.encode must be called with 2 args", _strVal.c_str());
 			return false;
 		}
-		char *key;
+		unsigned char *key;
 		JSString *mgsjss;
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "sS", &key, &mgsjss)) return false;
 
@@ -78,12 +78,12 @@ namespace ccms {namespace crypto
 			std::back_insert_iterator<std::vector<unsigned char> > bi(msg);
 			utf8::unchecked::utf16to8(msg16, msg16+msg16Length, bi);
 		}
-		*((boost::int32_t *)&msg[0]) = Crc32((const char *)&msg[4], msg.size()-4);
+		*((boost::int32_t *)&msg[0]) = Crc32(&msg[4], msg.size()-4);
 
 		std::vector<unsigned char> res(msg.size());
 
 		if(!this->encrypt(
-			key,
+			key, strlen((char *)key),
 			&msg[0],
 			&res[0],
 			msg.size()))
@@ -103,7 +103,7 @@ namespace ccms {namespace crypto
 			JS_ReportError(ecx()->_jsCx, "%s.encode must be called with 2 args", _strVal.c_str());
 			return false;
 		}
-		char *key;
+		unsigned char *key;
 		char *c64;
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "ss", &key, &c64)) return false;
 
@@ -124,7 +124,7 @@ namespace ccms {namespace crypto
 		std::vector<unsigned char> res(c.size());
 
 		if(!this->decrypt(
-			key,
+			key, strlen((char *)key),
 			&c[0],
 			&res[0], 
 			c.size()))
@@ -132,7 +132,7 @@ namespace ccms {namespace crypto
 			*rval = JSVAL_VOID;
 			return true;
 		}
-		boost::int32_t crc32 = Crc32((const char *)&res[4], res.size()-4);
+		boost::int32_t crc32 = Crc32(&res[4], res.size()-4);
 
 		if(crc32 != *((boost::int32_t *)&res[0]))
 		{
@@ -171,19 +171,19 @@ namespace ccms {namespace crypto
 			JS_ReportError(ecx()->_jsCx, "%s.encodeJs must be called with 2 args", _strVal.c_str());
 			return false;
 		}
-		char *key;
+		unsigned char *key;
 		if(!JS_ConvertArguments(ecx()->_jsCx, 1, argv, "s", &key)) return false;
 
 		std::vector<unsigned char> msg(4);
 		if(!JS_Stringify(ecx()->_jsCx, argv+1, NULL, JSVAL_NULL, impl::stringifyCallback, &msg)) return false;
-		*((boost::int32_t *)&msg[0]) = Crc32((const char *)&msg[4], msg.size()-4);
+		*((boost::int32_t *)&msg[0]) = Crc32(&msg[4], msg.size()-4);
 
 
 		std::vector<unsigned char> res(msg.size());
 		size_t resLength = res.size();
 
 		if(!this->encrypt(
-			key,
+			key, strlen((char *)key),
 			&msg[0],
 			&res[0], msg.size()))
 		{
@@ -202,7 +202,7 @@ namespace ccms {namespace crypto
 			JS_ReportError(ecx()->_jsCx, "%s.encode must be called with 2 args", _strVal.c_str());
 			return false;
 		}
-		char *key;
+		unsigned char *key;
 		char *c64;
 		if(!JS_ConvertArguments(ecx()->_jsCx, 2, argv, "ss", &key, &c64)) return false;
 
@@ -223,14 +223,14 @@ namespace ccms {namespace crypto
 
 		std::vector<unsigned char> res8(c.size());
 		if(!this->decrypt(
-			key,
+			key, strlen((char *)key),
 			(unsigned char *)&c[0],
 			&res8[0], c.size()))
 		{
 			*rval = JSVAL_VOID;
 			return true;
 		}
-		boost::int32_t crc32 = Crc32((const char *)&res8[4], res8.size()-4);
+		boost::int32_t crc32 = Crc32(&res8[4], res8.size()-4);
 
 		if(crc32 != *((boost::int32_t *)&res8[0]))
 		{

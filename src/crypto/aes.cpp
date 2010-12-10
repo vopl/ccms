@@ -2,7 +2,6 @@
 #include "crypto/aes.hpp"
 #include <openssl/sha.h>
 #include <openssl/aes.h>
-#include "utils/crc32.hpp"
 
 namespace ccms{ namespace crypto{
 
@@ -25,19 +24,18 @@ namespace ccms{ namespace crypto{
 
 	//////////////////////////////////////////////////////////////////////////
 	bool Aes::encrypt(
-		const char *key, 
+		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
 		size_t len)
 	{
-		size_t keyLength = strlen(key);
 		AES_KEY akey;
 		int i;
 
 		switch(keyLength*8)
 		{
 		case 256:
-			i = AES_set_encrypt_key((const unsigned char*)key, 256, &akey);
+			i = AES_set_encrypt_key(key, 256, &akey);
 			break;
 		default:
 			{
@@ -65,19 +63,18 @@ namespace ccms{ namespace crypto{
 
 	//////////////////////////////////////////////////////////////////////////
 	bool Aes::decrypt(
-		const char *key, 
+		const unsigned char *key, size_t keyLength, 
 		const unsigned char *in,
 		unsigned char *out,
 		size_t len)
 	{
-		size_t keyLength = strlen(key);
 		AES_KEY akey;
 		int i;
 
 		switch(keyLength*8)
 		{
 		case 256:
-			i = AES_set_encrypt_key((const unsigned char*)key, 256, &akey);
+			i = AES_set_encrypt_key(key, 256, &akey);
 			break;
 		default:
 			{
