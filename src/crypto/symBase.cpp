@@ -12,11 +12,11 @@ namespace ccms {namespace crypto
 	{
 		(JSExceptionReporter)jsRegisterMeth("generateKey", &SymBase::call_generateKey, 0);
 
-		(JSExceptionReporter)jsRegisterMeth("encode", &SymBase::call_encode, 2);
-		(JSExceptionReporter)jsRegisterMeth("decode", &SymBase::call_decode, 2);
+		(JSExceptionReporter)jsRegisterMeth("encrypt", &SymBase::call_encrypt, 2);
+		(JSExceptionReporter)jsRegisterMeth("decrypt", &SymBase::call_decrypt, 2);
 
-		(JSExceptionReporter)jsRegisterMeth("encodeJson", &SymBase::call_encodeJson, 2);
-		(JSExceptionReporter)jsRegisterMeth("decodeJson", &SymBase::call_decodeJson, 2);
+		(JSExceptionReporter)jsRegisterMeth("encryptJson", &SymBase::call_encryptJson, 2);
+		(JSExceptionReporter)jsRegisterMeth("decryptJson", &SymBase::call_decryptJson, 2);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SymBase::call_encode(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_encrypt(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -72,7 +72,7 @@ namespace ccms {namespace crypto
 		std::vector<unsigned char> res(msgLength+4);
 		size_t resLength = res.size();
 
-		if(!this->encode(
+		if(!this->encrypt(
 			key,
 			(unsigned char *)msg, msgLength,
 			&res[0], resLength))
@@ -85,7 +85,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SymBase::call_decode(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_decrypt(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -113,7 +113,7 @@ namespace ccms {namespace crypto
 		std::vector<unsigned char> res(c.size());
 		size_t resLength = res.size();
 
-		if(!this->decode(
+		if(!this->decrypt(
 			key,
 			(unsigned char *)&c[0], c.size(),
 			&res[0], resLength))
@@ -153,7 +153,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SymBase::call_encodeJson(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_encryptJson(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -170,7 +170,7 @@ namespace ccms {namespace crypto
 		std::vector<unsigned char> res(msg.size()+4);
 		size_t resLength = res.size();
 
-		if(!this->encode(
+		if(!this->encrypt(
 			key,
 			&msg[0], msg.size(),
 			&res[0], resLength))
@@ -183,7 +183,7 @@ namespace ccms {namespace crypto
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool SymBase::call_decodeJson(uintN argc, jsval *argv, jsval *rval)
+	bool SymBase::call_decryptJson(uintN argc, jsval *argv, jsval *rval)
 	{
 		if(argc != 2)
 		{
@@ -212,7 +212,7 @@ namespace ccms {namespace crypto
 		std::vector<unsigned char> res8(c.size());
 		size_t res8Length = res8.size();
 
-		if(!this->decode(
+		if(!this->decrypt(
 			key,
 			(unsigned char *)&c[0], c.size(),
 			&res8[0], res8Length))

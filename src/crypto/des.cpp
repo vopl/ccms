@@ -18,7 +18,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::encode(
+	bool Des::encrypt(
 		const char *key, 
 		const unsigned char *msg, size_t msgLen,
 		unsigned char *res, size_t &resLen)
@@ -43,7 +43,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Des::decode(
+	bool Des::decrypt(
 		const char *key, 
 		const unsigned char *msg, size_t msgLen,
 		unsigned char *res, size_t &resLen)

@@ -66,7 +66,7 @@ manager.genIsid = function mkTesid(teid, uid)
 		iid:crypto.rand.str_(8),
 	};
 	let pswd = router.cd.global.session.secret;
-	let isid = crypto.sym.aes.encodeJson(pswd, iKey);
+	let isid = crypto.aes.encryptJson(pswd, iKey);
 	return isid;
 }
 
@@ -76,7 +76,7 @@ manager.getInstance = function getInstance(isid, uid)
 	if(!uid) uid = user.id;
 	let pswd = router.cd.global.session.secret;
 
-	let iKey = crypto.sym.aes.decodeJson(pswd, isid);
+	let iKey = crypto.aes.decryptJson(pswd, isid);
 	dumpe(iKey);
 
 	if(	!iKey || 

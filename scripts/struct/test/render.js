@@ -2,11 +2,11 @@
 {
 	let data = {a:'строка', b:[], c:0, d:{}};
 	let pswd = crypto.rand.str_(8);
-	let code1 = crypto.sym.aes.encodeJson(pswd, data);
-	let code2 = crypto.sym.des.encodeJson(pswd, data);
+	let code1 = crypto.aes.encryptJson(pswd, data);
+	let code2 = crypto.des.encryptJson(pswd, data);
 
-	let res1 = crypto.sym.aes.decodeJson(pswd, code1);
-	let res2 = crypto.sym.des.decodeJson(pswd, code2);
+	let res1 = crypto.aes.decryptJson(pswd, code1);
+	let res2 = crypto.des.decryptJson(pswd, code2);
 
 	return dumps([data, pswd, code1, code2, res1, res2]);
 }

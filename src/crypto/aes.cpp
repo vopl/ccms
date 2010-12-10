@@ -24,7 +24,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Aes::encode(
+	bool Aes::encrypt(
 		const char *key, 
 		const unsigned char *msg, size_t msgLen,
 		unsigned char *res, size_t &resLen)
@@ -70,7 +70,7 @@ namespace ccms{ namespace crypto{
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	bool Aes::decode(
+	bool Aes::decrypt(
 		const char *key, 
 		const unsigned char *msg, size_t msgLen,
 		unsigned char *res, size_t &resLen)

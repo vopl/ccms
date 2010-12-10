@@ -16,16 +16,8 @@ namespace ccms {namespace crypto
 		(JSExceptionReporter)jsRegisterProp("rand", (new Rand)->thisJsval(), true);
 		(JSExceptionReporter)jsRegisterProp("hash", (new Hash)->thisJsval(), true);
 
-		JSObject *sym = JS_NewObject(ecx()->_jsCx, NULL, NULL, NULL);
-		if(!sym)
-		{
-			(JSExceptionReporter)false;
-			return;
-		}
-
-		JS_DefineProperty(ecx()->_jsCx, sym, "des", (new Des)->thisJsval(), NULL, NULL, JSPROP_ENUMERATE|JSPROP_READONLY|JSPROP_PERMANENT);
-		JS_DefineProperty(ecx()->_jsCx, sym, "aes", (new Aes)->thisJsval(), NULL, NULL, JSPROP_ENUMERATE|JSPROP_READONLY|JSPROP_PERMANENT);
-		(JSExceptionReporter)jsRegisterProp("sym", sym, true);
+		(JSExceptionReporter)jsRegisterProp("des", (new Des)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("aes", (new Aes)->thisJsval(), true);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
