@@ -1,13 +1,8 @@
 ﻿function f()
 {
-	let dataJson = {a:'строка', b:[], c:0, d:{}};
-	let data = JSON.stringify(dataJson);
-	let pswd = crypto.rand.str_(20);
-	
-	
 	let report = {};
 	report.dataJson = {a:'строка', b:[], c:0, d:{}};
-	report.data = JSON.stringify(dataJson);
+	report.data = "Начальное состояние s0 называется инициализирующим вектором.";
 	report.pswd = crypto.rand.str_(8);
 	
 	function test(name)
@@ -21,6 +16,10 @@
 		lr.codeJson = alg.encodeJson(report.pswd, report.dataJson);
 		lr.res = alg.decode(report.pswd, lr.code);
 		lr.resJson = alg.decodeJson(report.pswd, lr.codeJson);
+		lr.bpres = alg.decode(report.pswd+'b', lr.code);
+		lr.bpresJson = alg.decodeJson(report.pswd+'b', lr.codeJson);
+		lr.bdres = alg.decode(report.pswd, lr.code+'b');
+		lr.bdresJson = alg.decodeJson(report.pswd, lr.codeJson+'b');
 		
 		report[name] = lr;
 	}
@@ -40,4 +39,4 @@
 //let teman = router.plugins.texteditor.manager;
 
 //let te = teman.getTe(this.path, {engine:'tmce', option2:'value2'});
-return <pre>{f.toString()}{f()}{dumps(crypto)}</pre>;//+te.render();
+return <pre>{f.toString()}<br/>f(): {f()}<br/>dumps(crypto):{dumps(crypto)}</pre>;//+te.render();
