@@ -14,14 +14,19 @@ crypto =
 	},
 	
 
-	sync:
+	sym:
 	{
 		des:object,
+		aes
+		idea
+		rc4
+		rc5
 	}
 
-	async:
+	asym:
 	{
 		rsa:object,
+		dsa
 	}
 	
 }

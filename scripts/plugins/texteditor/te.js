@@ -8,79 +8,81 @@ let te =
 
 te.elements = 
 {
-	bold:true,
-	italic:true,
-	underline:true,
-	strike:true,
-	subscript:true,
-	superscript:true,
-	deletion:true,
-	insertion:true,
+	text:exec('elements/text.js'),
+
+	bold:exec('elements/bold.js'),
+	italic:exec('elements/italic.js'),
+	underline:exec('elements/underline.js'),,
+	strike:exec('elements/strike.js'),
+	subscript:exec('elements/subscript.js'),
+	superscript:exec('elements/superscript.js'),
+	deletion:exec('elements/deletion.js'),
+	insertion:exec('elements/insertion.js'),
 
 
-	font:true,
-	size:true,
-	color:true,
-	bgcolor:true,
+	// font:exec('elements/font.js'),
+	// size:exec('elements/size.js'),
+	// color:exec('elements/color.js'),
+	// bgcolor:exec('elements/bgcolor.js'),
 
 
-	align:true,
-	layer:true,
-	pagebreak:true,
-	hr:true,
-	br:true,
-	ident:true,
+	// align:exec('elements/align.js'),
+	// pagebreak:exec('elements/pagebreak.js'),
+	// hr:exec('elements/hr.js'),
+	// br:exec('elements/br.js'),
+	// ident:exec('elements/ident.js'),
+	// p:exec('elements/p.js'),
 
 
 
-	caption:true,
-	spoiler:true,
-	whisper:true,
-	citate:true,
-	abbreviation:true,
-	acronym:true,
-	code:true,
+	// caption:exec('elements/caption.js'),
+	// spoiler:exec('elements/spoiler.js'),
+	// whisper:exec('elements/whisper.js'),
+	// citate:exec('elements/citate.js'),
+	// abbreviation:exec('elements/abbreviation.js'),
+	// acronym:exec('elements/acronym.js'),
+	// code:exec('elements/code.js'),
 
 
-	table:true,
-	list:true,
-	nlist:true,
+	// table:exec('elements/table.js'),
+	// list:exec('elements/list.js'),
+	// nlist:exec('elements/nlist.js'),
 
 
-	smile:true,
-	url:true,
-	urlExt:true,
-	email:true,
-	anchor:true,
+	// smile:exec('elements/smile.js'),
+	// url:exec('elements/url.js'),
+	// urlExt:exec('elements/urlExt.js'),
+	// email:exec('elements/email.js'),
+	// anchor:exec('elements/anchor.js'),
 
 
-	fileExt:true,
-	imageExt:true,
-	audioExt:true,
-	videoExt:true,
-	flashExt:true,
+	// fileExt:exec('elements/fileExt.js'),
+	// imageExt:exec('elements/imageExt.js'),
+	// audioExt:exec('elements/audioExt.js'),
+	// videoExt:exec('elements/videoExt.js'),
+	// flashExt:exec('elements/flashExt.js'),
 
 
-	file:true,
-	image:true,
-	audio:true,
-	video:true,
-	flash:true,
+	// file:exec('elements/file.js'),
+	// image:exec('elements/image.js'),
+	// audio:exec('elements/audio.js'),
+	// video:exec('elements/video.js'),
+	// flash:exec('elements/flash.js'),
 
 
-	script:true,
+	// script:exec('elements/script.js'),
 
-	custom:true,
+	// custom:exec('elements/custom.js'),
 }
 
-te.parseContent = function parse(xhtml)
+te.parseContent = function parse(xml)
 {
 	//return DomTree
 }
 
 te.renderContent = function parse(domTree)
 {
-	//return xhtml
+	//return xml
 }
 
 
