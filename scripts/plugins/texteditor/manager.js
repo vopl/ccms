@@ -32,37 +32,35 @@ manager.setTe = function(teid, options)
 ///////////////////////////////////////
 manager.getTe = function(teid, options)
 {
-	if(!(teid in this.tes))
-	{
-		if(options)
+//	if(!(teid in this.tes))
+//	{
+//		if(options)
 		{
 			this.setTe(teid, options);
 			return this.tes[teid];
 		}
-		else
-		{
-			return undefined;
-			//throw Error("manager.getTe: absent te and no options specified for create one");
-		}
-	}
+//		else
+//		{
+//			return undefined;
+//			//throw Error("manager.getTe: absent te and no options specified for create one");
+//		}
+//	}
 
 	return this.tes[teid];
 }
 
 
 ///////////////////////////////////////
-manager.genIsid = function mkTesid(teid, uid)
+manager.genIsid = function genIsid(teid, did)
 {
 	if(!teid) throw Error("manager.genIsid: teid must be setted");
 	if('object' == typeof(teid)) teid = teid.id;
 	if(!(teid in this.tes)) throw Error("manager.genIsid: invalud teid");
 
-	if(!uid) uid = user.id;
-
 	let iKey = 
 	{
 		teid:teid,
-		uid:uid,
+		did:did,
 		iid:crypto.rand.str_(8),
 	};
 	let pswd = router.cd.global.session.secret;
@@ -71,17 +69,14 @@ manager.genIsid = function mkTesid(teid, uid)
 }
 
 ///////////////////////////////////////
-manager.getInstance = function getInstance(isid, uid)
+manager.getInstance = function getInstance(isid)
 {
-	if(!uid) uid = user.id;
 	let pswd = router.cd.global.session.secret;
 
 	let iKey = crypto.aes.decodeJson(pswd, isid);
-	dumpe(iKey);
 
 	if(	!iKey || 
 		'object' != typeof(iKey) ||
-		iKey.uid != uid ||
 		!(iKey.teid in this.tes))
 	{
 		return undefined;
@@ -102,7 +97,7 @@ manager.getInstance = function getInstance(isid, uid)
 }
 
 ///////////////////////////////////////////
-manager.dropInstance = function mkInstance(instance)
+manager.dropInstance = function dropInstance(instance)
 {
 	if(instance.id in this.instances)
 	{

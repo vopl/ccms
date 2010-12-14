@@ -1,24 +1,24 @@
 let e = {};
 
 ///////////////////////////////////////////////
-e.kind = 'text';
+e.kind = 'comment';
 
 ///////////////////////////////////////////////
 e.content = '';
 
 ///////////////////////////////////////////////
 e.template = router.createTemplate();
-e.template.compileText(e.template.content);
+e.template.compileXml(<><!--{e.template.content}--></>);
 
 ///////////////////////////////////////////////
 e.parser = 
 {
-	kind:'text',
+	kind:'comment',
 	parse: function parse(xml, context, manager)
 	{
 		let res = {};
 		res.__proto__ = e;
-		res.content = xml.toXMLString();
+		res.content = xml.toString();
 		return res;
 	},
 };

@@ -337,7 +337,7 @@ namespace ccms
 				}
 				size_t size = strlen(data);
 
-				if(etetXml == escaper.getType())
+				if(etetXml == escaper.getType() && etetXml ==_etet)
 				{
 					//already xml, do not apply escaper
 					if(escaper.getTail())
@@ -398,7 +398,7 @@ namespace ccms
 							Template *tjso = dynamic_cast<Template *>(jso);
 							if(tjso)
 							{
-								if(ets_xml == tjso->getState() && etetXml == escaper.getType())
+								if(ets_xml == tjso->getState() && etetXml == escaper.getType() && etetXml == _etet)
 								{
 									if(escaper.getTail())
 									{

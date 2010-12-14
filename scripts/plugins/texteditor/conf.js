@@ -25,7 +25,7 @@
 	uninstallImpl:function()
 	{
 		this.stopCron();
-		router.getPoint('/').setChild('user', null);
+		router.getPoint('/').setChild('texteditor', null);
 		exec("schema.js", orm, false);
 		delete this.manager;
 		return true;

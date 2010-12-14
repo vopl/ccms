@@ -9,11 +9,8 @@ e.kind = undefined;
 ///////////////////////////////////////////////
 e.parser = 
 {
-	keys:
-	[
-		//{tag:'div', priority:0},
-		//{list:'', priority:0},
-	],
+	//kind:'*',
+	//tags:{div:0},
 	parse: function parse(xml, context, manager)
 	{
 		return null;
