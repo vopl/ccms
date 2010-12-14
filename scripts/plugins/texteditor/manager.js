@@ -63,6 +63,9 @@ manager.genIsid = function genIsid(teid, did)
 		did:did,
 		iid:crypto.rand.str_(8),
 	};
+	
+	while(this.instances[iKey.iid]) iKey.iid = crypto.rand.str_(8);
+
 	let pswd = router.cd.global.session.secret;
 	let isid = crypto.aes.encodeJson(pswd, iKey);
 	return isid;
