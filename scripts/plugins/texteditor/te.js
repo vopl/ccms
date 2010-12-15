@@ -6,74 +6,215 @@ let te =
 	options:arguments[2],
 };
 
-te.elements = 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+te.elements = {};
+
+
+////////////////////////////////////////////////////////////
+//отработать te.options.elements.allow, te.options.elements.disallow
+if(!('elements' in te.options)) te.options.elements = {};
+if(!('allow' in te.options.elements))
 {
-	text:exec('elements/text.js'),
+	te.options.elements.allow = 
+	{
+		text:true,
+		textTag:true,
 
-	bold:exec('elements/bold.js'),
-	italic:exec('elements/italic.js'),
-	underline:exec('elements/underline.js'),
-	strike:exec('elements/strike.js'),
-	subscript:exec('elements/subscript.js'),
-	superscript:exec('elements/superscript.js'),
-	deletion:exec('elements/deletion.js'),
-	insertion:exec('elements/insertion.js'),
-
-
-	// font:exec('elements/font.js'),
-	// size:exec('elements/size.js'),
-	// color:exec('elements/color.js'),
-	// bgcolor:exec('elements/bgcolor.js'),
+		bold:true,
+		italic:true,
+		underline:true,
+		strike:true,
+		insertion:true,
+		deletion:true,
+		subscript:true,
+		superscript:true,
 
 
-	// align:exec('elements/align.js'),
-	// pagebreak:exec('elements/pagebreak.js'),
-	// hr:exec('elements/hr.js'),
-	// br:exec('elements/br.js'),
-	// ident:exec('elements/ident.js'),
-	// p:exec('elements/p.js'),
+		// font:true,
+		// size:true,
+		// color:true,
+		// bgcolor:true,
+
+
+		// align:true,
+		// pagebreak:true,
+		// hr:true,
+		// br:true,
+		// ident:true,
+		// p:true,
 
 
 
-	// caption:exec('elements/caption.js'),
-	// spoiler:exec('elements/spoiler.js'),
-	// whisper:exec('elements/whisper.js'),
-	// citate:exec('elements/citate.js'),
-	// abbreviation:exec('elements/abbreviation.js'),
-	// acronym:exec('elements/acronym.js'),
-	// code:exec('elements/code.js'),
+		// caption:true,
+		// spoiler:true,
+		// whisper:true,
+		// citate:true,
+		// abbreviation:true,
+		// acronym:true,
+		// code:true,
 
 
-	// table:exec('elements/table.js'),
-	// list:exec('elements/list.js'),
-	// nlist:exec('elements/nlist.js'),
+		// table:true,
+		// list:true,
+		// nlist:true,
 
 
-	// smile:exec('elements/smile.js'),
-	// url:exec('elements/url.js'),
-	// urlExt:exec('elements/urlExt.js'),
-	// email:exec('elements/email.js'),
-	// anchor:exec('elements/anchor.js'),
+		// smile:true,
+		// url:true,
+		// urlExt:true,
+		// email:true,
+		// anchor:true,
 
 
-	// fileExt:exec('elements/fileExt.js'),
-	// imageExt:exec('elements/imageExt.js'),
-	// audioExt:exec('elements/audioExt.js'),
-	// videoExt:exec('elements/videoExt.js'),
-	// flashExt:exec('elements/flashExt.js'),
+		// fileExt:true,
+		// imageExt:true,
+		// audioExt:true,
+		// videoExt:true,
+		// flashExt:true,
 
 
-	// file:exec('elements/file.js'),
-	// image:exec('elements/image.js'),
-	// audio:exec('elements/audio.js'),
-	// video:exec('elements/video.js'),
-	// flash:exec('elements/flash.js'),
+		// file:true,
+		// image:true,
+		// audio:true,
+		// video:true,
+		// flash:true,
 
 
-	// script:exec('elements/script.js'),
+		// script:true,
 
-	// custom:exec('elements/custom.js'),
+		// custom:true,
+	};
 }
+else
+{
+	if(te.options.elements.allow instanceof Array)
+	{
+		let allow = {};
+		for each(let ename in te.options.elements.allow) allow[ename] = true;
+		te.options.elements.allow = allow;
+	}
+
+	te.options.elements.allow.text=true;
+	te.options.elements.allow.textTag=true;
+}
+
+if('disallow' in te.options.elements)
+{
+	if(te.options.elements.disallow instanceof Array)
+	{
+		for each(let ename in te.options.elements.disallow)
+		{
+			delete te.options.elements.allow[ename];
+		}
+	}
+	else
+	{
+		for(let ename in te.options.elements.disallow)
+		{
+			delete te.options.elements.allow[ename];
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+//сформировать экземпляры элементов
+for(let ename in te.options.elements.allow)
+{
+	try
+	{
+		te.elements[ename] = exec('./elements/'+ename+'.js');
+	}
+	catch(e)
+	{
+		warn('exception when load element driver "'+ename+'" for text editor: '+e);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+te.facilities = {};
+
+
+////////////////////////////////////////////////////////////
+//отработать te.options.facilities.allow, te.options.facilities.disallow
+if(!('facilities' in te.options)) te.options.facilities = {};
+if(!('allow' in te.options.facilities))
+{
+	te.options.facilities.allow = 
+	{
+		source:true,
+		preview:true,
+	};
+}
+else
+{
+	if(te.options.facilities.allow instanceof Array)
+	{
+		let allow = {};
+		for each(let ename in te.options.facilities.allow) allow[ename] = true;
+		te.options.facilities.allow = allow;
+	}
+}
+
+if('disallow' in te.options.facilities)
+{
+	if(te.options.facilities.disallow instanceof Array)
+	{
+		for each(let ename in te.options.facilities.disallow)
+		{
+			delete te.options.facilities.allow[ename];
+		}
+	}
+	else
+	{
+		for(let ename in te.options.facilities.disallow)
+		{
+			delete te.options.facilities.allow[ename];
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+//сформировать экземпляры элементов
+for(let fname in te.options.facilities.allow)
+{
+	te.facilities[fname] = fname;
+}
+
+
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////
 te.parserTables = 
@@ -107,6 +248,9 @@ for (let ename in te.elements)
 		let table = te.parserTables[element.parser.kind];
 		let priority = element.parser.priority?element.parser.priority:0;
 		table.push({parser:element.parser.parse, priority:priority});
+		break;
+	default:
+		throw Error('unknown element kind: '+element.parser.kind);
 	}
 }
 
@@ -128,14 +272,14 @@ for(let kind in te.parserTables)
 }
 
 ////////////////////////////////////////////////////////////
-te.parserTables.element.push(function(xml, context, manager)
+te.parserTables.element.push(function(xml, manager)
 {
 	let parsers = te.parserTablesElement[xml.name()];
 	if(parsers)
 	{
 		for each(let parser in parsers)
 		{
-			let res = parser(xml, context, manager);
+			let res = parser(xml, manager);
 			if(res) return res;
 		}
 	}
@@ -144,7 +288,7 @@ te.parserTables.element.push(function(xml, context, manager)
 	{
 		for each(let parser in parsers)
 		{
-			let res = parser(xml, context, manager);
+			let res = parser(xml, manager);
 			if(res) return res;
 		}
 	}
@@ -152,9 +296,8 @@ te.parserTables.element.push(function(xml, context, manager)
 	return null;
 });
 
-te.parse = function parse(xml, context)
+te.parse = function parse(xml)
 {
-	if(!context) context = {};
 	switch(xml.length())
 	{
 	case 0:
@@ -169,7 +312,7 @@ te.parse = function parse(xml, context)
 
 		for each(let parser in parserTable)
 		{
-			let res = parser(xml, context, this);
+			let res = parser(xml, this);
 			if(res) return res;
 		}
 		warn('unable to parse: '+xml.toXMLString());
@@ -178,7 +321,7 @@ te.parse = function parse(xml, context)
 		let res = [];
 		for each(let c in xml)
 		{
-			let pr = this.parse(c, context);
+			let pr = this.parse(c);
 			if(pr) res.push(pr);
 		}
 		return res;
@@ -186,35 +329,54 @@ te.parse = function parse(xml, context)
 	//return DomTree
 }
 
-te.render_internal = function render_internal(domTree, context)
+
+/////////////////////////////////////////////////////////
+te.render_internal = function render_internal(doc)
 {
 	let res = [];
-	if(!domTree) return res;
-	if(!(domTree instanceof Array)) domTree = [domTree];
+	if(!doc) return res;
+	if(!(doc instanceof Array)) doc = [doc];
 
-	for each(let element in domTree)
+	for each(let element in doc)
 	{
-		res.push(element.render_internal(context));
-	}
-
-	return res;
-}
-
-te.render_web = function render_web(domTree, context)
-{
-	let res = [];
-	if(!domTree) return res;
-	if(!(domTree instanceof Array)) domTree = [domTree];
-
-	for each(let element in domTree)
-	{
-		res.push(element.render_web(context));
+		res.push(element.render_internal());
 	}
 
 	return res;
 }
 
 
+/////////////////////////////////////////////////////////
+te.render_web = function render_web(doc)
+{
+	let res = [];
+	if(!doc) return res;
+	if(!(doc instanceof Array)) doc = [doc];
+
+	for each(let element in doc)
+	{
+		res.push(element.render_web());
+	}
+
+	return res;
+}
+
+
+/////////////////////////////////////////////////////////
+te.render = function render(isid, doc)
+{
+	if(!isid) throw Error('isid must be provided');
+
+	if(!doc) doc = null;
+	else if('xml' == typeof(doc))
+	{
+		doc = this.parse(doc);
+	}
+
+	return this.engine.render(isid, doc);
+}
+
+/////////////////////////////////////////////////////////
 if(!te.options.engine) te.options.engine = "tmce";
 switch(te.options.engine)
 {
@@ -224,20 +386,4 @@ case 'tmce':
 default:
 	throw Error("te.options.engine is not valid: "+te.options.engine);
 }
-
-te.render = function render(isid, doc)
-{
-	if(!isid) throw Error('isid must be provided');
-
-	if('object' != typeof(doc)) throw Error('doc must be an object with attributes "dom" and "data"');
-	if(!doc.data) doc.data = {};
-	if(!doc.dom) doc.dom = null;
-	else if('xml' == typeof(doc.dom))
-	{
-		doc.dom = this.parse(doc.dom, doc.data);
-	}
-
-	return this.engine.render(isid, doc);
-}
-
 return te;

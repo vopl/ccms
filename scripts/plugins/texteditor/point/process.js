@@ -1,4 +1,4 @@
-dumpe(request.params);
+
 let isid = request.params.isid;
 if(!isid)
 {
@@ -6,8 +6,8 @@ if(!isid)
 	return;
 }
 
-//let manager = {};
-let instance = router.plugins.texteditor.manager.getInstance(isid);
+let manager = router.plugins.texteditor.manager;
+let instance = manager.getInstance(isid);
 
 if(!instance)
 {
@@ -19,6 +19,15 @@ let res;
 
 switch(request.params.mode)
 {
+case 'render':
+	res = instance.render().print();
+	break;
+case 'ping':
+	res = manager.pingInstance(instance);
+	break;
+case 'set':
+	res = instance.set();
+	break;
 case 'setImage':
 	res = instance.setImage();
 	break;
@@ -41,6 +50,7 @@ case 'getFiles':
 	res = instance.getFiles();
 	break;
 case 'drop':
+	instance.finish();
 	res = manager.dropInstance(instance);
 	break;
 default:

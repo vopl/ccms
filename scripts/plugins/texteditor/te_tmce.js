@@ -7,6 +7,7 @@ let t = router.createTemplate();
 t.compile(<>
 	<form method="post" action="/texteditor">
 		<input type="hidden" name="isid" value={t.isid}/>
+		<input type="hidden" name="mode" value='render'/>
 		<textarea id={t.isid+"_content"} name="content" rows="15" cols="80" style="width: 80%">
 			{t.content}
 		</textarea><br/>
@@ -22,7 +23,6 @@ t.compile(<>
 let tcontent = router.createTemplate();
 tcontent.compileText(tcontent.content);
 
-
 ///////////////////////////////////////
 // формирование xhtml редактора с идентификатором экземпляра isid и начальным состоянием data
 tmce.render = function render(isid, doc)
@@ -32,7 +32,7 @@ tmce.render = function render(isid, doc)
 
 	if(doc)
 	{
-		lt.content = tcontent.clone(); lt.content.content = te.render_web(doc.dom, doc.data);
+		lt.content = tcontent.clone(); lt.content.content = te.render_web(doc);
 		lt.files = 'doc.data.files';
 		lt.images = 'doc.data.images';
 	}
@@ -43,19 +43,101 @@ tmce.render = function render(isid, doc)
 		lt.images = '';
 	}
 
+
+	/////////////////////////////////
+	//сформировать перечень кнопок визивига и перечень разрешенных тегов
+	let valid_elements = {};	//http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/valid_elements
+	let buttons = {};		//http://wiki.moxiecode.com/index.php/TinyMCE:Control_reference
+	let plugins = {};
+
+	for each(let e in te.elements)
+	{
+		switch(e.kind)
+		{
+		case 'bold':
+			valid_elements.strong = true;
+			buttons.bold=true;
+			break;
+		case 'underline':
+			valid_elements.u = true;
+			valid_elements['span[style]'] = true;
+			buttons.underline = true;
+			break;
+		case 'strike':
+			valid_elements.s = true;
+			valid_elements['span[style]'] = true;
+			buttons.strikethrough = true;
+			break;
+		case 'insertion':
+			valid_elements.ins = true;
+			buttons.ins = true;
+			plugins.xhtmlxtras = true;
+			break;
+		case 'deletion':
+			valid_elements.del = true;
+			buttons.del = true;
+			plugins.xhtmlxtras = true;
+			break;
+		case 'italic':
+			valid_elements.em = true;
+			buttons.italic = true;
+			break;
+		case 'subscript':
+			valid_elements.sub = true;
+			buttons.sub = true;
+			break;
+		case 'superscript':
+			valid_elements.sup = true;
+			buttons.sup = true;
+			break;
+		}
+	}
+
+	for each(let f in te.facilities)
+	{
+		switch(f)
+		{
+		case 'source':
+			buttons.code=true;
+			break;
+		case 'preview':
+			buttons.preview = true;
+			plugins.preview = true;
+			break;
+		case 'save':
+			buttons.save = true;
+			plugins.save = true;
+			break;
+		case 'cancel':
+			buttons.cancel = true;
+			plugins.save = true;
+			break;
+		}
+	}
+	
+	/////////////////////////////////
+	valid_elements = [].pushKeys(valid_elements);
+	buttons = [].pushKeys(buttons);
+	plugins = [].pushKeys(plugins);
+	/////////////////////////////////
+
+
 	//http://wiki.moxiecode.com/index.php/TinyMCE:Configuration
 	t.scriptBody = ["tinyMCE.init({\n"];
 	t.scriptBody.push('mode : "exact",\n');
 	t.scriptBody.push('elements : "'+isid+"_content"+'",\n');
-	//t.scriptBody.push('plugins : "autosave",\n');
 
 	t.scriptBody.push('theme:"advanced",\n');
-	//t.scriptBody.push('doctype:"<!DOCTYPE html PUBLIC \'-//W3C//DTD XHTML 1.0 Strict//EN\' \'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\'>",\n');
+	t.scriptBody.push('doctype:"<!DOCTYPE html PUBLIC \'-//W3C//DTD XHTML 1.0 Strict//EN\' \'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\'>",\n');
 
-	//t.scriptBody.push('valid_elements:"b,i,a[href],span,div[class|id]",\n');
-	//t.scriptBody.push('content_css:"/null.css",\n');
-	//t.scriptBody.push('verify_css_classes:true,\n');
-	//t.scriptBody.push('entity_encoding:"named",\n');
+	t.scriptBody.push('valid_elements:"'+valid_elements.join(',')+'",\n');
+	t.scriptBody.push('theme_advanced_buttons1 : "'+buttons.join(',')+'",\n');
+	t.scriptBody.push('theme_advanced_buttons2 : "",\n');
+	t.scriptBody.push('theme_advanced_buttons3 : "",\n');
+	t.scriptBody.push('theme_advanced_buttons4 : "",\n');
+	t.scriptBody.push('theme_advanced_buttons5 : "",\n');
+	t.scriptBody.push('theme_advanced_buttons6 : "",\n');
+	t.scriptBody.push('plugins : "'+plugins.join(',')+'",\n');
 
 
 
@@ -66,5 +148,6 @@ tmce.render = function render(isid, doc)
 
 	return lt;
 }
+
 
 return tmce;

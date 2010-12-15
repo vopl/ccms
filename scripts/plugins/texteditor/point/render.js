@@ -3,23 +3,32 @@ let res = arguments[1];
 
 switch(mode)
 {
+case 'render':
+	dump([mode, res]);
+	break;
+case 'ping':
+	dump([mode, res]);
+	break;
+case 'set':
+	dump([mode, res]);
+	break;
 case 'setImage':
-	dumps([mode, res]);
+	dump([mode, res]);
 	break;
 case 'setFile':
-	dumps([mode, res]);
+	dump([mode, res]);
 	break;
 case 'setContent':
-	dumps([mode, res]);
+	dump([mode, res]);
 	break;
 case 'reset':
-	dumps([mode, res]);
+	dump([mode, res]);
 	break;
 case 'getContent':
-	dumps([mode, res]);
+	dump([mode, res]);
 	break;
 case 'drop':
-	dumps([mode, res]);
+	dump([mode, res]);
 	break;
 default:
 	request.setStatusCode(501);//Not Implemented

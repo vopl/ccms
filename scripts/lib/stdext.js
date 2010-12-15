@@ -29,6 +29,29 @@ he(Array.prototype, 'front');
 
 
 
+//////////////////////////////////////////////////////////
+//массиву добавлялка ключей или значений из хэша
+Array.prototype.pushKeys = function pushKeys(obj)
+{
+	for(let k in obj) this.push(k);
+	return this;
+};
+he(Array.prototype, 'pushKeys');
+
+Array.prototype.pushValues = function pushValues(obj)
+{
+	for each(let k in obj) this.push(k);
+	return this;
+};
+he(Array.prototype, 'pushValues');
+
+
+
+
+
+
+//////////////////////////////////////////////////////////
+//для даты временной штамп
 function dn(v, n)
 {
 	v = String(v);
@@ -37,8 +60,6 @@ function dn(v, n)
 }
 
 
-//////////////////////////////////////////////////////////
-//для даты временной штамп
 Date.prototype.__defineGetter__('ts', function()
 {
 	return ["",

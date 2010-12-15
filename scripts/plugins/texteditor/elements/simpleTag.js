@@ -11,7 +11,7 @@ e.parser =
 	kind:'element',
 	//tags:{e.tag:0},
 	tags:{},
-	parse: function parse(xml, context, manager)
+	parse: function parse(xml, manager)
 	{
 		let res = {};
 		res.__proto__ = e;
@@ -31,7 +31,7 @@ e.parser =
 };
 
 ///////////////////////////////////////////////
-e.render_internal = function render_internal(context)
+e.render_internal = function render_internal()
 {
 	if('childs' in this)
 	{
@@ -43,7 +43,7 @@ e.render_internal = function render_internal(context)
 			e.render_internal.t = t;
 		}
 		t = t.clone();
-		t.childs = this.childs.map(function(v) v.render_internal(context));
+		t.childs = this.childs.map(function(v) v.render_internal());
 		return t;
 	}
 
@@ -58,21 +58,21 @@ e.render_internal = function render_internal(context)
 }
 
 ///////////////////////////////////////////////
-e.render_web = function render_web(context)
+e.render_web = function render_web()
 {
-	return this.render_internal(context);
+	return this.render_internal();
 }
 
 ///////////////////////////////////////////////
-e.render_mail = function render_mail(context)
+e.render_mail = function render_mail()
 {
-	return this.render_internal(context);
+	return this.render_internal();
 }
 
 ///////////////////////////////////////////////
-e.render_rss = function render_rss(context)
+e.render_rss = function render_rss()
 {
-	return this.render_internal(context);
+	return this.render_internal();
 }
 
 e.__proto__ = exec('super.js');

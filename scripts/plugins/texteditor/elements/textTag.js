@@ -1,7 +1,7 @@
 let e = {};
 
 ///////////////////////////////////////////////
-e.kind = 'text';
+e.kind = 'textTag';
 
 ///////////////////////////////////////////////
 e.content = '';
@@ -13,12 +13,13 @@ e.template.compileText(e.template.content);
 ///////////////////////////////////////////////
 e.parser = 
 {
-	kind:'text',
+	kind:'element',
+	tags:{'*':-10},
 	parse: function parse(xml, manager)
 	{
 		let res = {};
 		res.__proto__ = e;
-		res.content = xml.toXMLString();
+		res.content = esc.xml(xml.toXMLString());
 		return res;
 	},
 };

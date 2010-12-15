@@ -61,11 +61,8 @@ manager.genIsid = function genIsid(teid, did)
 	{
 		teid:teid,
 		did:did,
-		iid:crypto.rand.str_(8),
 	};
 	
-	while(this.instances[iKey.iid]) iKey.iid = crypto.rand.str_(8);
-
 	let pswd = router.cd.global.session.secret;
 	let isid = crypto.aes.encodeJson(pswd, iKey);
 	return isid;
@@ -88,31 +85,40 @@ manager.getInstance = function getInstance(isid)
 
 	let te = this.tes[iKey.teid];
 
-	if(!(iKey.iid in this.instances))
+	if(!(isid in this.instances))
 	{
-		this.instances[iKey.iid] = this.mkInstance(iKey.iid, te);
+		this.instances[isid] = this.mkInstance(isid, te);
 	}
 
-	//assert(this.instances[teKey.iid].id == teKey.iid)
-	//assert(this.instances[teKey.iid].te.id == teKey.teid)
+	//assert(this.instances[isid].id == isid)
+	//assert(this.instances[isid].te.id == iKey.teid)
 
-	return this.instances[iKey.iid];
+	return this.instances[isid];
 }
 
 ///////////////////////////////////////////
-manager.dropInstance = function dropInstance(instance)
+manager.pingInstance = function pingInstance(instance)
 {
-	if(instance.id in this.instances)
+	//...
+}
+
+///////////////////////////////////////////
+manager.dropInstance = function dropInstance(instanceOrIsid)
+{
+	if(typeof(instanceOrIsid) == 'object')
 	{
-		//assert(this.instances[instance.id].id == instance.id)
-		delete this.instances[instance.id];
+		instanceOrIsid = instanceOrIsid.isid;
+	}
+	if(instanceOrIsid in this.instances)
+	{
+		delete this.instances[instanceOrIsid];
 	}
 }
 
 ///////////////////////////////////////////
-manager.mkInstance = function mkInstance(id, te)
+manager.mkInstance = function mkInstance(isid, te)
 {
-	let instance = {id:id, te:te};
+	let instance = {isid:isid, te:te};
 	instance.__proto__ = this.baseInstance;
 	return instance;
 }
