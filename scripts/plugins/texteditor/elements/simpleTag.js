@@ -9,7 +9,6 @@ e.childs = [];
 e.parser = 
 {
 	kind:'element',
-	//tags:{e.tag:0},
 	tags:{},
 	parse: function parse(xml, manager)
 	{
@@ -31,49 +30,32 @@ e.parser =
 };
 
 ///////////////////////////////////////////////
-e.render_internal = function render_internal()
+e.render = function render(mode)
 {
 	if('childs' in this)
 	{
-		let t = e.render_internal.t;
+		let t = arguments.callee.t;
 		if(!t)
 		{
 			t = router.createTemplate();
 			t.compile(<{e.tag}>{t.childs}</{e.tag}>);
-			e.render_internal.t = t;
+			arguments.callee.t = t;
 		}
 		t = t.clone();
-		t.childs = this.childs.map(function(v) v.render_internal());
+		t.childs = this.childs.map(function(v) v.render(mode));
 		return t;
 	}
 
-	let te = e.render_internal.te;
+	let te = arguments.callee.te;
 	if(!te)
 	{
 		te = router.createTemplate();
 		te.compile(<{e.tag}/>);
-		e.render_internal.te = te;
+		arguments.callee.te = te;
 	}
 	return te;
 }
 
-///////////////////////////////////////////////
-e.render_web = function render_web()
-{
-	return this.render_internal();
-}
-
-///////////////////////////////////////////////
-e.render_mail = function render_mail()
-{
-	return this.render_internal();
-}
-
-///////////////////////////////////////////////
-e.render_rss = function render_rss()
-{
-	return this.render_internal();
-}
 
 e.__proto__ = exec('super.js');
 return e;

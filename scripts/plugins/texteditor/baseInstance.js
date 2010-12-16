@@ -18,9 +18,10 @@ baseInstance.render = function render()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-baseInstance.set = function set()
+baseInstance.save = function save(content)
 {
-	warn('set');
+	let doc = this.te.e2i(content);
+	warn('save');
 }
 
 ///////////////////////////////////////////////////////////////////////////

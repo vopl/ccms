@@ -45,6 +45,9 @@ if(!('allow' in te.options.elements))
 		subscript:true,
 		superscript:true,
 
+		paragraph:true,
+		header:true,
+
 
 		// font:true,
 		// size:true,
@@ -331,36 +334,15 @@ te.parse = function parse(xml)
 
 
 /////////////////////////////////////////////////////////
-te.render_internal = function render_internal(doc)
+te.renderDoc = function renderDoc(doc, mode)
 {
-	let res = [];
-	if(!doc) return res;
-	if(!(doc instanceof Array)) doc = [doc];
-
-	for each(let element in doc)
+	if(!doc) return null;
+	if(doc instanceof Array)
 	{
-		res.push(element.render_internal());
+		return doc.map(function(v) v.render(mode));
 	}
-
-	return res;
+	return doc.render(mode);
 }
-
-
-/////////////////////////////////////////////////////////
-te.render_web = function render_web(doc)
-{
-	let res = [];
-	if(!doc) return res;
-	if(!(doc instanceof Array)) doc = [doc];
-
-	for each(let element in doc)
-	{
-		res.push(element.render_web());
-	}
-
-	return res;
-}
-
 
 /////////////////////////////////////////////////////////
 te.render = function render(isid, doc)
@@ -375,6 +357,30 @@ te.render = function render(isid, doc)
 
 	return this.engine.render(isid, doc);
 }
+
+
+
+
+
+
+
+
+///////////////////////////////////////
+// преобразование из внутреннего представления в движковое
+te.i2e = function i2e(doc)
+{
+	return this.engine.i2e(doc);
+}
+
+
+
+///////////////////////////////////////
+// преобразование из движкового во внутреннее
+te.e2i = function e2i(text)
+{
+	return this.engine.e2i(text);
+}
+
 
 /////////////////////////////////////////////////////////
 if(!te.options.engine) te.options.engine = "tmce";

@@ -101,7 +101,12 @@ namespace ccms
 			}
 
 			size_t mark = _atost(what[5].str().data());
-			assert(_result.size() > mark);
+			//assert(_result.size() > mark);
+			if(_result.size() <= mark)
+			{
+				_state = ets_init;
+				return false;
+			}
 			TemplateSourcePtr t = _result.rnd[mark].second->clone();
 
 			if(what[1].matched) t->setEtet(etetTagName);

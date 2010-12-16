@@ -6,8 +6,8 @@ let te = teman.getTe(
 
 		elements:
 		{	
-			allow:['comment','bold', 'italic','strike','underline','insertion','deletion','subscript','superscript'],
-			disallow:['comment','striked'],
+			//allow:['comment','bold', 'italic','strike','underline','insertion','deletion','subscript','superscript','paragraph'],
+			//disallow:['comment','striked'],
 		},
 
 		facilities:
@@ -24,14 +24,7 @@ let te = teman.getTe(
 	});
 
 
-let doc =
-		<>
-			text content
-			<b>bold</b>
-			text content
-			<b><em>bold italic</em></b>
-			text content
-		</>;
+let doc = exec('testdoc.js');
 
 
 //let isid = teman.genIsid(te, 'myDid');

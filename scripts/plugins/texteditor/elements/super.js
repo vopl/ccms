@@ -38,25 +38,25 @@ e.render = function render(mode)
 ///////////////////////////////////////////////
 e.render_internal = function render_internal()
 {
-	return 'super unable to render this instance: ' + dumps(this);
+	return 'super unable to render_internal this instance: ' + dumps(this);
 }
 
 ///////////////////////////////////////////////
 e.render_web = function render_web()
 {
-	return 'super unable to render this instance: ' + dumps(this);
+	return 'super unable to render_web this instance: ' + dumps(this);
 }
 
 ///////////////////////////////////////////////
 e.render_mail = function render_mail()
 {
-	return 'super unable to render this instance: ' + dumps(this);
+	return 'super unable to render_mail this instance: ' + dumps(this);
 }
 
 ///////////////////////////////////////////////
 e.render_rss = function render_rss()
 {
-	return 'super unable to render this instance: ' + dumps(this);
+	return 'super unable to render_rss this instance: ' + dumps(this);
 }
 
 return e;

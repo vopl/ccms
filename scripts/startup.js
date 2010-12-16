@@ -5,6 +5,7 @@ exec('lib/escapers.js');
 exec('lib/uniq.js');
 exec('lib/i18n.js');
 exec('lib/stdext.js');
+exec('lib/xml.js');
 global.cache = exec('lib/cache.js');
 
 

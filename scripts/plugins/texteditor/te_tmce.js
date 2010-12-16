@@ -6,11 +6,9 @@ let tmce = {};
 let t = router.createTemplate();
 t.compile(<>
 	<form method="post" action="/texteditor">
+		<textarea id={t.isid+"_content"} name="content" rows="15" cols="80" style="width: 80%">{t.content}</textarea><br/>
 		<input type="hidden" name="isid" value={t.isid}/>
-		<input type="hidden" name="mode" value='render'/>
-		<textarea id={t.isid+"_content"} name="content" rows="15" cols="80" style="width: 80%">
-			{t.content}
-		</textarea><br/>
+		<input type="hidden" name="mode" value='save'/>
 		<input type="submit" name="save" value="Submit" />
 		<input type="reset" name="reset" value="Reset" />
 	</form>
@@ -23,6 +21,56 @@ t.compile(<>
 let tcontent = router.createTemplate();
 tcontent.compileText(tcontent.content);
 
+
+
+
+///////////////////////////////////////
+// преобразование из внутреннего представления в веб
+tmce.i2e = function i2e(doc)
+{
+	let res = tcontent.clone();
+	res.content = te.renderDoc(doc, 'web');;
+	return res;
+}
+
+
+
+///////////////////////////////////////
+// преобразование из веб представления во внутреннее
+tmce.e2i = function e2i(text)
+{
+	text = '<root>'+xmlEnties2Codes(text)+'</root>';
+	let xml = new XML(text);
+	xml = xml.children();
+
+	//тут обход дерева и всякие замены представления
+	for each(let c in xml) this.e2i_walker(c);
+
+	let doc = te.parse(xml);
+	return doc;
+}
+
+//////////////////////////////////////
+// преобразование одного узла
+tmce.e2i_walker = function e2i_walker(node)
+{
+	switch(node.nodeKind())
+	{
+	case 'element':
+		warn('walk tag ', node.name());
+		for each(let c in node) this.e2i_walker(c);
+		break;
+	case 'attribute':
+	case 'comment':
+	case 'processing-instruction':
+	case 'text':
+		warn('walk ', node.nodeKind(), '"', node, '"');
+		break;
+	}
+}
+
+
+
 ///////////////////////////////////////
 // формирование xhtml редактора с идентификатором экземпляра isid и начальным состоянием data
 tmce.render = function render(isid, doc)
@@ -32,15 +80,11 @@ tmce.render = function render(isid, doc)
 
 	if(doc)
 	{
-		lt.content = tcontent.clone(); lt.content.content = te.render_web(doc);
-		lt.files = 'doc.data.files';
-		lt.images = 'doc.data.images';
+		lt.content = this.i2e(doc);
 	}
 	else
 	{
 		lt.content = '';
-		lt.files = '';
-		lt.images = '';
 	}
 
 
@@ -55,17 +99,15 @@ tmce.render = function render(isid, doc)
 		switch(e.kind)
 		{
 		case 'bold':
-			valid_elements.strong = true;
+			valid_elements['b/strong'] = true;
 			buttons.bold=true;
 			break;
 		case 'underline':
 			valid_elements.u = true;
-			valid_elements['span[style]'] = true;
 			buttons.underline = true;
 			break;
 		case 'strike':
 			valid_elements.s = true;
-			valid_elements['span[style]'] = true;
 			buttons.strikethrough = true;
 			break;
 		case 'insertion':
@@ -89,6 +131,17 @@ tmce.render = function render(isid, doc)
 		case 'superscript':
 			valid_elements.sup = true;
 			buttons.sup = true;
+			break;
+		case 'paragraph':
+			valid_elements.p = true;
+			break;
+		case 'header':
+			valid_elements.h1 = true;
+			valid_elements.h2 = true;
+			valid_elements.h3 = true;
+			valid_elements.h4 = true;
+			valid_elements.h5 = true;
+			valid_elements.h6 = true;
 			break;
 		}
 	}
@@ -114,7 +167,10 @@ tmce.render = function render(isid, doc)
 			break;
 		}
 	}
-	
+
+
+
+
 	/////////////////////////////////
 	valid_elements = [].pushKeys(valid_elements);
 	buttons = [].pushKeys(buttons);
@@ -144,7 +200,7 @@ tmce.render = function render(isid, doc)
 
 	t.scriptBody.push("});");
 
-	ui.blocks.scripts.tmce = "/tinymce/jscripts/tiny_mce/tiny_mce.js";
+	ui.blocks.scripts.tmce = "/tinymce/jscripts/tiny_mce/tiny_mce_src.js";
 
 	return lt;
 }

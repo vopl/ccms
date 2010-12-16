@@ -9,7 +9,7 @@ case 'render':
 case 'ping':
 	dump([mode, res]);
 	break;
-case 'set':
+case 'save':
 	dump([mode, res]);
 	break;
 case 'setImage':

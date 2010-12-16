@@ -25,8 +25,8 @@ case 'render':
 case 'ping':
 	res = manager.pingInstance(instance);
 	break;
-case 'set':
-	res = instance.set();
+case 'save':
+	res = instance.save(request.params.content);
 	break;
 case 'setImage':
 	res = instance.setImage();

@@ -24,31 +24,7 @@ e.parser =
 };
 
 ///////////////////////////////////////////////
-e.render_internal = function render_internal()
-{
-	let t = e.template.clone();
-	t.content = this.content;
-	return t;
-}
-
-///////////////////////////////////////////////
-e.render_web = function render_web()
-{
-	let t = e.template.clone();
-	t.content = this.content;
-	return t;
-}
-
-///////////////////////////////////////////////
-e.render_mail = function render_mail()
-{
-	let t = e.template.clone();
-	t.content = this.content;
-	return t;
-}
-
-///////////////////////////////////////////////
-e.render_rss = function render_rss()
+e.render = function render(mode)
 {
 	let t = e.template.clone();
 	t.content = this.content;

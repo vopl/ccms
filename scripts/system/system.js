@@ -357,10 +357,10 @@ system.loadFromDisk_options = function()
 	this.options.i18nDirectories.value = ['i18n'];
 	this.options.pluginsPath.value = 'plugins';
 	
-	this.options.XML_ignoreComments.value = true;
-	this.options.XML_ignoreProcessingInstructions.value = true;
-	this.options.XML_prettyPrinting.value = true;
-	this.options.XML_ignoreWhitespace.value = true;
+	this.options.XML_ignoreComments.value = false;
+	this.options.XML_ignoreProcessingInstructions.value = false;
+	this.options.XML_prettyPrinting.value = false;
+	this.options.XML_ignoreWhitespace.value = false;
 	this.options.XML_prettyIndent.value = 2;
 	
 	warn('system.loadFromDisk_options');
