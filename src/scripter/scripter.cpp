@@ -539,10 +539,18 @@ namespace ccms
 		{
 			//g_instances.erase(_cxMain);
 			JS_GC(_cxMain);
+
+#if (defined DEBUG) && 0
+			FILE *fp = fopen("JS_DumpHeap", "wb");
+			JS_DumpHeap(_cxMain, fp, NULL, 0, NULL, -1, NULL);
+			fclose(fp);
+#endif
+
 			JS_DestroyContext(_cxMain);
 			_cxMain = NULL;
 		}
 		ecx_rw()->_jsCx = NULL;
+
 
 		if(_rt)
 		{

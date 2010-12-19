@@ -2365,6 +2365,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 	void Router::jsDestroy()
 	{
 		_scripter.requestStart(NULL);
+		_cache->delOld(1.0);
 
 
 		_delayedPointInstanceBuilds.clear();
@@ -2374,12 +2375,14 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		{
 			_root->deinit();
 			_root.reset();
+			_cache->delOld(1.0);
 		}
 
 		if(_rootInstance)
 		{
 			_rootInstance->deinit();
 			_rootInstance.reset();
+			_cache->delOld(1.0);
 		}
 
 		deletePermanent("crontab");
@@ -2387,6 +2390,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		_crontab.reset();
 
 		deletePermanent("cache");
+		_cache->delOld(1.0);
 		_cache.reset();
 
 		deletePermanent("plugins");
