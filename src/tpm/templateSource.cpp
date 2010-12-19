@@ -427,8 +427,17 @@ namespace ccms
 				//if can print itself
 				if(JS_HasProperty(ecx()->_jsCx, objv, "print", &found) && found)
 				{
+					jsval jsvf;
+					if(!JS_GetProperty(ecx()->_jsCx, objv, "print", &jsvf)) return false;
+
+					if(JSTYPE_FUNCTION != JS_TypeOfValue(ecx()->_jsCx, jsvf))
+					{
+						JS_ReportError(ecx()->_jsCx, "TemplateSource: 'print' is not a function");
+						return false;
+					}
+
 					jsval rval;
-					if(!JS_CallFunctionName(ecx()->_jsCx, objv, "print", 0, NULL, &rval))
+					if(!JS_CallFunctionValue(ecx()->_jsCx, objv, jsvf, 0, NULL, &rval))
 					{
 						return false;
 					}
@@ -438,8 +447,17 @@ namespace ccms
 
 				if(JS_HasProperty(ecx()->_jsCx, objv, "render", &found) && found)
 				{
+					jsval jsvf;
+					if(!JS_GetProperty(ecx()->_jsCx, objv, "render", &jsvf)) return false;
+
+					if(JSTYPE_FUNCTION != JS_TypeOfValue(ecx()->_jsCx, jsvf))
+					{
+						JS_ReportError(ecx()->_jsCx, "TemplateSource: 'render' is not a function");
+						return false;
+					}
+
 					jsval rval;
-					if(!JS_CallFunctionName(ecx()->_jsCx, objv, "render", 0, NULL, &rval))
+					if(!JS_CallFunctionValue(ecx()->_jsCx, objv, jsvf, 0, NULL, &rval))
 					{
 						return false;
 					}

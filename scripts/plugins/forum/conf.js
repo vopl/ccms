@@ -6,6 +6,7 @@
 		nsTree:0,
 		user:0,
 		filestore:0,
+		texteditor:0,
 	},
 	
 	operations:

@@ -33,6 +33,8 @@ if(!('allow' in te.options.elements))
 {
 	te.options.elements.allow = 
 	{
+		container:true,
+
 		text:true,
 		textTag:true,
 
@@ -113,6 +115,7 @@ else
 		te.options.elements.allow = allow;
 	}
 
+	te.options.elements.allow.container=true;
 	te.options.elements.allow.text=true;
 	te.options.elements.allow.textTag=true;
 }
@@ -235,6 +238,9 @@ for (let ename in te.elements)
 {
 	let element = te.elements[ename];
 
+	if(!element.parser) continue;
+	if(!element.parser.kind) continue;
+
 	switch(element.parser.kind)
 	{
 	case 'element':
@@ -321,12 +327,14 @@ te.parse = function parse(xml)
 		warn('unable to parse: '+xml.toXMLString());
 		return null;
 	default:
-		let res = [];
+		let res = {childs:[]};
 		for each(let c in xml)
 		{
 			let pr = this.parse(c);
-			if(pr) res.push(pr);
+			if(pr) res.childs.push(pr);
 		}
+
+		res.__proto__ = this.elements.container;
 		return res;
 	}
 	//return DomTree
@@ -337,10 +345,20 @@ te.parse = function parse(xml)
 te.renderDoc = function renderDoc(doc, mode)
 {
 	if(!doc) return null;
-	if(doc instanceof Array)
+	if(!mode) mode = 'internal';
+
+	if(typeof(doc) == 'xml')
 	{
-		return doc.map(function(v) v.render(mode));
+		doc = this.parse(doc);
+		return doc.render(mode);
 	}
+
+	if(!doc.render)
+	{
+		doc = this.engine.e2i(doc);
+		return doc.render(mode);
+	}
+
 	return doc.render(mode);
 }
 
@@ -358,6 +376,13 @@ te.render = function render(isid, doc)
 	return this.engine.render(isid, doc);
 }
 
+
+/////////////////////////////////////////////////////////
+te.renderNew = function renderNew(did, doc)
+{
+	let isid = manager.genIsid(this, did);
+	return this.render(isid, doc);
+}
 
 
 

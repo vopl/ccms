@@ -20,26 +20,22 @@ if(!t)
 	t = router.createTemplate();
 	
 	t.compile(<>
-	заголовок <b>{t.title}</b><br/>
-	содержимое <b>{t.content}</b><br/>
-	<a href={t.editUrl}>редактировать</a><br/>
-	<a href={t.delUrl}>удалить</a><br/>
-	
-	тут дерево дочерних постов
-	{t.postsTree}
-	
-	<br/>
-	<a href={t.newPostUrl}>новый пост</a><br/>
+	<b>{t.title}</b>
+	<a href={t.editUrl}>редактировать</a>
+	<a href={t.delUrl}>удалить</a>
+	<a href={t.newPostUrl}>ответить</a>
 
-
-	<br/><br/><br/>
+	{t.content}
+	<hr/>
+	
+	<ul>{t.postsTree}</ul>
 </>);
 	
 }
 t = t.clone();
 
 t.title = targetPost.map_title;
-t.content = targetPost.content;
+t.content = {print:function()print(targetPost.content), toString:function()targetPost.content};
 t.editUrl = request.path+'/edit?backUrl='+request.plan[request.plan.length-2].path+'/'+targetPost.id;
 t.delUrl = request.path+'/del?backUrl='+request.plan[request.plan.length-2].path;
 t.postsTree = postsTree;

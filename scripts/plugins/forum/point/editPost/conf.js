@@ -7,6 +7,8 @@ var res=
 		render:{file:'./render.js'},
 
 		title:{value:absFile(), executable:false},
+
+		te:{file:'./te.js'},
 	},
 
 	childs:

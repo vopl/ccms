@@ -2,13 +2,23 @@ let baseInstance =
 {
 	isid:undefined,
 	te:undefined,
-	doc:null,
+	did:undefined,
+	doc:undefined,
+
 };
+
+//		onReset:function(did){warn('onReset')},
+//		onSave:function(did,doc){warn('onSave')},
+//		onFinish:function(did){warn('onFinish')},
 
 ///////////////////////////////////////////////////////////////////////////
 baseInstance.reset = function reset()
 {
-	warn('reset');
+	let onReset = this.onReset || this.te.options.onReset;
+	if(onReset)
+	{
+		onReset(this);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -20,8 +30,13 @@ baseInstance.render = function render()
 ///////////////////////////////////////////////////////////////////////////
 baseInstance.save = function save(content)
 {
-	let doc = this.te.e2i(content);
-	warn('save');
+	let onSave = this.onSave || this.te.options.onSave;
+
+	if(onSave)
+	{
+		this.doc = this.te.e2i(content);
+		onSave(this);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -37,15 +52,15 @@ baseInstance.setFile = function setFile()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-baseInstance.setContent = function setContent()
+baseInstance.setContent = function setContent(content)
 {
-	warn('setContent');
+	this.doc = this.te.e2i(content);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 baseInstance.getContent = function getContent()
 {
-	warn('getContent');
+	return this.te.i2e(this.doc);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -63,7 +78,11 @@ baseInstance.getFiles = function getFiles()
 ///////////////////////////////////////////////////////////////////////////
 baseInstance.finish = function finish()
 {
-	warn('finish');
+	let onFinish = this.onFinish || this.te.options.onFinish;
+	if(onFinish)
+	{
+		onFinish(this);
+	}
 }
 
 return baseInstance;

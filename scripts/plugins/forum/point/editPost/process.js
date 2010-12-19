@@ -38,6 +38,8 @@ if(request.params.save)
 	if(!post.map_path) post.map_path = post.map_title+"->translit";
 	post.adoptMapPath();
 	if(!post.content) post.content = "блиннукакжетактемабезничеговнутрихотьбыsubjнаписалвотжелюдипошлинепишутничего";
+
+	post.content = this.properties.te().renderDoc(post.content);
 	post.forum_id = mostForum.id;
 	post.mtime = new Date();
 	post.save();

@@ -17,14 +17,12 @@ let te = teman.getTe(
                 },
 
 
-		onReset:function(did){warn('onReset')},
-		onModify:function(did,doc){warn('onModify')},
-		onSave:function(did,doc){warn('onSave')},
-		onFinish:function(did){warn('onFinish')},
+		onReset:function(inst){warn('onReset my')},
+		onSave:function(inst){warn('onSave my' + inst.te.i2e(inst.doc))},
+		onFinish:function(inst){warn('onFinish my')},
 	});
 
 
-let doc = exec('testdoc.js');
 
 
 //let isid = teman.genIsid(te, 'myDid');
@@ -33,10 +31,12 @@ let doc = exec('testdoc.js');
 
 
 let isid = teman.genIsid(te, 'myDid1');
-teman.dropInstance(isid);
-let instance = teman.getInstance(isid)
-instance.doc = null;
-instance.doc = doc;
+let instance = teman.getInstance(isid);
+if(!instance.doc)
+{
+	warn('load doc');
+	instance.doc = exec('testdoc.js');
+}
 let r = instance.render();
 
 return r;

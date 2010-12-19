@@ -5,15 +5,7 @@ let tmce = {};
 //шаблон для формы редактора и скрипт инициализации
 let t = router.createTemplate();
 t.compile(<>
-	<form method="post" action="/texteditor">
-		<textarea id={t.isid+"_content"} name="content" rows="15" cols="80" style="width: 80%">{t.content}</textarea><br/>
-		<input type="hidden" name="isid" value={t.isid}/>
-		<input type="hidden" name="mode" value='save'/>
-		<input type="submit" name="save" value="Submit" />
-		<input type="reset" name="reset" value="Reset" />
-	</form>
-
-
+	<textarea id={t.isid+"_content"} name="content" rows="15" cols="80" style="width: 80%">{t.content}</textarea><br/>
 	<script type="text/javascript">{t.scriptBody}</script>
 </>);
 
@@ -57,18 +49,64 @@ tmce.e2i_walker = function e2i_walker(node)
 	switch(node.nodeKind())
 	{
 	case 'element':
-		warn('walk tag ', node.name());
-		for each(let c in node) this.e2i_walker(c);
+		this.e2i_walkerElement(node);
 		break;
 	case 'attribute':
 	case 'comment':
 	case 'processing-instruction':
 	case 'text':
-		warn('walk ', node.nodeKind(), '"', node, '"');
 		break;
 	}
 }
 
+//////////////////////////////////////
+// преобразование одного тэга
+tmce.e2i_walkerElement = function e2i_walkerElement(e)
+{
+	switch(String(e.name()))
+	{
+	case 'em':		e.setName('i');		break;
+	case 'strong':		e.setName('b');		break;
+	case 'strike':		e.setName('s');		break;
+	case 'underline':	e.setName('u');		break;
+
+	case 'span':
+		let style = String(e.@style);
+		let styles=[];
+		let spair = /([^\s\:]+)\s*\:\s*([^\;]+)/.exec(style);
+		if(spair)
+		{
+			let key = spair[1];
+			let value = spair[2];
+
+			switch(key)
+			{
+			case 'text-decoration':
+				switch(value)
+				{
+				case 'line-through':	e.setName('s');		break;
+				case 'underline':	e.setName('u');		break;
+				}
+				break;
+			case 'font-style':
+				switch(value)
+				{
+				case 'italic':		e.setName('i');		break;
+				}
+				break;
+			case 'font-weight':
+				switch(value)
+				{
+				case 'bold':		e.setName('b');		break;
+				}
+				break;
+			}
+		}
+		break;
+	}
+
+	for each(let c in e) this.e2i_walker(c);
+}
 
 
 ///////////////////////////////////////
@@ -104,10 +142,12 @@ tmce.render = function render(isid, doc)
 			break;
 		case 'underline':
 			valid_elements.u = true;
+			//valid_elements['span[style]'] = true;
 			buttons.underline = true;
 			break;
 		case 'strike':
 			valid_elements.s = true;
+			//valid_elements['span[style]'] = true;
 			buttons.strikethrough = true;
 			break;
 		case 'insertion':
@@ -186,7 +226,7 @@ tmce.render = function render(isid, doc)
 	t.scriptBody.push('theme:"advanced",\n');
 	t.scriptBody.push('doctype:"<!DOCTYPE html PUBLIC \'-//W3C//DTD XHTML 1.0 Strict//EN\' \'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\'>",\n');
 
-	t.scriptBody.push('valid_elements:"'+valid_elements.join(',')+'",\n');
+	//t.scriptBody.push('valid_elements:"'+valid_elements.join(',')+'",\n');
 	t.scriptBody.push('theme_advanced_buttons1 : "'+buttons.join(',')+'",\n');
 	t.scriptBody.push('theme_advanced_buttons2 : "",\n');
 	t.scriptBody.push('theme_advanced_buttons3 : "",\n');

@@ -32,19 +32,19 @@ manager.setTe = function(teid, options)
 ///////////////////////////////////////
 manager.getTe = function(teid, options)
 {
-//	if(!(teid in this.tes))
-//	{
-//		if(options)
+	if(!(teid in this.tes))
+	{
+		if(options)
 		{
 			this.setTe(teid, options);
 			return this.tes[teid];
 		}
-//		else
-//		{
-//			return undefined;
-//			//throw Error("manager.getTe: absent te and no options specified for create one");
-//		}
-//	}
+		else
+		{
+			return undefined;
+			//throw Error("manager.getTe: absent te and no options specified for create one");
+		}
+	}
 
 	return this.tes[teid];
 }
@@ -87,7 +87,7 @@ manager.getInstance = function getInstance(isid)
 
 	if(!(isid in this.instances))
 	{
-		this.instances[isid] = this.mkInstance(isid, te);
+		this.instances[isid] = this.mkInstance(isid, te, iKey.did, undefined);
 	}
 
 	//assert(this.instances[isid].id == isid)
@@ -116,9 +116,9 @@ manager.dropInstance = function dropInstance(instanceOrIsid)
 }
 
 ///////////////////////////////////////////
-manager.mkInstance = function mkInstance(isid, te)
+manager.mkInstance = function mkInstance(isid, te, did, doc)
 {
-	let instance = {isid:isid, te:te};
+	let instance = {isid:isid, te:te, did:did, doc:doc};
 	instance.__proto__ = this.baseInstance;
 	return instance;
 }
