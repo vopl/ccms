@@ -708,27 +708,27 @@ namespace ccms
  		_acceptorSsl.close(ec);
 // 		_cronTimer.cancel(ec);
  
-		if(has_service<ssl::context_service>(_io_service))
+		//if(has_service<ssl::context_service>(_io_service))
 		{
 			use_service<ssl::context_service>(_io_service).shutdown_service();
 		}
 
-		if(has_service<deadline_timer_service<boost::posix_time::ptime> >(_io_service))
+		//if(has_service<deadline_timer_service<boost::posix_time::ptime> >(_io_service))
 		{
 			use_service<deadline_timer_service<boost::posix_time::ptime> >(_io_service).shutdown_service();
 		}
 
-		if(has_service<raw_socket_service<ip::tcp> >(_io_service))
+		//if(has_service<raw_socket_service<ip::tcp> >(_io_service))
 		{
 			use_service<raw_socket_service<ip::tcp> >(_io_service).shutdown_service();
 		}
 
-		if(has_service<socket_acceptor_service<ip::tcp> >(_io_service))
+		//if(has_service<socket_acceptor_service<ip::tcp> >(_io_service))
 		{
 			use_service<socket_acceptor_service<ip::tcp> >(_io_service).shutdown_service();
 		}
 
-		if(has_service<stream_socket_service<ip::tcp> >(_io_service))
+		//if(has_service<stream_socket_service<ip::tcp> >(_io_service))
 		{
 			use_service<stream_socket_service<ip::tcp> >(_io_service).shutdown_service();
 		}
