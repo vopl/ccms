@@ -14,6 +14,8 @@
 
 namespace ccms
 {
+	using namespace boost::asio;
+
 	//////////////////////////////////////////////////////////////////////////
 	Connection::Connection(
 		TransportAsio *transport,
@@ -50,7 +52,7 @@ namespace ccms
 	TransportAsio::TransportAsio(const char *host, unsigned short port, unsigned short portSsl, size_t	queueSize, ITransportBackend *backend)
 		: TransportBase<ConnectionPtr>(host, port, portSsl, queueSize, backend)
 		, _io_service()
-		, _contextSsl(_io_service, boost::asio::ssl::context::sslv23)
+		, _contextSsl(_io_service, ssl::context::sslv23)
 		, _acceptor(_io_service)
 		, _acceptorSsl(_io_service)
 		, _cronTimer(_io_service)
@@ -87,12 +89,12 @@ namespace ccms
 
 			if(_port)
 			{
-				boost::asio::ip::tcp::resolver resolver(_io_service);
+				ip::tcp::resolver resolver(_io_service);
 
 				char port[32];
 				sprintf(port, "%u", unsigned(_port));
-				boost::asio::ip::tcp::resolver::query query(_host, port);
-				boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+				ip::tcp::resolver::query query(_host, port);
+				ip::tcp::endpoint endpoint = *resolver.resolve(query);
 
 
 				_commonEnv["SERVER_ADDR"] = endpoint.address().to_string();
@@ -101,8 +103,8 @@ namespace ccms
 
 
 				_acceptor.open(endpoint.protocol());
-				_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-				_acceptor.set_option(boost::asio::socket_base::enable_connection_aborted(true));
+				_acceptor.set_option(ip::tcp::acceptor::reuse_address(true));
+				_acceptor.set_option(socket_base::enable_connection_aborted(true));
 				_acceptor.bind(endpoint);
 				_acceptor.listen();
 
@@ -112,9 +114,9 @@ namespace ccms
 			if(_portSsl)
 			{
 				_contextSsl.set_options(
-					boost::asio::ssl::context::default_workarounds
-					| boost::asio::ssl::context::no_sslv2
-					| boost::asio::ssl::context::single_dh_use);
+					ssl::context::default_workarounds
+					| ssl::context::no_sslv2
+					| ssl::context::single_dh_use);
 				_contextSsl.set_password_callback(boost::bind(&TransportAsio::handleGetPasswordSsl, this));
 
 				if(!_ssl_certificate.empty())
@@ -124,7 +126,7 @@ namespace ccms
 
 				if(!_ssl_privateKey.empty())
 				{
-					_contextSsl.use_private_key_file(_ssl_privateKey, boost::asio::ssl::context::pem);
+					_contextSsl.use_private_key_file(_ssl_privateKey, ssl::context::pem);
 				}
 
 				if(!_ssl_tmpdh.empty())
@@ -132,12 +134,12 @@ namespace ccms
 					_contextSsl.use_tmp_dh_file(_ssl_tmpdh);
 				}
 
-				boost::asio::ip::tcp::resolver resolver(_io_service);
+				ip::tcp::resolver resolver(_io_service);
 
 				char port[32];
 				sprintf(port, "%u", unsigned(_portSsl));
-				boost::asio::ip::tcp::resolver::query query(_host, port);
-				boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+				ip::tcp::resolver::query query(_host, port);
+				ip::tcp::endpoint endpoint = *resolver.resolve(query);
 
 
 				sprintf(port, "%u", unsigned(endpoint.port()));
@@ -145,8 +147,8 @@ namespace ccms
 
 
 				_acceptorSsl.open(endpoint.protocol());
-				_acceptorSsl.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-				_acceptorSsl.set_option(boost::asio::socket_base::enable_connection_aborted(true));
+				_acceptorSsl.set_option(ip::tcp::acceptor::reuse_address(true));
+				_acceptorSsl.set_option(socket_base::enable_connection_aborted(true));
 				_acceptorSsl.bind(endpoint);
 				_acceptorSsl.listen();
 
@@ -201,13 +203,13 @@ namespace ccms
 		_acceptor.async_accept(socket->getRaw(),
 			boost::bind(&TransportAsio::handleAccept, this,
 			socket,
-			boost::asio::placeholders::error));
+			placeholders::error));
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::handleAccept(TransportAsioSocketPtr socket, const boost::system::error_code& e)
 	{
-		//socket->io_control(boost::asio::socket_base::non_blocking_io(true));
+		//socket->io_control(socket_base::non_blocking_io(true));
 
 		if(_stop) return;
 
@@ -231,7 +233,7 @@ namespace ccms
 		_acceptorSsl.async_accept(socket->getSsl().lowest_layer(),
 			boost::bind(&TransportAsio::handleAcceptSsl, this,
 				socket,
-				boost::asio::placeholders::error));
+				placeholders::error));
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -250,11 +252,11 @@ namespace ccms
 		ConnectionPtr connection(new Connection(this, socket, std::cerr));
 
 		socket->getSsl().async_handshake(
-			boost::asio::ssl::stream_base::server,
+			ssl::stream_base::server,
 			boost::bind(
 				&TransportAsio::handleHandshakeSsl, this,
 				connection,
-				boost::asio::placeholders::error));
+				placeholders::error));
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -287,14 +289,14 @@ namespace ccms
 		}
 
 		connection->_socket->async_read(
-			boost::asio::buffer(
+			buffer(
 				&connection->_netBuf[0], 
 				granula), 
 			boost::bind(&TransportAsio::handleRead, this,
 				timer,
 				connection,
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::bytes_transferred)
+				placeholders::error,
+				placeholders::bytes_transferred)
 			);
 	}
 
@@ -313,22 +315,22 @@ namespace ccms
 		{
 		case 0:
 			break;
-		case boost::asio::error::operation_aborted:
+		case error::operation_aborted:
 			//std::cerr<<"TransportAsio::handleRead: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
 			{
 				//boost::system::error_code ec;
-				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				//connection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 				connection->_socket->close();
 			}
 			return;
-		case boost::asio::error::connection_aborted:
-		case boost::asio::error::connection_refused:
-		case boost::asio::error::connection_reset:
-		case boost::asio::error::eof:
+		case error::connection_aborted:
+		case error::connection_refused:
+		case error::connection_reset:
+		case error::eof:
 			//std::cerr<<"TransportAsio::handleRead: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
 			{
 				//boost::system::error_code ec;
-				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				//connection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 				connection->_socket->close();
 			}
 			return;
@@ -336,7 +338,7 @@ namespace ccms
 			std::cerr<<"TransportAsio::handleRead: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
 			{
 				//boost::system::error_code ec;
-				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				//connection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 				connection->_socket->close();
 			}
 			return;
@@ -402,13 +404,13 @@ namespace ccms
 			if(connection->_bytesTransfered < connection->_outHeaders.size())
 			{
 				connection->_socket->async_write(
-					boost::asio::buffer(
+					buffer(
 						&connection->_outHeaders[connection->_bytesTransfered], 
 						connection->_outHeaders.size() - connection->_bytesTransfered), 
 					boost::bind(&TransportAsio::handleWrite, this,
 						connection,
-						boost::asio::placeholders::error,
-						boost::asio::placeholders::bytes_transferred)
+						placeholders::error,
+						placeholders::bytes_transferred)
 					);
 				return;
 			}
@@ -545,13 +547,13 @@ namespace ccms
 				if(!connection->_netBuf.empty())
 				{
 					connection->_socket->async_write(
-						boost::asio::buffer(
+						buffer(
 							&connection->_netBuf[0], 
 							connection->_netBuf.size()), 
 						boost::bind(&TransportAsio::handleWrite, this,
 							connection,
-							boost::asio::placeholders::error,
-							boost::asio::placeholders::bytes_transferred)
+							placeholders::error,
+							placeholders::bytes_transferred)
 						);
 					return;
 				}
@@ -564,13 +566,13 @@ namespace ccms
 				if(connection->_bytesTransfered < connection->_outBody.size())
 				{
 					connection->_socket->async_write(
-						boost::asio::buffer(
+						buffer(
 							&connection->_outBody[connection->_bytesTransfered], 
 							connection->_outBody.size() - connection->_bytesTransfered), 
 						boost::bind(&TransportAsio::handleWrite, this,
 							connection,
-							boost::asio::placeholders::error,
-							boost::asio::placeholders::bytes_transferred)
+							placeholders::error,
+							placeholders::bytes_transferred)
 						);
 					return;
 				}
@@ -593,15 +595,15 @@ namespace ccms
 		{
 		case 0:
 			break;
-		case boost::asio::error::operation_aborted:
-		case boost::asio::error::connection_aborted:
-		case boost::asio::error::connection_refused:
-		case boost::asio::error::connection_reset:
-		case boost::asio::error::broken_pipe:
+		case error::operation_aborted:
+		case error::connection_aborted:
+		case error::connection_refused:
+		case error::connection_reset:
+		case error::broken_pipe:
 			//std::cerr<<"TransportAsio::handleWrite: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
 			{
 				//boost::system::error_code ec;
-				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				//connection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 				connection->_socket->close();
 			}
 			return;
@@ -609,7 +611,7 @@ namespace ccms
 			std::cerr<<"TransportAsio::handleWrite: "<<e.message()<<"("<<e.value()<<")"<<std::endl;
 			{
 				//boost::system::error_code ec;
-				//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				//connection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 				connection->_socket->close();
 			}
 			return;
@@ -640,7 +642,7 @@ namespace ccms
 		timer.reset();
 
 		if(_stop) return;
-		if(boost::asio::error::operation_aborted == e)
+		if(error::operation_aborted == e)
 		{
 			return;
 		}
@@ -654,7 +656,7 @@ namespace ccms
 		//std::cout<<"TransportAsio::handleKeepaliveTimeout, "<<GetCurrentThreadId()<<", "<<connection->_socket->native()<<std::endl;
 		//connection->_socket->cancel();
 		//boost::system::error_code ec;
-		//connection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+		//connection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 		connection->_socket->close();
 	}
 
@@ -681,7 +683,7 @@ namespace ccms
 		{
 			_cronTimer.async_wait(
 				boost::bind(&TransportAsio::handleCronTick, this,
-					boost::asio::placeholders::error));
+					placeholders::error));
 		}
 
 	}
@@ -706,13 +708,30 @@ namespace ccms
  		_acceptorSsl.close(ec);
 // 		_cronTimer.cancel(ec);
  
+		if(has_service<ssl::context_service>(_io_service))
+		{
+			use_service<ssl::context_service>(_io_service).shutdown_service();
+		}
 
-		boost::asio::use_service<boost::asio::ssl::context_service>(_io_service).shutdown_service();
-		boost::asio::use_service<boost::asio::deadline_timer_service<boost::posix_time::ptime> >(_io_service).shutdown_service();
+		if(has_service<deadline_timer_service<boost::posix_time::ptime> >(_io_service))
+		{
+			use_service<deadline_timer_service<boost::posix_time::ptime> >(_io_service).shutdown_service();
+		}
 
-		boost::asio::use_service<boost::asio::raw_socket_service<boost::asio::ip::tcp> >(_io_service).shutdown_service();
-		boost::asio::use_service<boost::asio::socket_acceptor_service<boost::asio::ip::tcp> >(_io_service).shutdown_service();
-		boost::asio::use_service<boost::asio::stream_socket_service<boost::asio::ip::tcp> >(_io_service).shutdown_service();
+		if(has_service<raw_socket_service<ip::tcp> >(_io_service))
+		{
+			use_service<raw_socket_service<ip::tcp> >(_io_service).shutdown_service();
+		}
+
+		if(has_service<socket_acceptor_service<ip::tcp> >(_io_service))
+		{
+			use_service<socket_acceptor_service<ip::tcp> >(_io_service).shutdown_service();
+		}
+
+		if(has_service<stream_socket_service<ip::tcp> >(_io_service))
+		{
+			use_service<stream_socket_service<ip::tcp> >(_io_service).shutdown_service();
+		}
 
 		_io_service.stop();
 	}
@@ -838,7 +857,7 @@ namespace ccms
 
 		}
 
-		boost::asio::ip::tcp::endpoint rend = connection->_socket->remote_endpoint();
+		ip::tcp::endpoint rend = connection->_socket->remote_endpoint();
 		env["REMOTE_ADDR"] = rend.address().to_string();
 		char port[32];
 		sprintf(port, "%u", unsigned(rend.port()));
@@ -1213,7 +1232,7 @@ namespace ccms
 				}
 			}
 
-			TimerPtr timer(new boost::asio::deadline_timer(_io_service));
+			TimerPtr timer(new deadline_timer(_io_service));
 
 			boost::system::error_code ec;
 			timer->expires_from_now(
@@ -1223,7 +1242,7 @@ namespace ccms
 			{
 				std::cerr<<"TransportAsio::processCompletedConnection timer->expires_from_now failed"<<std::endl;
 				//boost::system::error_code ec;
-				//newConnection->_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+				//newConnection->_socket->shutdown(ip::tcp::socket::shutdown_both, ec);
 				newConnection->_socket->close();
 				return;
 			}
@@ -1232,7 +1251,7 @@ namespace ccms
 				boost::bind(&TransportAsio::handleKeepaliveTimeout, this,
 				timer,
 				newConnection, 
-				boost::asio::placeholders::error));
+				placeholders::error));
 
 			makeRead(timer, newConnection, _headerbufGranula);
 		}
