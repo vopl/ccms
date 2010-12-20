@@ -165,6 +165,12 @@ namespace ccms
 
 			//если стоп был до запуска то форсировать вновь
 			//stop();
+			if(!_stop)
+			{
+				handleStop();
+			}
+			_io_service.reset();
+
 		}
 		catch (std::exception& e)
 		{
@@ -692,14 +698,21 @@ namespace ccms
 	{
 		TransportBase<ConnectionPtr>::stop();
 
-// 		boost::system::error_code ec;
-// 
-// 		_acceptor.cancel(ec);
-// 		_acceptor.close(ec);
-// 		_acceptorSsl.cancel(ec);
-// 		_acceptorSsl.close(ec);
+ 		boost::system::error_code ec;
+ 
+ 		_acceptor.cancel(ec);
+ 		_acceptor.close(ec);
+ 		_acceptorSsl.cancel(ec);
+ 		_acceptorSsl.close(ec);
 // 		_cronTimer.cancel(ec);
-// 
+ 
+
+		boost::asio::use_service<boost::asio::ssl::context_service>(_io_service).shutdown_service();
+		boost::asio::use_service<boost::asio::deadline_timer_service<boost::posix_time::ptime> >(_io_service).shutdown_service();
+
+		boost::asio::use_service<boost::asio::raw_socket_service<boost::asio::ip::tcp> >(_io_service).shutdown_service();
+		boost::asio::use_service<boost::asio::socket_acceptor_service<boost::asio::ip::tcp> >(_io_service).shutdown_service();
+		boost::asio::use_service<boost::asio::stream_socket_service<boost::asio::ip::tcp> >(_io_service).shutdown_service();
 
 		_io_service.stop();
 	}

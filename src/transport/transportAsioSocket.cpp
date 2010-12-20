@@ -93,9 +93,9 @@ namespace ccms
 		if(_isSsl)
 		{
 			boost::system::error_code ec;
-			_socket._ssl->shutdown(ec);
-// 			_socket._ssl->next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-// 			_socket._ssl->next_layer().close(ec);
+			//_socket._ssl->shutdown(ec);
+			_socket._ssl->next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+			_socket._ssl->next_layer().close(ec);
 // 			_socket._ssl->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
 // 			_socket._ssl->lowest_layer().close(ec);
 
