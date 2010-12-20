@@ -98,6 +98,9 @@ namespace ccms
 	class TransportAsio
 		: public TransportBase<ConnectionPtr>
 	{
+		typedef boost::shared_ptr<boost::asio::deadline_timer> TimerPtr;
+
+
 		boost::asio::io_service _io_service;
 		boost::asio::ssl::context _contextSsl;
 		boost::asio::ip::tcp::acceptor _acceptor;
@@ -109,8 +112,6 @@ namespace ccms
 		std::string	_ssl_tmpdh;
 		std::string	_ssl_password;
 
-
-		typedef boost::shared_ptr<boost::asio::deadline_timer> TimerPtr;
 
 		std::map<std::string, std::string> _extMimeTypes;
 		std::map<std::string, int> _extCompress;
@@ -190,6 +191,9 @@ namespace ccms
 		void handleKeepaliveTimeout(TimerPtr timer, ConnectionPtr connection, const boost::system::error_code& e);
 
 		void handleCronTick(const boost::system::error_code& e);
+
+		void makeStop();
+		void handleStop();
 
 	private:
 		void processReadedHeader(ConnectionPtr connection, DDataBuf::iterator end);//full

@@ -17,13 +17,14 @@ namespace ccms
 	{
 		std::string	_name;
 		std::string	_sql;
-		PgPtr		_db;
+		Pg			*_db;
 
 	public: 
-		PgStatement(PgPtr db, const char *sql);
+		PgStatement(Pg	*db, const char *sql);
 		~PgStatement();
 
 		void dropPrepared();
+		void dropDb();
 		const char *getSql();
 
 		//recArray query([params]);

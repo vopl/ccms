@@ -542,7 +542,7 @@ namespace ccms
 
 #if (defined DEBUG) && 0
 			FILE *fp = fopen("JS_DumpHeap", "wb");
-			JS_DumpHeap(_cxMain, fp, NULL, 0, NULL, -1, NULL);
+			JS_DumpHeap(_cxMain, fp, NULL, 0, NULL, 1, NULL);
 			fclose(fp);
 #endif
 

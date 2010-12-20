@@ -162,6 +162,9 @@ namespace ccms
 
 
 			_io_service.run();
+
+			//если стоп был до запуска то форсировать вновь
+			//stop();
 		}
 		catch (std::exception& e)
 		{
@@ -169,21 +172,19 @@ namespace ccms
 			stop();
 			return false;
 		}
-		_acceptor.close();
+
+// 		_acceptor.close();
+// 		_acceptorSsl.close();
+// 		_cronTimer.cancel();
+
 		return true;
 	}
 
 
 	bool TransportAsio::stop()
 	{
-		bool res = TransportBase<ConnectionPtr>::stop();
-
-		if(res)
-		{
-			_io_service.stop();
-		}
-
-		return res;
+		makeStop();
+		return true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -294,14 +295,13 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::handleRead(TimerPtr timer, ConnectionPtr connection, const boost::system::error_code& e, std::size_t bytes_transferred)
 	{
-		if(_stop) return;
-
 		if(timer)
 		{
 			timer->cancel();
 			timer.reset();
 		}
 
+		if(_stop) return;
 
 		switch(e.value())
 		{
@@ -631,6 +631,7 @@ namespace ccms
 	void TransportAsio::handleKeepaliveTimeout(TimerPtr timer, ConnectionPtr connection, const boost::system::error_code& e)
 	{
 		timer->cancel();
+		timer.reset();
 
 		if(_stop) return;
 		if(boost::asio::error::operation_aborted == e)
@@ -674,10 +675,35 @@ namespace ccms
 		{
 			_cronTimer.async_wait(
 				boost::bind(&TransportAsio::handleCronTick, this,
-				boost::asio::placeholders::error));
+					boost::asio::placeholders::error));
 		}
 
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::makeStop()
+	{
+		_io_service.post(
+			boost::bind(&TransportAsio::handleStop, this));
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::handleStop()
+	{
+		TransportBase<ConnectionPtr>::stop();
+
+// 		boost::system::error_code ec;
+// 
+// 		_acceptor.cancel(ec);
+// 		_acceptor.close(ec);
+// 		_acceptorSsl.cancel(ec);
+// 		_acceptorSsl.close(ec);
+// 		_cronTimer.cancel(ec);
+// 
+
+		_io_service.stop();
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -1174,7 +1200,7 @@ namespace ccms
 				}
 			}
 
-			TimerPtr timer(new boost::asio::deadline_timer(newConnection->_socket->io_service()));
+			TimerPtr timer(new boost::asio::deadline_timer(_io_service));
 
 			boost::system::error_code ec;
 			timer->expires_from_now(

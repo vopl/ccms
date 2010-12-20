@@ -586,11 +586,13 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
-	PgStatement::PgStatement(PgPtr db, const char *sql)
+	PgStatement::PgStatement(Pg *db, const char *sql)
 		: JsObject(true, "PgStatement")
 		, _db(db)
 		, _sql(sql)
 	{
+		JS_SetReservedSlot(ecx()->_jsCx, _js, 0, _db->thisJsval());
+
 		jsRegisterMeth("query", &PgStatement::call_query, 0);
 		jsRegisterMeth("exec", &PgStatement::call_exec, 0);
 		jsRegisterMeth("describe", &PgStatement::call_describe, 0);
@@ -602,19 +604,29 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	PgStatement::~PgStatement()
 	{
-		_db->onStatementDestroy(this);
+		if(_db)
+		{
+			_db->onStatementDestroy(this);
+		}
 		dropPrepared();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	void PgStatement::dropPrepared()
 	{
-		if(!_name.empty())
+		if(!_name.empty() && _db)
 		{
 			PQclear(PQexec(_db->getConn(), ("DEALLOCATE "+_name).c_str()));
 			_name.clear();
 		}
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void PgStatement::dropDb()
+	{
+		_db = NULL;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	const char *PgStatement::getSql()
@@ -626,7 +638,7 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool PgStatement::call_query(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(!prepare()) return false;
+		if(!prepare() || !_db) return false;
 		if(_db->getVerbose())
 		{
 			(*ecx()->_err)<<_sql<<std::endl;
@@ -637,7 +649,7 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool PgStatement::call_exec(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(!prepare()) return false;
+		if(!prepare() || !_db) return false;
 		if(_db->getVerbose())
 		{
 			(*ecx()->_err)<<_sql<<std::endl;
@@ -650,7 +662,7 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	bool PgStatement::call_describe(uintN argc, jsval *argv, jsval *rval)
 	{
-		if(!prepare()) return false;
+		if(!prepare() || !_db) return false;
 
 		if(_db->getVerbose())
 		{
@@ -721,6 +733,11 @@ namespace ccms
 		if(!_name.empty())
 		{
 			return true;
+		}
+
+		if(!_db)
+		{
+			return false;
 		}
 
 		char stmt[32];
@@ -802,6 +819,13 @@ namespace ccms
 	{
 		jsval jsv;
 		call_close(0,0,&jsv);
+
+		TMStatements::iterator iter = _statements.begin();
+		TMStatements::iterator end = _statements.end();
+		for(; iter!=end; iter++)
+		{
+			iter->second->dropDb();
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -878,7 +902,7 @@ namespace ccms
 		}
 
 		//тут создать объект statement, зарядить его именем stmt и вернуть
-		PgStatement *p = new PgStatement(mkp(this, ROOTNAME), sql);
+		PgStatement *p = new PgStatement(this, sql);
 
 		*rval = p->thisJsval();
 		return true;
