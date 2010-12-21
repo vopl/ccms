@@ -67,7 +67,7 @@ tmce.e2i_walkerElement = function e2i_walkerElement(e)
 	{
 	case 'em':		e.setName('i');		break;
 	case 'strong':		e.setName('b');		break;
-	case 'strike':		e.setName('s');		break;
+	case 's':		e.setName('strike');	break;
 	case 'underline':	e.setName('u');		break;
 
 	case 'span':
@@ -84,7 +84,7 @@ tmce.e2i_walkerElement = function e2i_walkerElement(e)
 			case 'text-decoration':
 				switch(value)
 				{
-				case 'line-through':	e.setName('s');		break;
+				case 'line-through':	e.setName('strike');	break;
 				case 'underline':	e.setName('u');		break;
 				}
 				break;
@@ -147,6 +147,7 @@ tmce.render = function render(isid, doc)
 			break;
 		case 'strike':
 			valid_elements.s = true;
+			valid_elements.strike = true;
 			//valid_elements['span[style]'] = true;
 			buttons.strikethrough = true;
 			break;
@@ -182,6 +183,25 @@ tmce.render = function render(isid, doc)
 			valid_elements.h4 = true;
 			valid_elements.h5 = true;
 			valid_elements.h6 = true;
+			break;
+		case 'olist':
+			valid_elements.ol = true;
+			valid_elements.li = true;
+			buttons.numlist = true;
+			//plugins.advlist = true;
+			break;
+		case 'ulist':
+			valid_elements.ul = true;
+			valid_elements.li = true;
+			buttons.bullist = true;
+			//plugins.advlist = true;
+			break;
+		case 'dlist':
+			valid_elements.dl = true;
+			valid_elements.dt = true;
+			valid_elements.dd = true;
+			//buttons.bullist = true;
+			//plugins.advlist = true;
 			break;
 		}
 	}

@@ -1,4 +1,4 @@
-﻿let target = request.planData.forums.back;
+﻿let target = request.planData.forum;
 
 if(!target.topic_allow)
 {

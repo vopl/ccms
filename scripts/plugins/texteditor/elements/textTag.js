@@ -19,7 +19,7 @@ e.parser =
 	{
 		let res = {};
 		res.__proto__ = e;
-		res.content = esc.xml(xml.toXMLString());
+		res.content = xml.toXMLString().replace(/&amp;/g, '&');
 		return res;
 	},
 };

@@ -3,7 +3,7 @@ let data = arguments[1];
 
 this.properties.ensureRootForum(data);
 
-let rootForum = data.forums[0];
+let rootForum = data.forum;
 return { 
 	goto:this.childs.viewForum, 
 	title:rootForum.title,

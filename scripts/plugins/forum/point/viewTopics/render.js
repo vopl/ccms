@@ -1,4 +1,4 @@
-﻿let forum = request.planData.forums.back;
+﻿let forum = request.planData.forum;
 let topics;
 if(request.planData.dateYMD)
 {
@@ -32,7 +32,7 @@ for each(let t in topics)
 	table.tr += <tr>
 		<td>{t.ctime}</td>
 		<td><a href={forum.path+'/'+encodeURIComponent(t.map_path?t.map_path:t.id)}>{t.map_title}</a></td>
-		<td><a href={request.planData.forums.front.path+'/users/'+user.login}>{user.login}</a></td>
+		<td><a href={this.parent.path+'/users/'+user.login}>{user.login}</a></td>
 		<td>{user.login}</td>
 		<td>ответов {stat1.count}, последний ответ {stat2?stat2.ctime:'отсутствует'}</td>
 	</tr>;

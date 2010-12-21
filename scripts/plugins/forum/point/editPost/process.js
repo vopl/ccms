@@ -1,5 +1,5 @@
 ﻿
-let mostForum = request.planData.forums[request.planData.forums.length-1]
+let mostForum = request.planData.forum;
 let mostPost = request.planData.posts?request.planData.posts[request.planData.posts.length-1]:undefined;
 if(request.params.save)
 {

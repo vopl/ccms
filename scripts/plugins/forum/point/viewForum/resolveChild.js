@@ -42,13 +42,13 @@ if(pp)
 }
 
 //////////////////////////////////////////////////
-let mostForum = data.forums.back;
+let mostForum = data.forum;
 
 //////////////////////////////////////////////////
 if(pathPart == 'edit')
 {
 	return {
-		title:_('edit forum $name', {$name:mostForum.map_title}),
+		title:_('edit forum $name', {$name:mostForum.title}),
 		point:this.parent.childs.editForum,
 	};
 }
@@ -100,36 +100,13 @@ if(pathPart == 'addTopic')
 }
 
 //////////////////////////////////////////////////
-let point = this;
-let forum = global.cache.process({
-	key:'forum.child.'+mostForum.id+'.'+pathPart,
-	provider:function()
-	{
-		let dbr;
-		if(Math.round(pathPart)==pathPart)
-		{
-			dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND id=$2', mostForum.id, pathPart);
-		}
-		if(!dbr || !dbr.length)
-		{
-			dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid=$1 AND map_path=$2', mostForum.id, pathPart);
-		}
-		if(dbr.length)
-		{
-			dbr = dbr[0];
-			dbr.parent = data.forums.back;
-			point.properties.mkPath(dbr);
-			return dbr;
-		}
-		return null;
-	},
-	events: ['forum.forum'],
-});
+let forum = mostForum.childsByPath[pathPart];
+if(!forum) forum = mostForum.childsById[pathPart];
 
 
 if(forum)
 {
-	data.forums.push(forum);
+	data.forum = forum;
 
 	return {
 		title:forum.title,

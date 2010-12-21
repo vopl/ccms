@@ -62,7 +62,6 @@ if(!('allow' in te.options.elements))
 		// hr:true,
 		// br:true,
 		// ident:true,
-		// p:true,
 
 
 
@@ -76,8 +75,9 @@ if(!('allow' in te.options.elements))
 
 
 		// table:true,
-		// list:true,
-		// nlist:true,
+		ulist:true,
+		olist:true,
+		dlist:true,
 
 
 		// smile:true,

@@ -1,11 +1,11 @@
-﻿if(request.planData.forums.back.path != request.path)
+﻿if(request.planData.forum.path != request.path)
 {
 	request.setStatusCode(303);
-	request.pushHeader('Location', request.planData.forums.back.path);
+	request.pushHeader('Location', request.planData.forum.path);
 	return;
 }
 
-//if(request.planData.forums.back.path != request.path)
+//if(request.planData.forumpath != request.path)
 ui.blocks.center.push(
 	acl.hasRight('forum', 'view')?
 		this.render():

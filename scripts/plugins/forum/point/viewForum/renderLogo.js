@@ -1,4 +1,4 @@
-let target = request.planData.forums.back;
+let target = request.planData.forum;
 let point = this;
 
 let img = orm.Image.load({id:target.image_id});

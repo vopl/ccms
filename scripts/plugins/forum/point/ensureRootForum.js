@@ -1,10 +1,10 @@
 ﻿let data = arguments[0];
 let point = this;
 
-if(!data.forums)
+if(!data.forum)
 {
-	let root = global.cache.process({
-		key:'forum.root_',
+	data.forum = global.cache.process({
+		key:'forum.root',
 		provider:function()
 		{
 			//взять корень групп, если нет то создать
@@ -28,12 +28,17 @@ if(!data.forums)
 				dbr = orm.query('SELECT * FROM {Forum} WHERE tree_pid IS NULL');
 				break;
 			}
-			dbr = dbr[0];
-			point.childs.viewForum.properties.mkPath(dbr);
-			return dbr;
+			let root = dbr[0];
+
+			let all = orm.query('SELECT * FROM {Forum} WHERE tree_root=$1 AND id!=$1', root.id);
+			all.push(root);
+
+			orm.NsTree.linearToHierarchy(all);
+			all.forEach(function(v) point.childs.viewForum.properties.mkPath(v));
+
+			return root;
 
 		},
 		events:['forum.forum'],
 	});
-	data.forums = [root];
 }
