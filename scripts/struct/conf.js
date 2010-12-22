@@ -2,6 +2,14 @@
 {
 	filters:
 	{
+		freePre:
+		{
+			kind:'preTransit',
+			properties:
+			{
+				process:{file:'freePre.js', executeble:true},
+			}
+		},
 		accesslogPre:
 		{
 			kind:'preTransit',
