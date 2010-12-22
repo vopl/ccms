@@ -3,26 +3,28 @@ let e = {};
 ///////////////////////////////////////////////
 e.kind = 'simpleTag';
 e.tag = 'tag';
-e.childs = [];
 
 ///////////////////////////////////////////////
 e.parser = 
 {
 	kind:'element',
+	noChilds:false,
 	tags:{},
 	parse: function parse(xml, manager)
 	{
 		let res = {};
 		res.__proto__ = e;
-		//res.content = xml.toXMLString();
 
-		let childs = xml.children();
-		if(childs.length())
+		if(!e.parser.noChilds)
 		{
-			res.childs = manager.parse(childs);
-			if(!(res.childs instanceof Array))
+			let childs = xml.children();
+			if(childs.length())
 			{
-				res.childs = [res.childs];
+				res.childs = manager.parse(childs);
+				if(!(res.childs instanceof Array))
+				{
+					res.childs = [res.childs];
+				}
 			}
 		}
 		return res;

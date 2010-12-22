@@ -59,8 +59,8 @@ if(!('allow' in te.options.elements))
 
 		// align:true,
 		// pagebreak:true,
-		// hr:true,
-		// br:true,
+		hr:true,
+		br:true,
 		// ident:true,
 
 

@@ -203,6 +203,12 @@ tmce.render = function render(isid, doc)
 			//buttons.bullist = true;
 			//plugins.advlist = true;
 			break;
+		case 'br':
+			valid_elements.br = true;
+			break;
+		case 'hr':
+			valid_elements.hr = true;
+			break;
 		}
 	}
 
