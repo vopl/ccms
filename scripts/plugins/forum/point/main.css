@@ -25,15 +25,24 @@ textarea
 
 .forum
 {
+	border: 1px solid #565656;
+	margin: 0.3em;
 }
 
-.forum-left
+.forum-header
 {
-	float: left;
+	border: 1px solid #565656;
 	margin: 0.3em;
 }
 
 .forum-center
 {
-	overflow:hidden;
+	border: 1px solid #565656;
+	margin: 0.3em;
+}
+
+.forum-footer
+{
+	border: 1px solid #565656;
+	margin: 0.3em;
 }

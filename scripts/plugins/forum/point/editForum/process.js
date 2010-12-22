@@ -46,6 +46,7 @@
 	}
 	forum.save();
 	cache.fire('forum.forum');
+	cache.fire('forum.'+forum.id);
 
 	request.setStatusCode(303);
 	request.pushHeader('Location', request.params.backUrl?request.params.backUrl:this.parent.path);
