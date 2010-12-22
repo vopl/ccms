@@ -1819,6 +1819,7 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 		Path accumuledPath;
 		Point *lastPoint = _root.get();
 		JSObject *lastResObject = executePlanRootEntry;
+		JSObject *lastGotoObject = NULL;
 		points.resize(path.size()+1);
 		points[0] = lastPoint;
 		//BOOST_FOREACH(std::string &pathPart, r->path)
@@ -1848,23 +1849,30 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			}
 
 			bool isGoto = false;
-			if(!JS_GetProperty(ecx()->_jsCx, newResObject, "goto", &jsv)) return false;
+
+			if(!JS_GetProperty(ecx()->_jsCx, newResObject, "point", &jsv)) return false;
 			if(JSVAL_IS_OBJECT(jsv) && !JSVAL_IS_NULL(jsv))
 			{
-				isGoto = true;
-// 				if(!JS_DefineProperty(
-// 					ecx()->_jsCx, 
-// 					lastResObject, 
-// 					"goto", 
-// 					jsv,
-// 					NULL, NULL, JSPROP_ENUMERATE)) return false;
-// 
-// 				if(!JS_DeleteProperty(ecx()->_jsCx, newResObject, "goto")) return false;
-
+				//point
 			}
 			else
 			{
-				if(!JS_GetProperty(ecx()->_jsCx, newResObject, "point", &jsv)) return false;
+				//goto?
+				if(!JS_GetProperty(ecx()->_jsCx, newResObject, "goto", &jsv)) return false;
+				if(JSVAL_IS_OBJECT(jsv) && !JSVAL_IS_NULL(jsv))
+				{
+					//goto
+					isGoto = true;
+// 					if(!JS_DefineProperty(
+// 						ecx()->_jsCx, 
+// 						lastResObject, 
+// 						"goto", 
+// 						jsv,
+// 						NULL, NULL, JSPROP_ENUMERATE)) return false;
+// 
+// 					if(!JS_DeleteProperty(ecx()->_jsCx, newResObject, "goto")) return false;
+
+				}
 			}
 
 			if(!JSVAL_IS_OBJECT(jsv) || JSVAL_IS_NULL(jsv))
@@ -1893,51 +1901,6 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 					staticPath = s->getFileName();
 					res = true;
 					return true;
-
-
-
-
-
-					if(!JS_DefineProperty(
-						ecx()->_jsCx, 
-						newResObject, 
-						"pathPart", 
-						STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, pathPart.data(), pathPart.size())),
-						NULL, NULL, JSPROP_ENUMERATE)) return false;
-
-					if(!JS_DefineProperty(
-						ecx()->_jsCx, 
-						newResObject, 
-						"static", 
-						s->thisJsval(),
-						NULL, NULL, JSPROP_ENUMERATE)) return false;
-
-
-					std::string apath = "/" + accumuledPath.string() + "/" + pathPart;
-					if(!JS_DefineProperty(
-						ecx()->_jsCx, 
-						newResObject, 
-						"path", 
-						STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, apath.data(), apath.size())),
-						NULL, NULL, JSPROP_ENUMERATE)) return false;
-
-					jsv = OBJECT_TO_JSVAL(newResObject);
-					if(!JS_SetElement(
-						ecx()->_jsCx, 
-						executePlan, 
-						i<path.size()?nextIndex:nextIndex-1,
-						&jsv))
-						return false;
-
-
-
-
-
-
-
- 					res = true;
- 					return true;
-
 				}
 				else
 				{
@@ -1988,6 +1951,11 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 				STRING_TO_JSVAL(JS_NewStringCopyN(ecx()->_jsCx, apath.data(), apath.size())),
 				NULL, NULL, JSPROP_ENUMERATE)) return false;
 
+			if(lastGotoObject && newResObject!=lastGotoObject)
+			{
+				if(!JS_SetPrototype(ecx()->_jsCx, newResObject, lastGotoObject)) return false;
+			}
+
 			jsv = OBJECT_TO_JSVAL(newResObject);
 			size_t planIndex = i<path.size()?nextIndex:nextIndex-1;
 			if(!JS_SetElement(
@@ -2008,6 +1976,12 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			{
 				nextIndex--;
 				i--;
+
+				lastGotoObject = newResObject;
+			}
+			else
+			{
+				lastGotoObject = NULL;
 			}
 
 			lastResObject = newResObject;

@@ -1,1 +1,1 @@
-let res = [];for(let i = 0; i<request.plan.length; i++){	let p = request.plan[i];		let title = p.title;	if(!title && p.point.properties.title) title = p.point.properties.title();	if(!title) title = p.path;		res.push({href:p.path, title:title});}return ui.skin.breadcrumbs(res);
+let res = [];for(let i = 0; i<request.plan.length; i++){	let p = request.plan[i];		let title = p.title;	if(!title && p.point.properties.title) title = p.point.properties.title();	if(!title) title = p.path;		res.push({href:p.path, title:title});}return ui.skin.breadcrumbs(res);

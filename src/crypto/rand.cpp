@@ -79,7 +79,7 @@ namespace ccms {namespace crypto
 		}
 
 		std::vector<unsigned char> buf(bufLen);
- 		RAND_bytes(&buf[0], bufLen);
+		RAND_bytes(&buf[0], bufLen);
 
 		if(is16)
 		{

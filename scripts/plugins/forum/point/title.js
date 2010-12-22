@@ -1,2 +1,4 @@
 ﻿this.properties.ensureRootForum(request.planData);
-return request.planData.forum.title;
+let forum = request.planData.forum;
+while(forum.parent) forum = forum.parent;
+return forum.title;

@@ -4,7 +4,7 @@ let point = this;
 if(!data.forum)
 {
 	data.forum = global.cache.process({
-		key:'forum.root',
+		key:'forum.allforums',
 		provider:function()
 		{
 			//взять корень групп, если нет то создать
@@ -30,7 +30,7 @@ if(!data.forum)
 			}
 			let root = dbr[0];
 
-			let all = orm.query('SELECT * FROM {Forum} WHERE tree_root=$1 AND id!=$1', root.id);
+			let all = orm.query('SELECT * FROM {Forum} WHERE tree_root=$1 AND id!=$1 ORDER BY tree_left', root.id);
 			all.push(root);
 
 			orm.NsTree.linearToHierarchy(all);
