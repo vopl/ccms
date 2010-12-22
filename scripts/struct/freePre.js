@@ -4,3 +4,4 @@ if(request.cookie.PHPSESSID && request.cookie.marker)
 	print('WTF? robot?');
 	return 'complete';
 }
+return 'partial';
