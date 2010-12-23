@@ -55,12 +55,22 @@
 }
 else
 {
-	if(request.planData.forums && request.planData.forums.length)
+	if(request.planData.forum)
 	{
-		let target = request.planData.forums[request.planData.forums.length-1];
+		let target = request.planData.forum;
 		if(('mode' in request.planData) && request.planData.mode == 'add')
 		{
-			ui.blocks.center.push(this.render({tree_pid:target.id}));
+			ui.blocks.center.push(this.render(
+			{
+				tree_pid:target.id,
+				topic_allow:true,
+				topics_navigate_date:true,
+				topics_navigate_page:true,
+				topics_navigate_rpage:true,
+				topics_navigate_page_size:20,
+				topics_navigate_rpage_size:20,
+
+			}));
 		}
 		else
 		{

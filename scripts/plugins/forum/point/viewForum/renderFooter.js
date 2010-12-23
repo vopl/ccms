@@ -1,4 +1,5 @@
-﻿let target = request.planData.forum;
+﻿let target = arguments[0];
+if(!target) target = request.planData.forum;
 let point = this;
 
 

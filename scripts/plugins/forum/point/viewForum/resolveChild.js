@@ -48,7 +48,7 @@ let mostForum = data.forum;
 if(pathPart == 'edit')
 {
 	return {
-		title:_('edit forum $name', {$name:mostForum.title}),
+		title:'Редактор',
 		point:this.parent.childs.editForum,
 	};
 }

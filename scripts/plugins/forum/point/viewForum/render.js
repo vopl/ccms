@@ -1,4 +1,7 @@
-﻿
+﻿let target = arguments[0];
+if(!target) target = request.planData.forum;
+let point = this;
+
 let t = arguments.callee.t;
 
 if(!t)
@@ -17,9 +20,9 @@ if(!t)
 t = t.clone();
 
 
-t.header = this.properties.renderHeader();
-t.center = this.properties.renderCenter();
-t.footer = this.properties.renderFooter();
+t.header = this.properties.renderHeader(target);
+t.center = this.properties.renderCenter(target);
+t.footer = this.properties.renderFooter(target);
 
 return t;
 

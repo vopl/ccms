@@ -19,8 +19,13 @@ var res=
 		renderCenter:{file:'./renderCenter.js'},
 		renderFooter:{file:'./renderFooter.js'},
 
+		renderTopicPreview:{file:'./renderTopicPreview.js'},
+		renderManage:{file:'renderManage.js'},
+
 
 		mkPath:{file:'./mkPath.js'},
+
+		mkTopicPages:{file:'./mkTopicPages.js'},
 
 	},
 
