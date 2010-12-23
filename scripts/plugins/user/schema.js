@@ -133,7 +133,7 @@ orm.addCategory({
 				
 			}
 
-			if('object' != typeof(this.data) || null===data) this.data = {};
+			if('object' != typeof(this.data) || null===this.data) this.data = {};
 			let data = this.data;
 
 
