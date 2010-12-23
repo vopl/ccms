@@ -47,6 +47,24 @@ he(Array.prototype, 'pushValues');
 
 
 
+//////////////////////////////////////////////////////////
+//массиву раммежевалка типа join только без приведения к строке
+Array.prototype.dilute = function dilute(water)
+{
+	let res = [];
+	if(!this.length) return res;
+	for(let i=0; i<this.length-1; i++)
+	{
+		res.push(this[i]);
+		res.push(water);
+	}
+	res.push(this.back);
+	return res;
+};
+he(Array.prototype, 'dilute');
+
+
+
 
 
 
