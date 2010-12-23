@@ -1,4 +1,4 @@
-﻿this.msg = 'ok';
+﻿this.msg = '';
 try
 {
 	if(request.params.save)
@@ -55,7 +55,8 @@ try
 		let user = orm.User.make({
 				login:request.params.login,
 				email:request.params.email,
-				status:'waitConfirm:'+confirmSecret,
+				//status:'waitConfirm:'+confirmSecret,
+				status:'ok',
 				create_date:new Date(),
 			});
 		user.setPassword(request.params.password);
@@ -64,6 +65,7 @@ try
 		acl.setUser(user, roles);
 			
 		//отправить письмо
+		if(0)
 		{
 			let confirmHref = 'http://'+request.env.host+'/user/register/confirm?secret='+confirmSecret;
 			let msg = new Mime.Part(
@@ -101,7 +103,16 @@ try
 
 			smtp.send(msg);
 		}
-		ui.blocks.center.push(this.properties.registerConfirmation.render(request.params.email));
+		//ui.blocks.center.push(this.properties.registerConfirmation.render(request.params.email));
+
+		router.cd.session.userId = user.id;
+		global.user = user;
+
+		router.cd.global.session.remember = false;
+		request.pushHeader('Set-Cookie', 'sid='+router.cd.global.session.id+'; path=/');
+		request.setStatusCode(303);
+		request.pushHeader('Location', request.params.backUrl?request.params.backUrl:'/forum');
+
 		ui.print();
 		return;
 		

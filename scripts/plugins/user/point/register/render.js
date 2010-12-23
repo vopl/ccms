@@ -20,8 +20,8 @@ captchaImage.magick('JPEG');
 //captchaImage.attributes().font('arial');
 captchaImage.attributes().fontPointsize(20);
 captchaImage.annotate(captchaPassword
-	.split(/\s*/).join(' ')
-	, Magick.CenterGravity);
+	.split(/\s*/).join(' '),
+	Magick.CenterGravity);
 
 let degress = crypto.rand.double(-5, 5);
 if(degress < 0) degress -= 5;
@@ -56,14 +56,16 @@ return <>
 		логин<input type='string' name='login' value={request.params.login || ''}/><br/>
 		пароль<input type='password' name='password' value={request.params.password || ''}/><br/>
 		пароль<input type='password' name='password2' value={request.params.password2 || ''}/><br/>
-		почта<input type='string' name='email' value={request.params.email || ''}/><br/>
+
+		почта<input type='string' name='email' value={request.params.email || 'keep.me@example.com'}/> не используется, можно оставить этот фиктивный адрес<br/>
 		
-		
-		капча 
+		<div style="display: none">
+			капча 
 			<input type='hidden' name='captchaCode' value={captchaCode}/><br/>
 			<img src={'data:image/jpeg;base64,'+captchaImage.getBase64()}/> 
-			<input type='string' name='captchaPassword'/><br/>
+			<input type='string' name='captchaPassword' value={captchaPassword}/><br/>
+		</div>
 		<input type='submit' value="да"/>
 	</form>
-	{this.msg}
+	<strong style="color: red">{this.msg}</strong>
 </>;
