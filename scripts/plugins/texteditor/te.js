@@ -71,7 +71,6 @@ if(!('allow' in te.options.elements))
 		// citate:true,
 		// abbreviation:true,
 		// acronym:true,
-		// code:true,
 
 
 		// table:true,
@@ -104,6 +103,8 @@ if(!('allow' in te.options.elements))
 		// script:true,
 
 		// custom:true,
+
+		pre:true,
 	};
 }
 else

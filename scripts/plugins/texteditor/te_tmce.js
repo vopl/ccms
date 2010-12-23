@@ -209,6 +209,11 @@ tmce.render = function render(isid, doc)
 		case 'hr':
 			valid_elements.hr = true;
 			break;
+		case 'pre':
+			valid_elements['pre[class]'] = true;
+			plugins.syntaxhl = true;
+			buttons.syntaxhl = true;
+			break;
 		}
 	}
 
@@ -236,7 +241,6 @@ tmce.render = function render(isid, doc)
 
 
 
-
 	/////////////////////////////////
 	valid_elements = [].pushKeys(valid_elements);
 	buttons = [].pushKeys(buttons);
@@ -259,6 +263,7 @@ tmce.render = function render(isid, doc)
 	t.scriptBody.push('theme_advanced_buttons4 : "",\n');
 	t.scriptBody.push('theme_advanced_buttons5 : "",\n');
 	t.scriptBody.push('theme_advanced_buttons6 : "",\n');
+	t.scriptBody.push('remove_linebreaks : false,\n');
 	t.scriptBody.push('plugins : "'+plugins.join(',')+'",\n');
 
 

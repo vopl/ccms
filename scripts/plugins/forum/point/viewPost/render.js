@@ -26,6 +26,7 @@ if(!t)
 	<a href={t.newPostUrl}>ответить</a>
 
 	{t.content}
+
 	<hr/>
 	
 	<ul>{t.postsTree}</ul>

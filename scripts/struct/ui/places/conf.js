@@ -5,6 +5,7 @@ let res = {
 
 		title:'title/conf.js',
 		scripts:'scripts/conf.js',
+		scriptsTail:'scriptsTail/conf.js',
 		styles:'styles/conf.js',
 
 		header:'header/conf.js',

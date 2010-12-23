@@ -8,10 +8,9 @@ if(!t)
 		<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us" >
 			<head>
 				{t(function(){return ui.places.title.render()})}
-				<?ws?>
-				{t(function(){return ui.places.scripts.render()})}
 				<link rel='stylesheet' href={this.path+'/main.css'} type='text/css' media='all'/>
 				{t(function(){return ui.places.styles.render()})}
+				{t(function(){return ui.places.scripts.render()})}
 
 
 			</head>
@@ -45,6 +44,7 @@ if(!t)
 				{t.ga}
 				<b>{this.path}</b>
 			</body>
+			{t(function(){return ui.places.scriptsTail.render()})}
 		</html>
 	</>;
 	t.compile(xml);
