@@ -9,6 +9,8 @@ if(gs.userId)
 			return orm.User.load({id:gs.userId});
 		},
 		events:['user.user'],
+		callback:function(v) v.save(),
+
 	});
 }
 if(!user)

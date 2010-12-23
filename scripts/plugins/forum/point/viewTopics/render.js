@@ -1,5 +1,6 @@
 ﻿let forum = request.planData.forum;
 let topics;
+
 if(request.planData.dateYMD)
 {
 	topics = orm.query("SELECT * FROM {ForumPost} WHERE tree_pid IS NULL AND forum_id=$1 AND date_trunc('day', ctime)=date_trunc('day', $2::DATE) ORDER BY ctime DESC", forum.id, request.planData.dateYMD);
@@ -12,6 +13,17 @@ else if(request.planData.rpage)
 {
 	let rpageSize = forum.topics_navigate_rpage_size || 10;
 	topics = orm.query("SELECT * FROM {ForumPost} WHERE tree_pid IS NULL AND forum_id=$1 ORDER BY ctime DESC LIMIT $2 OFFSET $3", forum.id, rpageSize, (request.planData.rpage-1)*rpageSize);
+}
+
+if(user.login != 'anonymous' && topics && topics.length)
+{
+	let key = 'forum.'+forum.id+'.atime';
+	let was = user.getData(key);
+	let actual = topics.front.ctime.ts;
+	if(!was || was < actual)
+	{
+		user.setData(key, actual);
+	}
 }
 
 let table = <table border="1">

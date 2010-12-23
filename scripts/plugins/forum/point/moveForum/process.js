@@ -1,4 +1,4 @@
-﻿let target = request.planData.forums[request.planData.forums.length-1];
+﻿let target = request.planData.forum;
 if(target)
 {
 	target = orm.Forum.adopt(target);

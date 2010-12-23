@@ -56,4 +56,29 @@
 
 
 
+//пользователю время предыдущей сессии статистически
+{
+	if(user.login != 'anonymous')
+	{
+		let now = new Date();
+			
+		let key = 'forum.aime';
+		let was = user.getData(key);
+		if(was)
+		{
+			let delta = (now.getTime() - Date.fromTs(was).getTime())/1000;
+			
+			if(delta > 30*60*60)
+			{
+				user.setData('forum.lastSessionTime', now.ts);
+			}
+			user.setData(key, now.ts);
+		}
+		else
+		{
+			user.setData('forum.lastSessionTime', now.ts);
+			user.setData(key, now.ts);
+		}
+	}
 
+}

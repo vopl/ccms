@@ -147,3 +147,22 @@ Date.prototype.__defineSetter__('tsd', function(v)
 	this.setSeconds(0);
 	this.setMilliseconds(0);
 });
+
+Date.fromTs = function(ts)
+{
+	let res = new Date();
+	res.ts = ts;
+	return res;
+}
+
+Date.fromTsd = function(tsd)
+{
+	let res = new Date();
+	res.tsd = tsd;
+	return res;
+}
+
+Date.new = function()
+{
+	return new Date();
+}

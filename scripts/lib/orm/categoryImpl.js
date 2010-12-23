@@ -620,7 +620,17 @@ impl.insert = function insert(v)
 		if(fname in v)
 		{
 			fvaluesSql.push('$'+(fvaluesSql.length+1));
-			fvalues.push(v[fname]);
+			
+			let fieldImpl = this.fieldImpls[fname];
+			if(fieldImpl.orm2db)
+			{
+				fvalues.push(fieldImpl.orm2db(v[fname]));
+			}
+			else
+			{
+				fvalues.push(v[fname]);
+			}
+			
 			fnamesSql.push('"'+fname+'"');
 		}
 		else
@@ -656,7 +666,16 @@ impl.update = function update(v)
 			if('id' != fname)
 			{
 				fvaluesSql.push('"'+fname+'"=$'+(fvaluesSql.length+1));
-				fvalues.push(v[fname]);
+				
+				let fieldImpl = this.fieldImpls[fname];
+				if(fieldImpl.orm2db)
+				{
+					fvalues.push(fieldImpl.orm2db(v[fname]));
+				}
+				else
+				{
+					fvalues.push(v[fname]);
+				}
 			}
 		}
 		else
@@ -714,9 +733,17 @@ impl.load = function load(v)
 	let rec = stmt.query(v.id)[0];
 	
 	if(!rec) return false;
-	for(let pname in rec)
+	for(let fname in rec)
 	{
-		v[pname] = rec[pname];
+		let fieldImpl = this.fieldImpls[fname];
+		if(fieldImpl && fieldImpl.db2orm)
+		{
+			v[fname] = fieldImpl.db2orm(rec[fname]);
+		}
+		else
+		{
+			v[fname] = rec[fname];
+		}
 	}
 	
 	return this.adopt(v);

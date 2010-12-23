@@ -73,13 +73,21 @@ namespace ccms
 						tm *ptm = localtime(&t);
 
 						char buf[64];
-						sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d%", 
-							ptm->tm_year+1900,
-							ptm->tm_mon+1,
-							ptm->tm_mday,
-							ptm->tm_hour,
-							ptm->tm_min,
-							ptm->tm_sec);
+
+						if(ptm)
+						{
+							sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d%", 
+								ptm->tm_year+1900,
+								ptm->tm_mon+1,
+								ptm->tm_mday,
+								ptm->tm_hour,
+								ptm->tm_min,
+								ptm->tm_sec);
+						}
+						else
+						{
+							sprintf(buf, "1970-01-01 00:00:00");
+						}
 
 						char *s;
 						v  = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buf));

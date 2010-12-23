@@ -108,6 +108,8 @@ orm.addCategory({
 			lastLoginDate
 			locale (lang, timezone, dateFormat, numberFormat)
 		*/
+
+		data:'json',
 	},
 
 	indices:
@@ -121,6 +123,54 @@ orm.addCategory({
 	
 	methods:
 	{
+		setData:function(key, value)
+		{
+			key = String(key).split('.');
+
+			if(!key.length)
+			{
+				this.data = value;
+				
+			}
+
+			if('object' != typeof(this.data)) this.data = {};
+			let data = this.data;
+
+
+			for(let i=0; i<key.length-1; i++)
+			{
+				let part = key[i];
+				if(part in data)
+				{
+					if('object' != typeof(data[part])) data[part] = {};
+				}
+				else
+				{
+					data[part] = {};
+				}
+				data = data[part];
+			}
+
+			data[key.back] = value;
+
+			return true;
+		},
+
+		getData:function(key)
+		{
+			key = String(key).split('.');
+			let data = this.data;
+
+			for each(let part in key)
+			{
+				if('object' == typeof(data) && part in data)
+				{
+					data = data[part];
+				}
+				else return undefined;
+			}
+			return data;
+		},
 		setPassword:function(p)
 		{
 			let salt = crypto.rand.str_(6);
@@ -138,7 +188,6 @@ orm.addCategory({
 			return this.password == hp;
 		},
 	},
-	
 });
 
 ///////////////////////////////////////////////////////////
