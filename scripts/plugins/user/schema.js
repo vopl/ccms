@@ -133,7 +133,7 @@ orm.addCategory({
 				
 			}
 
-			if('object' != typeof(this.data)) this.data = {};
+			if('object' != typeof(this.data) || null===data) this.data = {};
 			let data = this.data;
 
 
@@ -142,7 +142,7 @@ orm.addCategory({
 				let part = key[i];
 				if(part in data)
 				{
-					if('object' != typeof(data[part])) data[part] = {};
+					if('object' != typeof(data[part]) || null===data[part]) data[part] = {};
 				}
 				else
 				{
@@ -163,7 +163,7 @@ orm.addCategory({
 
 			for each(let part in key)
 			{
-				if('object' == typeof(data) && part in data)
+				if('object' == typeof(data) && null!==data && part in data)
 				{
 					data = data[part];
 				}
