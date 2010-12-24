@@ -12,6 +12,9 @@ var res=
 		renderRow:{file:'./renderRow.js'},
 
 		title:{value:absFile(), executable:false},
+
+		mkPath:{file:'./mkPath.js'},
+
 	},
 
 	childs:

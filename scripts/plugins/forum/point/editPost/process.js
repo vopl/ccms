@@ -1,6 +1,6 @@
 ﻿
 let mostForum = request.planData.forum;
-let mostPost = request.planData.posts?request.planData.posts[request.planData.posts.length-1]:undefined;
+let mostPost = request.planData.post;
 if(request.params.save)
 {
 	let post;
@@ -43,6 +43,13 @@ if(request.params.save)
 	post.forum_id = mostForum.id;
 	post.mtime = new Date();
 	post.save();
+
+	cache.fire('forum.'+request.planData.forum.id+'.post');
+	if(request.planData.post == request.planData.topic)
+	{
+		cache.fire('forum.'+request.planData.forum.id+'.topic');
+	}
+
 
 	request.setStatusCode(303);
 	let ppath = request.path.substr(0, request.path.lastIndexOf('/'));

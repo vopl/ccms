@@ -1,8 +1,9 @@
 let pathPart = arguments[0];
 let data = arguments[1];
-
+let point = this;
 
 //////////////////////////////////////////////////
+//попробовать страницу
 let pp = pathPart.match(/^page(\d+)$/);
 if(pp)
 {
@@ -15,6 +16,7 @@ if(pp)
 }
 
 //////////////////////////////////////////////////
+//попробовать обратную страницу
 pp = pathPart.match(/^rpage(\d+)$/);
 if(pp)
 {
@@ -29,6 +31,7 @@ if(pp)
 
 
 //////////////////////////////////////////////////
+//попробовать дату
 pp = pathPart.match(/^(\d{4}-\d{2}-\d{2})$/);
 if(pp)
 {
@@ -42,9 +45,7 @@ if(pp)
 }
 
 //////////////////////////////////////////////////
-let mostForum = data.forum;
-
-//////////////////////////////////////////////////
+//редактирование
 if(pathPart == 'edit')
 {
 	return {
@@ -54,6 +55,7 @@ if(pathPart == 'edit')
 }
 
 //////////////////////////////////////////////////
+//изменение дерева - перемещение
 if(pathPart == 'moveLeft')
 {
 	data.mode = 'moveLeft';
@@ -72,6 +74,7 @@ if(pathPart == 'moveRight')
 }
 
 //////////////////////////////////////////////////
+//изменение дерева - удаление форума
 if(pathPart == 'del')
 {
 	return {
@@ -80,6 +83,7 @@ if(pathPart == 'del')
 }
 
 //////////////////////////////////////////////////
+//изменение дерева - добавление дочернего форума
 if(pathPart == 'add')
 {
 	data.mode = 'add';
@@ -90,6 +94,7 @@ if(pathPart == 'add')
 }
 
 //////////////////////////////////////////////////
+//создание темы форума
 if(pathPart == 'addTopic')
 {
 	data.mode = 'add';
@@ -100,12 +105,21 @@ if(pathPart == 'addTopic')
 }
 
 //////////////////////////////////////////////////
-let forum = mostForum.childsByPath[pathPart];
-if(!forum) forum = mostForum.childsById[pathPart];
+//взять текущий форум
+let mostForum = data.forum;
+//дочерний
+let forum;
+//попробовать дочерний по id
+if(Math.round(pathPart)==pathPart) forum = mostForum.childsById[pathPart];
+//попробовать дочерний по map_path
+if(!forum) forum = mostForum.childsByPath[pathPart];
+
+
 
 
 if(forum)
 {
+	//дочерний найден
 	data.forum = forum;
 
 	return {
@@ -114,26 +128,44 @@ if(forum)
 	};
 }
 
+//дочерний не найден, попробовать тему
+let topic = global.cache.process({
+	key:'forum.'+mostForum.id+'.topic.'+pathPart,
+	provider:function()
+	{
+		let topic;
 
-//////////////////////////////////////////////////
-let dbr = undefined;
-if(Math.round(pathPart)==pathPart)
-{
-	dbr = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND id=$2', mostForum.id, pathPart);
-}
-if(!dbr || !dbr.length)
-{
-	dbr = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND map_path=$2', mostForum.id, pathPart);
-}
+		if(Math.round(pathPart)==pathPart)
+			topic = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND id=$2', mostForum.id, pathPart)[0];
+		if(!topic)
+			topic = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1 AND tree_pid IS NULL AND map_path=$2', mostForum.id, pathPart)[0];
 
-if(dbr.length)
-{
-	dbr = dbr[0];
-	if(!data.posts) data.posts = [];
-	data.posts.push(dbr);
+		if(topic)
+		{
+			//дочерняя тема существует, выбрать для нее посты
+			let posts = orm.query('SELECT * FROM {ForumPost} WHERE forum_id=$1  AND tree_root=$2 AND id!=$2 ORDER BY tree_left', mostForum.id, topic.id);
+			
+			let all = [topic].concat(posts);
+			orm.NsTree.linearToHierarchy(all);
+			
+			let mkPath = point.parent.childs.viewPost.properties.mkPath;
+			all.forEach(function(v) mkPath(v, mostForum));
+			
+			return topic;
+		}
+		
+		return false;
+	},
+	events:['forum.forum', 'forum.'+mostForum.id+'.topic', 'forum.'+mostForum.id+'.post'],
+});
 
-	let res = {
-		title:dbr.map_title?dbr.map_title:('post #'+dbr.id),
+
+if(topic)
+{
+	data.topic = topic;
+	data.post = topic;
+	return {
+		title:topic.title,
 		point:this.parent.childs.viewPost,
 	};
 	
