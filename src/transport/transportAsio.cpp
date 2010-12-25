@@ -763,18 +763,18 @@ namespace ccms
 		DDataBuf::iterator i1 = std::find(line._begin, line._end, ' ');
 		if(i1 == line._end)
 		{
-			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		if(!trim(dropInvalidUtf8(env["REQUEST_METHOD"].assign(line._begin, i1))))
 		{
-			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		
 		if(i1 == line._end)
 		{
-			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		i1++;
@@ -783,14 +783,14 @@ namespace ccms
 		DDataBuf::iterator i2 = std::search(i1, line._end, HTTP, HTTP+5);
 		if(i2 == line._end || i2 == i1)
 		{
-			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		trim(dropInvalidUtf8(connection->_protocolVersion.assign(i2+5, line._end)));
 
 		if(!trim(dropInvalidUtf8(connection->_requestPath.assign(i1, i2-1))))
 		{
-			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		else
@@ -814,7 +814,7 @@ namespace ccms
 		DDataBuf::iterator i3 = std::find_first_of(i2, line._end, SPACES, SPACES+2);
 		if(!trim(dropInvalidUtf8(env["SERVER_PROTOCOL"].assign(i2+5, i3))))
 		{
-			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 
@@ -826,14 +826,14 @@ namespace ccms
 			DDataBuf::iterator delim = std::search(line._begin, line._end, DOT2SP, DOT2SP+2);
 			if(delim == line._end)
 			{
-				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 				return;
 			}
 
 			std::string key(line._begin, delim);
 			if(!trim(dropInvalidUtf8(key)))
 			{
-				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 				return;
 			}
 			tolowerLatin(key);
@@ -841,7 +841,7 @@ namespace ccms
 			value.assign(delim+2, line._end);
 			if(!trim(dropInvalidUtf8(value)))
 			{
-				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 				return;
 			}
 
@@ -849,7 +849,7 @@ namespace ccms
 			{
 				if(!parseCookies(connection, value.begin(), value.end()))
 				{
-					std::cerr<<"TransportAsio::processReadedHeader: unrecognized cookies"<<std::endl;
+					std::cerr<<"TransportAsio::processReadedHeader: unrecognized cookies\n"<<std::string(line._begin, line._end)<<std::endl;
 					return;
 				}
 
@@ -887,7 +887,7 @@ namespace ccms
 			}
 			else
 			{
-				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header"<<std::endl;
+				std::cerr<<"TransportAsio::processReadedHeader: unrecognized contentType "<<contentTypeLC<<std::endl;
 				return;
 			}
 
