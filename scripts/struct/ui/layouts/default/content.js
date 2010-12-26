@@ -124,7 +124,7 @@ if(!t)
 
 t = t.clone();
 
-if(/graydog\.1gb\.ru/.test(request.env.host))
+if(/graydog\.1gb\.ru/.test(request.env.host||''))
 //if(/local/.test(request.env.host))
 {
 	t.ga = <>
@@ -145,7 +145,7 @@ if(/graydog\.1gb\.ru/.test(request.env.host))
 }
 else
 {
-	t.ga = <>no ga for {request.env.host}<br/></>;
+	t.ga = <>no ga for {request.env.host||''}<br/></>;
 }
 
 return t;

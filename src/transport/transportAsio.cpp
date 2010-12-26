@@ -1007,10 +1007,10 @@ namespace ccms
 		DDataBuf::iterator begin = connection->_dataBuf.begin();
 
 		time_t t;time(&t);
-		std::cerr<<"ctime: "<<ctime(&t);
+		std::cerr<<"=========== TransportAsio::dumpReadedHeader =========== at "<<ctime(&t);
 		std::cerr<<"remote: "<<connection->_socket->remote_endpoint().address().to_string()<<":"<<connection->_socket->remote_endpoint().port()<<std::endl;
 		std::cerr<<"local: "<<connection->_socket->local_endpoint().address().to_string()<<":"<<connection->_socket->local_endpoint().port()<<std::endl;
-		std::cerr<<"all headers are:\n"<<std::string(begin, end)<<std::endl;
+		std::cerr<<"all headers are: ["<<std::string(begin, end)<<"]"<<std::endl;
 	}
 
 
