@@ -1,13 +1,14 @@
 let tag = arguments[0];
 let content = arguments[1];
 let attributes = arguments[2];
+let forceLong = arguments[3];
 
 let attributesAmount = 0;
 if(attributes) for(let an in attributes) attributesAmount++;
 
 
 let t;
-if(undefined===content || null===content || ''===content)
+if(!forceLong && undefined===content || null===content || ''===content)
 {
 	t = arguments.callee.tnc;
 	if(!t)
