@@ -65,6 +65,17 @@ namespace ccms
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	boost::asio::ip::tcp::endpoint TransportAsioSocket::local_endpoint()
+	{
+		if(_isSsl)
+		{
+			return _socket._ssl->next_layer().local_endpoint();
+		}
+
+		return _socket._raw->local_endpoint();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	size_t TransportAsioSocket::in_avail()
 	{
 		if(_isSsl)

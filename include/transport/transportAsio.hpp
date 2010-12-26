@@ -197,6 +197,7 @@ namespace ccms
 
 	private:
 		void processReadedHeader(ConnectionPtr connection, DDataBuf::iterator end);//full
+		void dumpReadedHeader(ConnectionPtr connection, DDataBuf::iterator end);//full
 		void processReadedBody(ConnectionPtr connection, std::size_t bytes_transferred);//partial
 		void processWriteStatic(ConnectionPtr connection);
 

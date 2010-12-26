@@ -31,6 +31,7 @@ namespace ccms
 
 		boost::asio::io_service& io_service();
 		boost::asio::ip::tcp::endpoint remote_endpoint();
+		boost::asio::ip::tcp::endpoint local_endpoint();
 		size_t in_avail();
 
 		void close();

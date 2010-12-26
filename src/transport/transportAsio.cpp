@@ -756,6 +756,7 @@ namespace ccms
 
 		if(tok_iter == tok_end)
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: empty header"<<std::endl;
 			return;
 		}
@@ -763,17 +764,20 @@ namespace ccms
 		DDataBuf::iterator i1 = std::find(line._begin, line._end, ' ');
 		if(i1 == line._end)
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		if(!trim(dropInvalidUtf8(env["REQUEST_METHOD"].assign(line._begin, i1))))
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
 		
 		if(i1 == line._end)
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
@@ -783,6 +787,7 @@ namespace ccms
 		DDataBuf::iterator i2 = std::search(i1, line._end, HTTP, HTTP+5);
 		if(i2 == line._end || i2 == i1)
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
@@ -790,6 +795,7 @@ namespace ccms
 
 		if(!trim(dropInvalidUtf8(connection->_requestPath.assign(i1, i2-1))))
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
@@ -801,6 +807,7 @@ namespace ccms
 			{
 				if(!parsePramsGet(connection, connection->_requestPath.begin()+pos+1, connection->_requestPath.end()))
 				{
+					dumpReadedHeader(connection, end);
 					std::cerr<<"TransportAsio::processReadedHeader: unrecognized get params"<<std::endl;
 					return;
 				}
@@ -814,6 +821,7 @@ namespace ccms
 		DDataBuf::iterator i3 = std::find_first_of(i2, line._end, SPACES, SPACES+2);
 		if(!trim(dropInvalidUtf8(env["SERVER_PROTOCOL"].assign(i2+5, i3))))
 		{
+			dumpReadedHeader(connection, end);
 			std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 			return;
 		}
@@ -826,6 +834,7 @@ namespace ccms
 			DDataBuf::iterator delim = std::search(line._begin, line._end, DOT2SP, DOT2SP+2);
 			if(delim == line._end)
 			{
+				dumpReadedHeader(connection, end);
 				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 				return;
 			}
@@ -833,6 +842,7 @@ namespace ccms
 			std::string key(line._begin, delim);
 			if(!trim(dropInvalidUtf8(key)))
 			{
+				dumpReadedHeader(connection, end);
 				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 				return;
 			}
@@ -841,6 +851,7 @@ namespace ccms
 			value.assign(delim+2, line._end);
 			if(!trim(dropInvalidUtf8(value)))
 			{
+				dumpReadedHeader(connection, end);
 				std::cerr<<"TransportAsio::processReadedHeader: unrecognized header\n"<<std::string(line._begin, line._end)<<std::endl;
 				return;
 			}
@@ -849,6 +860,7 @@ namespace ccms
 			{
 				if(!parseCookies(connection, value.begin(), value.end()))
 				{
+					dumpReadedHeader(connection, end);
 					std::cerr<<"TransportAsio::processReadedHeader: unrecognized cookies\n"<<std::string(line._begin, line._end)<<std::endl;
 					return;
 				}
@@ -857,11 +869,21 @@ namespace ccms
 
 		}
 
-		ip::tcp::endpoint rend = connection->_socket->remote_endpoint();
-		env["REMOTE_ADDR"] = rend.address().to_string();
-		char port[32];
-		sprintf(port, "%u", unsigned(rend.port()));
-		env["REMOTE_PORT"] = port;
+		{
+			ip::tcp::endpoint rend = connection->_socket->remote_endpoint();
+			env["REMOTE_ADDR"] = rend.address().to_string();
+			char port[32];
+			sprintf(port, "%u", unsigned(rend.port()));
+			env["REMOTE_PORT"] = port;
+		}
+
+		{
+			ip::tcp::endpoint rlocal = connection->_socket->local_endpoint();
+			env["LOCAL_ADDR"] = rlocal.address().to_string();
+			char port[32];
+			sprintf(port, "%u", unsigned(rlocal.port()));
+			env["LOCAL_PORT"] = port;
+		}
 
 		TEnvMap::iterator iter;
 
@@ -887,6 +909,7 @@ namespace ccms
 			}
 			else
 			{
+				dumpReadedHeader(connection, end);
 				std::cerr<<"TransportAsio::processReadedHeader: unrecognized contentType "<<contentTypeLC<<std::endl;
 				return;
 			}
@@ -899,6 +922,7 @@ namespace ccms
 			connection->_inContentLength = _atost(iter->second.data());
 			if(connection->_inContentLength > _bodybufLimit)
 			{
+				dumpReadedHeader(connection, end);
 				std::cerr<<"TransportAsio::onCompleteProbe: body is too large"<<std::endl;
 				return;
 			}
@@ -976,6 +1000,19 @@ namespace ccms
 
 		pushProbe(connection);
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void TransportAsio::dumpReadedHeader(ConnectionPtr connection, DDataBuf::iterator end)
+	{
+		DDataBuf::iterator begin = connection->_dataBuf.begin();
+
+		time_t t;time(&t);
+		std::cerr<<"ctime: "<<ctime(&t);
+		std::cerr<<"remote: "<<connection->_socket->remote_endpoint().address().to_string()<<":"<<connection->_socket->remote_endpoint().port()<<std::endl;
+		std::cerr<<"local: "<<connection->_socket->local_endpoint().address().to_string()<<":"<<connection->_socket->local_endpoint().port()<<std::endl;
+		std::cerr<<"all headers are:\n"<<std::string(begin, end)<<std::endl;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::processReadedBody(ConnectionPtr connection, std::size_t bytes_transferred)
