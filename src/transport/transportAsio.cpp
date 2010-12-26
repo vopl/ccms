@@ -97,7 +97,7 @@ namespace ccms
 				ip::tcp::endpoint endpoint = *resolver.resolve(query);
 
 
-				_commonEnv["SERVER_ADDR"] = endpoint.address().to_string();
+// 				_commonEnv["SERVER_ADDR"] = endpoint.address().to_string();
 				sprintf(port, "%u", unsigned(endpoint.port()));
 				_commonEnv["SERVER_PORT"] = port;
 
