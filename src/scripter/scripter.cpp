@@ -58,35 +58,17 @@ namespace ccms
 		jsval *argv = JS_ARGV(cx, vp);
 		for (uintN  i = 0; i < argc; i++)
 		{
-			if(JSVAL_IS_STRING(argv[i]))
+			char *s;
+			if(!JS_ConvertArguments(cx, 1, argv+i, "s", &s))
 			{
-				JSString *str = JSVAL_TO_STRING(argv[i]);
-				size_t len = JS_GetStringLength(str);
-
-				if(len)
+				if(JS_IsExceptionPending(cx))
 				{
-					jschar *chars = JS_GetStringChars(str);
-					size_t dstLen = len*2;
-					std::vector<char> dst(dstLen);
-
-					(JSExceptionReporter)JS_EncodeCharacters(cx, chars, len, &dst[0], &dstLen);
-					out.write(&dst[0], dstLen);
+					JS_ReportPendingException(cx);
+					JS_ClearPendingException(cx);
 				}
+				return JS_FALSE;
 			}
-			else
-			{
-				char *s;
-				if(!JS_ConvertArguments(cx, 1, argv+i, "s", &s))
-				{
-					if(JS_IsExceptionPending(cx))
-					{
-						JS_ReportPendingException(cx);
-						JS_ClearPendingException(cx);
-					}
-					return JS_FALSE;
-				}
-				out.rdbuf()->sputn(s, strlen(s));
-			}
+			out.rdbuf()->sputn(s, strlen(s));
 		}
 
 		JS_SET_RVAL(cx, vp, JSVAL_VOID);

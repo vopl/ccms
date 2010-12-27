@@ -39,35 +39,35 @@ namespace ccms {namespace crypto
 	Crypto::Crypto()
 		: JsObject(true, "Crypto")
 	{
-		(JSExceptionReporter)jsRegisterProp("rand", (new Rand)->thisJsval(), true);
-		(JSExceptionReporter)jsRegisterProp("hash", (new Hash)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Rand", (new Rand)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Hash", (new Hash)->thisJsval(), true);
 
 #ifndef OPENSSL_NO_DES
-		(JSExceptionReporter)jsRegisterProp("des", (new Des)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Des", (new Des)->thisJsval(), true);
 #endif
 
 #ifndef OPENSSL_NO_AES
-		(JSExceptionReporter)jsRegisterProp("aes", (new Aes)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Aes", (new Aes)->thisJsval(), true);
 #endif
 
 #ifndef OPENSSL_NO_BLOWFISH
-		(JSExceptionReporter)jsRegisterProp("blowfish", (new Blowfish)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Blowfish", (new Blowfish)->thisJsval(), true);
 #endif
 
 #ifndef OPENSSL_NO_CAST
-		(JSExceptionReporter)jsRegisterProp("cast", (new Cast)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Cast", (new Cast)->thisJsval(), true);
 #endif
 
 #ifndef OPENSSL_NO_IDEA
-		(JSExceptionReporter)jsRegisterProp("idea", (new Idea)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Idea", (new Idea)->thisJsval(), true);
 #endif
 
 #ifndef OPENSSL_NO_RC2
-		(JSExceptionReporter)jsRegisterProp("rc2", (new Rc2)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Rc2", (new Rc2)->thisJsval(), true);
 #endif
 
 #ifndef OPENSSL_NO_RC4
-		(JSExceptionReporter)jsRegisterProp("rc4", (new Rc4)->thisJsval(), true);
+		(JSExceptionReporter)jsRegisterProp("Rc4", (new Rc4)->thisJsval(), true);
 #endif
 
 	}

@@ -3,7 +3,7 @@
 	let report = {};
 	report.dataJson = {a:'строка', b:[], c:0, d:{}};
 	report.data = "Начальное состояние s0 называется инициализирующим вектором.";
-	report.pswd = crypto.rand.str_(8);
+	report.pswd = Crypto.Rand.str_(8);
 	
 	function test(name)
 	{
@@ -25,13 +25,13 @@
 	}
 	
 
-	test('des');
-	test('aes');
-	test('blowfish');
-	test('cast');
-	test('idea');
-	test('rc2');
-	test('rc4');
+	test('Des');
+	test('Aes');
+	test('Blowfish');
+	test('Cast');
+	test('Idea');
+	test('Rc2');
+	test('Rc4');
 	
 	return dumps(report);
 }

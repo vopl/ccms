@@ -35,10 +35,51 @@ orm.addCategory({
 	{
 		adoptMapPath: function adoptMapPath()
 		{
-			this.map_path = this.map_path.replace(/\#/g, '{hash}');
-			this.map_path = this.map_path.replace(/\//g, '{slash}');
-			this.map_path = this.map_path.replace(/\?/g, '{quest}');
+			let trans = arguments.callee.trans;
+			if(!trans)
+			{
+				trans =  new Icu.Transliterator('Any-Latin; any-NFD; Any-Publishing; [:^ascii:]Any-Remove');
+				arguments.callee.trans = trans;
+			}
+			this.map_path = trans.transliterate(this.map_path);
+
+			//this.map_path = this.map_path.replace(/[\x00-\x1f\x7f\!\@\#\$\%\^\&\*\(\)\|\`\<\>\?\/\\\:\;\'\:\"\s]+/g, ' ');
+			//this.map_path = this.map_path.replace(/\s+/g, '-');
+			this.map_path = this.map_path.replace(/[\s\W]+/g, '-');
 		},
+/*
+		incrementMapPath: function incrementMapPath()
+		{
+			let v = this.map_path;
+			v = v.split('').reverse().join('');
+			let expr = /.*?(\d+)/g;
+			expr.lastIndex=0;
+
+			let arr = expr.exec(v);
+			if(arr)
+			{
+				arr = arr[1].split('').reverse().join('');
+				arr = String(Number(arr)+1);
+				arr = arr.split('').reverse().join('');
+				v = v.substring(0, expr.lastIndex-2) + arr + v.substring(expr.lastIndex, 999999999);
+			}
+			else
+			{
+				v = "1" + v;
+			}
+
+			v = v.split('').reverse().join('');
+			
+			this.map_path = v;
+			return v;
+		},
+*/
+		incrementMapPath: function incrementMapPath()
+		{
+			this.map_path = String(this.map_path) + Crypto.Rand.str_(1);
+			return this.map_path;
+		},
+
 	},
 });
 

@@ -64,7 +64,7 @@ manager.genIsid = function genIsid(teid, did)
 	};
 	
 	let pswd = router.cd.global.session.secret;
-	let isid = crypto.aes.encodeJson(pswd, iKey);
+	let isid = Crypto.Aes.encodeJson(pswd, iKey);
 	return isid;
 }
 
@@ -73,7 +73,7 @@ manager.getInstance = function getInstance(isid)
 {
 	let pswd = router.cd.global.session.secret;
 
-	let iKey = crypto.aes.decodeJson(pswd, isid);
+	let iKey = Crypto.Aes.decodeJson(pswd, isid);
 
 	if(	!iKey || 
 		'object' != typeof(iKey) ||

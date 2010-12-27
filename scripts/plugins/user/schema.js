@@ -173,8 +173,8 @@ orm.addCategory({
 		},
 		setPassword:function(p)
 		{
-			let salt = crypto.rand.str_(6);
-			this.password = salt+crypto.hash.md5_(salt, p);
+			let salt = Crypto.Rand.str_(6);
+			this.password = salt+Crypto.Hash.md5_(salt, p);
 		},
 		checkPassword:function(p)
 		{
@@ -184,7 +184,7 @@ orm.addCategory({
 			}
 			
 			let salt = this.password.substr(0,6);
-			let hp = salt+crypto.hash.md5_(salt, p);
+			let hp = salt+Crypto.Hash.md5_(salt, p);
 			return this.password == hp;
 		},
 	},

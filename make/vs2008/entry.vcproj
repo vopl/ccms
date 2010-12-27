@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="entry"
 	ProjectGUID="{741C9585-917F-44C3-BE38-41F4EC51BF4E}"
 	RootNamespace="entry"
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib CORE_DB_magick_.lib"
+				AdditionalDependencies="js3250.lib libpq.lib zlib.lib libeay32.lib ssleay32.lib CORE_DB_magick_.lib icuuc.lib icuin.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
@@ -2180,6 +2180,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="icu"
+				>
+				<File
+					RelativePath="..\..\src\icu\icu.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\icu\transliterator.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="include"
@@ -2913,6 +2925,18 @@
 				</File>
 				<File
 					RelativePath="..\..\include\crypto\utils.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="icu"
+				>
+				<File
+					RelativePath="..\..\include\icu\icu.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\icu\transliterator.hpp"
 					>
 				</File>
 			</Filter>

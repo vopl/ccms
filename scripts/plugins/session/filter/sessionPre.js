@@ -57,13 +57,13 @@ let now = new Date();
 if(!session)
 {
 	session = {
-		id:crypto.rand.str_(22),
+		id:Crypto.Rand.str_(22),
 		ctime:now,
 		atime:now,
 		dtime:now,
 		data:{},
 		addr:request.env.REMOTE_ADDR,
-		secret:crypto.rand.str_(22),
+		secret:Crypto.Rand.str_(22),
 		isNew:true,
 	};
 	request.pushHeader('Set-Cookie', 'sid='+session.id+'; path=/');

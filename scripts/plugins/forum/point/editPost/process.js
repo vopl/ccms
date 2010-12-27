@@ -34,18 +34,51 @@ if(request.params.save)
 		post.tree_pid = mostPost.tree_pid;
 	}
 
-	if(!post.map_title) post.map_title = "никакненазваныйпосттипатемаапочемутыегоникакненазвалговори";
-	if(!post.map_path) post.map_path = post.map_title+"->translit";
-	post.adoptMapPath();
-	if(!post.content) post.content = "блиннукакжетактемабезничеговнутрихотьбыsubjнаписалвотжелюдипошлинепишутничего";
+	if(!post.map_title) post.map_title = "штука";
+	if(!post.map_path) post.map_path = post.map_title;
+
+	if(!post.content) post.content = " ";
 
 	post.content = this.properties.te().renderDoc(post.content);
 	post.forum_id = mostForum.id;
 	post.mtime = new Date();
+
+	post.adoptMapPath();
+
+	for(;;)
+	{
+		let dbr;
+		if(post.tree_pid)
+		{
+			if(post.id)
+			{
+				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid=$3 AND id!=$4', post.map_path, mostForum.id, post.tree_pid, post.id);
+			}
+			else
+			{
+				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid=$3', post.map_path, mostForum.id, post.tree_pid);
+			}
+		}
+		else
+		{
+			if(post.id)
+			{
+				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid IS NULL AND id!=$3', post.map_path, mostForum.id, post.id);
+			}
+			else
+			{
+				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid IS NULL', post.map_path, mostForum.id);
+			}
+		}
+		if(!dbr.length) break;
+
+		post.incrementMapPath();
+	}
+
 	post.save();
 
 	cache.fire('forum.'+request.planData.forum.id+'.post');
-	if(request.planData.post == request.planData.topic)
+	if(request.planData.post && request.planData.post == request.planData.topic)
 	{
 		cache.fire('forum.'+request.planData.forum.id+'.topic');
 	}

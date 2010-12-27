@@ -5,10 +5,10 @@ if(global.user.login != 'anonymous')
 
 ///////////////////////////////////////////////////
 
-let captchaPassword = crypto.rand.abc('abcdefghijklmnopqrstuvwxwz', 3);
+let captchaPassword = Crypto.Rand.abc('abcdefghijklmnopqrstuvwxwz', 3);
 
 
-let captchaCode = crypto.rand.str_(22);
+let captchaCode = Crypto.Rand.str_(22);
 
 this.cd.session.captcha = {};
 this.cd.session.captcha[captchaPassword] = captchaCode;
@@ -23,19 +23,19 @@ captchaImage.annotate(captchaPassword
 	.split(/\s*/).join(' '),
 	Magick.CenterGravity);
 
-let degress = crypto.rand.double(-5, 5);
+let degress = Crypto.Rand.double(-5, 5);
 if(degress < 0) degress -= 5;
 else degress += 5;
 captchaImage.swirl(degress);
 
 captchaImage.roll(20, 0);
-degress = crypto.rand.double(-5, 5);
+degress = Crypto.Rand.double(-5, 5);
 if(degress < 0) degress -= 5;
 else degress += 5;
 captchaImage.swirl(degress);
 
 captchaImage.roll(-40, 0);
-degress = crypto.rand.double(-5, 5);
+degress = Crypto.Rand.double(-5, 5);
 if(degress < 0) degress -= 5;
 else degress += 5;
 captchaImage.swirl(degress);

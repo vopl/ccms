@@ -1,42 +1,14 @@
-﻿let teman = router.plugins.texteditor.manager;
-let te = teman.getTe(
-	'myTeAtPath'+this.path, 
-	{
-		engine:'tmce',
+﻿
+let text = request.params.text;
+if(!text) text = 'البري الآسيوي يصل للحدود الغربية لألمانيا الحاليّة، أما اليوم فقد تقلّص موطن الأخدر بشكل كبير جدا عمّا كان عليه في السابق، بحيث تعتبر الجمهرة في جنوبي منغوليا أكبر الجمهرات عددا حيث تمثّل نسبة 80% من جميع الحيوانات الباقية على قيد الحياة من هذا النوع، أما باقي الجمهرات فيبلغ عدد أفرادها جميعا أقل من مئة. وقد تمّ مؤخرا إعادة إدخال الأخدر إلى بعض المناطق التي إنتشر فيها سابقا في منغوليا وإيران وإسرائيل والسعودية. تعتبر الحمر الأخدريّة أكبر قدا بقليل من الحمر المستأنسة حيث يبلغ وزنها حوالي 290 كيلوغراما وطول رأسها وجسمها معا 2.1 متر، كما وأنها أشبه بالحصان منها، وللأخدر قوائم قصيرة نسبيا مقارنة بالأحصنة ولونها يختلف بحسب تغيّر الفصول فهي عادة خمريّة اللون في الصيف ومن ثم تتغير إلى بنيّة مصفرّة في الفصول الماطرة، وتمتلك هذه الحمر خطا أسود يحده لون أبيض من الجهتين على طول';
 
-		elements:
-		{	
-			//allow:['comment','bold', 'italic','strike','underline','insertion','deletion','subscript','superscript','paragraph'],
-			//disallow:['comment','striked'],
-		},
-
-		facilities:
-		{
-			allow:['source','preview','save','cancel'],
-			disallow:[],
-                },
+let t = new Icu.Transliterator('Any-Latin; any-NFD; Any-Publishing; [:^ascii:]Any-Remove');
+text = t.transliterate(text);
 
 
-		onReset:function(inst){warn('onReset my')},
-		onSave:function(inst){warn('onSave my' + inst.te.i2e(inst.doc))},
-		onFinish:function(inst){warn('onFinish my')},
-	});
-
-
-
-
-//let isid = teman.genIsid(te, 'myDid');
-//let r = te.render(isid, doc);
-
-
-
-let isid = teman.genIsid(te, 'myDid1');
-let instance = teman.getInstance(isid);
-if(!instance.doc)
-{
-	warn('load doc');
-	instance.doc = exec('testdoc.js');
-}
-let r = instance.render();
-
-return r;
+let res = <><form>
+	<textarea name='text' rows='20' cols='80'>{esc.xml(text)}</textarea>
+	<input type='submit'/>
+</form>
+</>;
+return res;

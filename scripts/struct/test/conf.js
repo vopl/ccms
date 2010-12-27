@@ -12,7 +12,6 @@ var res=
 
 	statics:
 	{
-		'mystatic.html':absFile('mystatic.html'),
 	}
 
 

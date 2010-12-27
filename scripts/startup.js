@@ -10,7 +10,6 @@ global.cache = exec('lib/cache.js');
 
 
 
-
 // база данных
 global.db = router.createService('pg');
 db.open(router.getConfig().dbConnectionString);

@@ -23,7 +23,6 @@ if(!t)
 			<input type='hidden' name='id' value={t.id}/>
 
 			map_title:<input type='string' name='map_title' value={t.map_title}/><br/>
-			map_path:<input type='string' name='map_path' value={t.map_path}/><br/>
 			{t.content}
 			<input type='submit'/>
 		</form>
