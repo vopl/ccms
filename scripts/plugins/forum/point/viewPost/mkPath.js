@@ -1,6 +1,5 @@
 let post = arguments[0];
 let forum = arguments[1];
-
 if(!post.path)
 {
 	post.childsById = {};
@@ -9,7 +8,7 @@ if(!post.path)
 
 	if(!post.tree_pid)
 	{
-		post.path = forum.path + '/' + post.map_path?post.map_path:post.id;;
+		post.path = forum.path + '/' + (post.map_path?post.map_path:post.id);
 	}
 	else
 	{

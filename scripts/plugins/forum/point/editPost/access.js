@@ -1,3 +1,5 @@
+let post = arguments[0] || request.planData.post;
+
 if(acl.hasRight('forum', 'managePosts')) return true;
 
 if(request.planData.mode && request.planData.mode=='add')
@@ -5,7 +7,7 @@ if(request.planData.mode && request.planData.mode=='add')
 	return acl.hasRight('forum', 'writePost');
 }
 
-if(!request.planData.post)
+if(!post)
 {
 	return acl.hasRight('forum', 'writePost');
 }
@@ -13,8 +15,7 @@ if(!request.planData.post)
 
 if('anonymous' != user.login)
 {
-	let mostPost = request.planData.post;
-	if(mostPost.user_id == user.id) return true;
+	if(post.user_id == user.id) return true;
 }
 
 return false;

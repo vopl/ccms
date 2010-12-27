@@ -149,7 +149,10 @@ let topic = global.cache.process({
 			orm.NsTree.linearToHierarchy(all);
 			
 			let mkPath = point.parent.childs.viewPost.properties.mkPath;
-			all.forEach(function(v) mkPath(v, mostForum));
+			all.forEach(function(v){
+				mkPath(v, mostForum);
+				v.user = orm.query("SELECT * FROM {User} WHERE id=$1", v.user_id)[0];
+			});
 			
 			return topic;
 		}
