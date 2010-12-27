@@ -34,7 +34,7 @@ if(request.params.save)
 		post.tree_pid = mostPost.tree_pid;
 	}
 
-	if(!post.map_title) post.map_title = "штука";
+	if(!post.map_title) post.map_title = "штука без названия";
 	if(!post.map_path) post.map_path = post.map_title;
 
 	if(!post.content) post.content = " ";
@@ -52,10 +52,12 @@ if(request.params.save)
 		{
 			if(post.id)
 			{
+				//обновление с родителем (обновлние ответа)
 				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid=$3 AND id!=$4', post.map_path, mostForum.id, post.tree_pid, post.id);
 			}
 			else
 			{
+				//вставка с родителем (создание ответа)
 				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid=$3', post.map_path, mostForum.id, post.tree_pid);
 			}
 		}
@@ -63,10 +65,12 @@ if(request.params.save)
 		{
 			if(post.id)
 			{
+				//обновление без родителя (обновлние темы)
 				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid IS NULL AND id!=$3', post.map_path, mostForum.id, post.id);
 			}
 			else
 			{
+				//вставка без родителя (создание темы)
 				dbr = orm.query('SELECT id FROM {ForumPost} WHERE map_path=$1 AND forum_id=$2 AND tree_pid IS NULL', post.map_path, mostForum.id);
 			}
 		}
@@ -92,7 +96,7 @@ if(request.params.save)
 }
 else if(request.planData.mode && request.planData.mode == 'add')
 {
-	ui.blocks.center.push(this.render({}));
+	ui.blocks.center.push(this.render({map_title:mostPost?mostPost.map_title:''}));
 	ui.print();
 }
 else
