@@ -19,6 +19,7 @@ var res=
 
 	childs:
 	{
-	}
+	},
+
 };
 return res;

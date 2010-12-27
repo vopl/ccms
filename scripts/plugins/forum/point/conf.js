@@ -54,6 +54,7 @@
 	statics:
 	{
 		'main.css':absFile('main.css'),
+		'postTreeManager.js':absFile('postTreeManager.js'),
 	},
 
 };

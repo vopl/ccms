@@ -12,7 +12,7 @@ if(!t)
 		{t.user}: <b>{t.title}</b>
 		{t.go} {t.edit} {t.del} {t.add} <div>{t.content}</div>
 		<hr/>
-		<div style='margin-left: 1em;'>{t.childs}</div>
+		<div class='forum-post-tree-structor' style='border: 1px solid #000;' level={t.level}>{t.childs}</div>
 	</div>);
 	arguments.callee.t = t;
 }
@@ -44,6 +44,8 @@ if(acl.hasRight('forum', 'writePost'))
 
 
 t.content = {print:function()print(target.content), toString:function()target.content};
+
+t.level = target.tree_level;
 t.childs = target.childs?target.childs.map(function(v)point.properties.renderRow(v)):'';
 	
 
