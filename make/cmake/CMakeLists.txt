@@ -648,6 +648,9 @@ ELSE(MSVC)
     TARGET_LINK_LIBRARIES(entry boost_filesystem)
     TARGET_LINK_LIBRARIES(entry boost_thread)
 	
+	TARGET_LINK_LIBRARIES(entry icuuc)
+	TARGET_LINK_LIBRARIES(entry icui18n)
+	
 ENDIF(MSVC)
 
 

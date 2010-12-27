@@ -50,13 +50,13 @@ namespace ccms{namespace icu{
 
 			::icu::UnicodeString us = ::icu::UnicodeString::fromUTF8(s);
 
-			UParseError parseError;
-			UErrorCode status;
+			UParseError parseError={};
+			UErrorCode status=U_ZERO_ERROR;
 			::icu::Transliterator *t = ::icu::Transliterator::createInstance(us, UTRANS_FORWARD, parseError, status);
-
+			
 			if(!t)
 			{
-				JS_ReportError(ecx()->_jsCx, "transliterator failed to create instance with id %s", s);
+				JS_ReportError(ecx()->_jsCx, "transliterator failed to create instance with id %s, %s(%d), line %d offset %d", s, u_errorName(status), (int)status, parseError.line, parseError.offset);
 				return false;
 			}
 

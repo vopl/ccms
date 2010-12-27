@@ -35,6 +35,8 @@ orm.addCategory({
 	{
 		adoptMapPath: function adoptMapPath()
 		{
+			if(!this.map_path) this.map_path = '-';
+
 			let trans = arguments.callee.trans;
 			if(!trans)
 			{
