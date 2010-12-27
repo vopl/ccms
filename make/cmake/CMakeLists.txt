@@ -55,6 +55,25 @@ SOURCE_GROUP(src\\crypto FILES ${SRC_CRYPTO})
 
 
 
+
+
+
+
+################################
+SET(INCLUDE_ICU
+	../../include/icu/icu.hpp
+	../../include/icu/transliterator.hpp
+)
+SOURCE_GROUP(include\\icu FILES ${INCLUDE_ICU})
+
+SET(SRC_ICU
+	../../src/icu/icu.cpp
+	../../src/icu/transliterator.cpp
+)
+SOURCE_GROUP(src\\icu FILES ${SRC_ICU})
+
+
+
 ################################
 SET(INCLUDE_ROUTER
 	../../include/router/contextData.hpp
@@ -575,6 +594,7 @@ SOURCE_GROUP(src\\entry FILES ${ENTRY})
 
 ADD_EXECUTABLE(entry 
 	${INCLUDE_CRYPTO} ${SRC_CRYPTO}
+	${INCLUDE_ICU} ${SRC_ICU}
 	${INCLUDE_DB} ${SRC_DB}
 	${INCLUDE_ROUTER} ${SRC_ROUTER}
 	${INCLUDE_SCRIPTER} ${SRC_SCRIPTER} ${HDR_SRC_SCRIPTER}
@@ -595,6 +615,7 @@ ADD_EXECUTABLE(entry
 CREATE_PCH(entry ../../src/stdafx.h ../../src/stdafx.cpp)
 
 USE_PCH(entry ../../src/stdafx.h ${SRC_CRYPTO})
+USE_PCH(entry ../../src/stdafx.h ${SRC_ICU})
 USE_PCH(entry ../../src/stdafx.h ${SRC_DB})
 USE_PCH(entry ../../src/stdafx.h ${SRC_ROUTER})
 USE_PCH(entry ../../src/stdafx.h ${SRC_SCRIPTER})
