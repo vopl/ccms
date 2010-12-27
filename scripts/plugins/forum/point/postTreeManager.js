@@ -19,8 +19,8 @@
 			if(undefined !== apropertyMax) man.apropertyMax = apropertyMax;
 			if(undefined !== aduration) man.aduration = aduration;
 			if(undefined !== triggerInterval) man.triggerInterval = triggerInterval;
-			man.lastTriggerTime = new Date();
 
+			man.trigger();
 			$(window).scroll(function(){man.onScroll()});
 		},
 
