@@ -48,8 +48,8 @@
 			man.lastTriggerTime = new Date();
 			
 			var top = window.scrollY;
-			var bottom = top + $(window).height();
-		
+			var bottom = top + Math.floor($(window).height()*1.1);
+
 		        var min = 1e10;
 		        var minEl;
 		        var level = 1e10;
@@ -105,20 +105,20 @@
 
 			window.status = level;
 			$('.forum-post-tree-structor').each(function(edx, el){
+
 				var cl = Number(el.getAttribute('level'));
 				var state = el.getAttribute('tree-state');
 
 				el = $(el);
-
-				var c = {}; 
-				
-				if(level > cl)	c[man.aproperty] = String(man.apropertyMin*(cl))+man.apropertyUnit;
-				else		c[man.aproperty] = String(man.apropertyMax*(cl-level) + man.apropertyMin*(level))+man.apropertyUnit;
+				el.clearQueue();
+				el.stop();
 
 				if(state == 'in')
 				{
-					el.clearQueue();
-					el.stop();
+					var c = {}; 
+					if(level > cl)	c[man.aproperty] = String(man.apropertyMin*(cl))+man.apropertyUnit;
+					else		c[man.aproperty] = String(man.apropertyMax*(cl-level) + man.apropertyMin*(level))+man.apropertyUnit;
+
 					el.animate(c, man.aduration, 'swing');
 				}
 				else
