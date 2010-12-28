@@ -41,7 +41,7 @@
 			$('#forum-tree-man-h'+man.hmode).attr('checked', true);
 
 			man.trigger(true);
-			$(window).ready(function(){man.onViewChanged(true)});
+			$(document).ready(function(){man.onViewChanged(true)});
 			$(window).scroll(function(){man.onViewChanged()});
 		},
 
