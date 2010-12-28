@@ -48,7 +48,8 @@
 			man.lastTriggerTime = new Date();
 			
 			var top = window.scrollY;
-			var bottom = top + Math.floor($(window).height()*1.1);
+			var bottom = top + $(window).height();
+			var bottom2 = top + Math.floor($(window).height()*1.1);
 
 		        var min = 1e10;
 		        var minEl;
@@ -79,6 +80,10 @@
 						minEl = el;
 					}
 
+				}
+				else if(b>=top && t<=bottom2)
+				{
+					el.setAttribute('tree-state', 'in');
 				}
 				else
 				{
