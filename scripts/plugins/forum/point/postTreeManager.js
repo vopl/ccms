@@ -2,51 +2,82 @@
 
 	window.ccms.postTreeManager = 
 	{
-		aproperty:'marginLeft',
-		apropertyMin:'0.5',
-		apropertyMax:'2',
-		apropertyUnit:'em',
-		aduration:200,
-		triggerInterval:0,
+		updateUrl:undefined,
+		
+		defaultOptions:
+		{
+			aproperty:'marginLeft',
+			apropertyMin:'0.5',
+			apropertyMax:'2',
+			apropertyUnit:'em',
+			aduration:200,
+			triggerInterval:200,
+			hmode:'auto',
+		},
+
+
+		lastHMode:null,
 		lastTriggerTime:new Date(),
 		lastTopElement:null,
 		lastBottomElement:null,
 		lastlevel:-1,
 
-		init:function(aproperty, apropertyMin, apropertyMax, apropertyUnit, aduration, triggerInterval)
+		init:function(updateUrl, options)
 		{
 			var man = this;
 
-			if(undefined !== aproperty) man.aproperty = aproperty;
-			if(undefined !== apropertyMin) man.apropertyMin = apropertyMin;
-			if(undefined !== apropertyMax) man.apropertyMax = apropertyMax;
-			if(undefined !== apropertyUnit) man.apropertyUnit = apropertyUnit;
-			if(undefined !== aduration) man.aduration = aduration;
-			if(undefined !== triggerInterval) man.triggerInterval = triggerInterval;
+			if(!updateUrl) updateUrl = window.location.href;
+			man.updateUrl = updateUrl;
+
+			if(!options) options = {};
+			options.__proto__ = man.defaultOptions;
+			man.__proto__ = options;
+
 
 			man.lastTopElement = null;
 			man.lastBottomElement = null;
 			man.lastlevel = -1;
 
-			man.trigger();
-			$(window).scroll(function(){man.onScroll()});
+			$('#forum-tree-man-h'+man.hmode).attr('checked', true);
+
+			man.trigger(true);
+			$(window).ready(function(){man.onViewChanged(true)});
+			$(window).scroll(function(){man.onViewChanged()});
 		},
 
-		onScroll:function()
+		onViewChanged:function(force)
 		{
 			var man = this;
 
 			var delta = (new Date()).getTime() - man.lastTriggerTime.getTime();
 			if(delta >= man.triggerInterval) man.trigger();
-			else setTimeout(function(){window.ccms.postTreeManager.trigger()}, man.triggerInterval-delta);
+			else setTimeout(function(){window.ccms.postTreeManager.trigger(force)}, man.triggerInterval-delta);
 		},
 
-		trigger:function()
+		trigger:function(force)
 		{
 			var man = this;
 
 			man.lastTriggerTime = new Date();
-			
+
+			switch(man.hmode)
+			{
+			case 'min':
+				man.lastHMode = man.hmode;
+				man.lastTopElement = null;
+				man.lastBottomElement = null;
+				man.lastLevel = 1e10;
+				man.applyLevel(1e10);
+				return;
+			case 'max':
+				man.lastHMode = man.hmode;
+				man.lastTopElement = null;
+				man.lastBottomElement = null;
+				man.lastLevel = 0;
+				man.applyLevel(0);
+				return;
+			}
+
 			var top = window.scrollY;
 			var bottom = top + $(window).height();
 			var bottom2 = top + Math.floor($(window).height()*1.1);
@@ -56,12 +87,14 @@
 		        var level = 1e10;
 		        var max = 0;
 		        var maxEl;
-			$('.forum-post-tree-structor').each(function(idx, el){
+
+		        var elements = [];
+			$('.forum-post-structor').each(function(idx, el){
 				var t = $(el).offset().top;
 				var b = $(el).offset().top+el.clientHeight;
 				if(b>=top && t<=bottom)
 				{
-					el.setAttribute('tree-state', 'in');
+					elements.push(el);
 
 					var l = el.getAttribute('level');
 					if(level>l)
@@ -83,55 +116,114 @@
 				}
 				else if(b>=top && t<=bottom2)
 				{
-					el.setAttribute('tree-state', 'in');
+					elements.push(el);
 				}
 				else
 				{
-					el.setAttribute('tree-state', 'out');
+					//out of window
 				}
 			});
 
 			if(level>=1e10) level = 0;
 
-			if(	man.lastTopElement != minEl ||
+			if(	man.lastHMode != man.hmode ||
+				man.lastTopElement != minEl ||
 				man.lastBottomElement != maxEl ||
-				man.lastLevel != level)
+				man.lastLevel != level ||
+				force)
 			{
+				man.lastHMode = man.hmode;
 				man.lastTopElement = minEl;
 				man.lastBottomElement = maxEl;
 				man.lastLevel = level;
-				man.applyLevel(level);
+				man.applyLevel(level, elements);
 			}
 		},
 
-		applyLevel:function(level)
+		applyLevel:function(level, elements)
+		{
+			var man = this;
+			if(!elements) elements = $('.forum-post-structor');
+
+			for(var idx=0; idx<elements.length; idx++)
+			{
+				el = $(elements[idx]);
+
+				var cl = Number(el.attr('level'));
+
+				//el.clearQueue();
+				el.stop();
+
+				var c = {}; 
+				if(level > cl)	c[man.aproperty] = String(man.apropertyMin*(cl))+man.apropertyUnit;
+				else		c[man.aproperty] = String(man.apropertyMax*(cl-level) + man.apropertyMin*(level))+man.apropertyUnit;
+
+				el.animate(c, man.aduration, 'swing');
+			};
+		},
+
+
+		collapse:function(mode, elements)
+		{
+			var man = this;
+			if(!elements) elements = $('.forum-post-content');
+
+			if(mode) elements.hide(man.aduration, function(){man.onViewChanged()});
+			else elements.show(man.aduration, function(){man.onViewChanged()});
+		},
+
+
+		///////////////////////////////////
+		set:function(mode)
 		{
 			var man = this;
 
-			window.status = level;
-			$('.forum-post-tree-structor').each(function(edx, el){
+			switch(mode)
+			{
+			case 'hmin':
+				man.hmode = 'min';
+				//man.trigger(true);
+				man.onViewChanged(true);
+				break;
+			case 'hauto':
+				man.hmode = 'auto';
+				//man.trigger(true);
+				man.onViewChanged(true);
+				break;
+			case 'hmax':
+				man.hmode = 'max';
+				//man.trigger(true);
+				man.onViewChanged(true);
+				break;
+			case 'vmin':
+				man.collapse(true);
+				break;
+			case 'vmax':
+				man.collapse(false);
+				break;
+			}
+		},
 
-				var cl = Number(el.getAttribute('level'));
-				var state = el.getAttribute('tree-state');
-
-				el = $(el);
-				el.clearQueue();
-				el.stop();
-
-				if(state == 'in')
-				{
-					var c = {}; 
-					if(level > cl)	c[man.aproperty] = String(man.apropertyMin*(cl))+man.apropertyUnit;
-					else		c[man.aproperty] = String(man.apropertyMax*(cl-level) + man.apropertyMin*(level))+man.apropertyUnit;
-
-					el.animate(c, man.aduration, 'swing');
-				}
-				else
-				{
-					//ignore
-				}
 
 
+
+		///////////////////////////////////
+		update:function()
+		{
+			var man = this;
+			$.ajax({
+				url: man.updateUrl, 
+				data: {mode:'update'},
+				dataType: 'xml',
+				context: man, 
+				success: man.updateSuccess,
 			});
-		}
+		},
+
+		updateSuccess:function(data, textStatus, req)
+		{
+			var man = this;
+			alert(data);
+		},
+
 	};

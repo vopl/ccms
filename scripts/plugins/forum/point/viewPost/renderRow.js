@@ -8,18 +8,24 @@ let t = arguments.callee.t;
 if(!t)
 {
 	t = router.createTemplate();
-	t.compile(<div class='post'>
-
-		<div class='forum-post-tree-structor' style='border-left: 1px solid #000; border-bottom: 1px solid #000;' level={t.level}>
+	t.compile(<div id={t.id} pid={t.pid} fid={t.fid} class={t.class}>
+		<div level={t.level} class='forum-post-structor'>
 			{t.user}: <b>{t.title}</b>
 			{t.go} {t.edit} {t.del} {t.add}
-			<div>{t.content}</div>
+			<div id={'forum-post-content-'+t.id} class='forum-post-content'>{t.content}</div>
 		</div>
 		{t.childs}
 	</div>);
 	arguments.callee.t = t;
 }
 t = t.clone();
+
+t.id = target.id;
+t.pid = target.tree_pid?target.tree_pid:'';
+t.fid = target.forum_id;
+t.class = 'forum-post';
+if(!target.tree_pid) t.class += '; forum-topic';
+t.level = target.tree_level;
 
 t.user = target.user.login;
 t.title = target.title;
@@ -48,7 +54,6 @@ if(acl.hasRight('forum', 'writePost'))
 
 t.content = {print:function()print(target.content), toString:function()target.content};
 
-t.level = target.tree_level;
 t.childs = target.childs?target.childs.map(function(v)point.properties.renderRow(v)):'';
 	
 

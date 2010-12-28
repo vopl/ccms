@@ -9,6 +9,7 @@ var res=
 		process:{file:'./process.js'},
 		render:{file:'./render.js'},
 
+		renderTreeMan:{file:'./renderTreeMan.js'},
 		renderRow:{file:'./renderRow.js'},
 
 		title:{value:absFile(), executable:false},

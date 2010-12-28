@@ -47,3 +47,33 @@ textarea
 	border: 1px solid #565656;
 	margin: 0.3em;
 }
+
+
+
+
+
+.forum-tree-man
+{
+	border: 1px solid #00f;
+	float: right;
+}
+
+.forum-topic
+{
+}
+
+.forum-post
+{
+}
+
+.forum-post-structor
+{
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-bottom: 1px solid #000;
+}
+
+.forum-post-content
+{
+	border: 1px solid #0ff;
+}
