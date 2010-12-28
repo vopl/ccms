@@ -2,23 +2,31 @@
 
 	window.ccms.postTreeManager = 
 	{
-		aproperty:'paddingLeft',
-		apropertyMin:'0.5em',
-		apropertyMax:'3em',
+		aproperty:'marginLeft',
+		apropertyMin:'0.5',
+		apropertyMax:'2',
+		apropertyUnit:'em',
 		aduration:200,
-		triggerInterval:500,
+		triggerInterval:0,
 		lastTriggerTime:new Date(),
-		lastLevel:-2,
+		lastTopElement:null,
+		lastBottomElement:null,
+		lastlevel:-1,
 
-		init:function(aproperty, apropertyMin, apropertyMax, aduration, triggerInterval)
+		init:function(aproperty, apropertyMin, apropertyMax, apropertyUnit, aduration, triggerInterval)
 		{
 			var man = this;
 
 			if(undefined !== aproperty) man.aproperty = aproperty;
 			if(undefined !== apropertyMin) man.apropertyMin = apropertyMin;
 			if(undefined !== apropertyMax) man.apropertyMax = apropertyMax;
+			if(undefined !== apropertyUnit) man.apropertyUnit = apropertyUnit;
 			if(undefined !== aduration) man.aduration = aduration;
 			if(undefined !== triggerInterval) man.triggerInterval = triggerInterval;
+
+			man.lastTopElement = null;
+			man.lastBottomElement = null;
+			man.lastlevel = -1;
 
 			man.trigger();
 			$(window).scroll(function(){man.onScroll()});
@@ -40,23 +48,54 @@
 			man.lastTriggerTime = new Date();
 			
 			var top = window.scrollY;
+			var bottom = top + $(window).height();
 		
-			var max = 0;
-			var maxEl = null;
-			$('.forum-post-tree-structor').each(function(edx, el){
-				var t = el.offsetTop;
-				if(t<top && t>max)
+		        var min = 1e10;
+		        var minEl;
+		        var level = 1e10;
+		        var max = 0;
+		        var maxEl;
+			$('.forum-post-tree-structor').each(function(idx, el){
+				var t = $(el).offset().top;
+				var b = $(el).offset().top+el.clientHeight;
+				if(b>=top && t<=bottom)
 				{
-					max = t;
-					maxEl = el;
+					el.setAttribute('tree-state', 'in');
+
+					var l = el.getAttribute('level');
+					if(level>l)
+					{
+						level = l;
+					}
+
+					if(max<t)
+					{
+						max=t;
+						maxEl = el;
+					}
+					if(min>t)
+					{
+						min=t;
+						minEl = el;
+					}
+
+				}
+				else
+				{
+					el.setAttribute('tree-state', 'out');
 				}
 			});
 
-			var level = maxEl?Number(maxEl.getAttribute('level')):-1;
-			if(level != man.lastLevel)
+			if(level>=1e10) level = 0;
+
+			if(	man.lastTopElement != minEl ||
+				man.lastBottomElement != maxEl ||
+				man.lastLevel != level)
 			{
-				man.applyLevel(level);
+				man.lastTopElement = minEl;
+				man.lastBottomElement = maxEl;
 				man.lastLevel = level;
+				man.applyLevel(level);
 			}
 		},
 
@@ -67,16 +106,27 @@
 			window.status = level;
 			$('.forum-post-tree-structor').each(function(edx, el){
 				var cl = Number(el.getAttribute('level'));
-				if(cl <= level)
+				var state = el.getAttribute('tree-state');
+
+				el = $(el);
+
+				var c = {}; 
+				
+				if(level > cl)	c[man.aproperty] = String(man.apropertyMin*(cl))+man.apropertyUnit;
+				else		c[man.aproperty] = String(man.apropertyMax*(cl-level) + man.apropertyMin*(level))+man.apropertyUnit;
+
+				if(state == 'in')
 				{
-					var c = {}; c[man.aproperty] = man.apropertyMin;
-					$(el).animate(c, man.aduration);
+					el.clearQueue();
+					el.stop();
+					el.animate(c, man.aduration, 'swing');
 				}
 				else
 				{
-					var c = {}; c[man.aproperty] = man.apropertyMax;
-					$(el).animate(c, man.aduration);
+					//ignore
 				}
+
+
 			});
 		}
 	};

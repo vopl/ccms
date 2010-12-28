@@ -9,10 +9,13 @@ if(!t)
 {
 	t = router.createTemplate();
 	t.compile(<div class='post'>
-		{t.user}: <b>{t.title}</b>
-		{t.go} {t.edit} {t.del} {t.add} <div>{t.content}</div>
-		<hr/>
-		<div class='forum-post-tree-structor' style='border: 1px solid #000;' level={t.level}>{t.childs}</div>
+
+		<div class='forum-post-tree-structor' style='border-left: 1px solid #000; border-bottom: 1px solid #000;' level={t.level}>
+			{t.user}: <b>{t.title}</b>
+			{t.go} {t.edit} {t.del} {t.add}
+			<div>{t.content}</div>
+		</div>
+		{t.childs}
 	</div>);
 	arguments.callee.t = t;
 }

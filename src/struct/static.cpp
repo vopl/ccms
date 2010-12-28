@@ -40,6 +40,8 @@ namespace ccms
 			jsRegisterProp("instance", _instance->thisJsval());
 		}
 
+		jsRegisterProp("path", getFileName());
+
 		(JSExceptionReporter)JS_SetPrototype(cx, thisJsobj(), _instance->thisJsobj());
 		//setPrototype(_instance);
 
