@@ -33,7 +33,7 @@ namespace ccms
 
 	//////////////////////////////////////////////////////////////////////////
 	template<class Connection4TransportPtr>
-	bool TransportBase<Connection4TransportPtr>::start()
+	bool TransportBase<Connection4TransportPtr>::run()
 	{
 		if(!_commonEnv.empty()) return false;
 
@@ -153,6 +153,8 @@ namespace ccms
 	{
 		try
 		{
+			std::cerr<<"backend thread begin"<<std::endl;
+
 			if(!backend->initializeThread())
 			{
 				std::cerr<<"backend initialization failed";
@@ -231,6 +233,8 @@ namespace ccms
 			}
 
 			backend->deinitializeThread();
+
+			std::cerr<<"backend thread end"<<std::endl;
 		}
 		catch(std::exception &e)
 		{

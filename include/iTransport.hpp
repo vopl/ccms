@@ -90,7 +90,7 @@ namespace ccms
 	class ITransport
 	{
 	public:
-		virtual bool start() = 0;
+		virtual bool run() = 0;
 		virtual bool stop() = 0;
 
 		// comet

@@ -23,7 +23,7 @@ namespace ccms
 	public:
 		TransportBase(const char *host, unsigned short port, unsigned short	portSsl, size_t	queueSize, ITransportBackend *backend);
 		virtual ~TransportBase();
-		virtual bool start();
+		virtual bool run();
 		virtual bool stop();
 
 	protected:

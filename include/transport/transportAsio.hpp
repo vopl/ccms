@@ -170,7 +170,7 @@ namespace ccms
 		void set_ssl_tmpdh(const std::string &v){_ssl_tmpdh=v;};
 		void set_ssl_password(const std::string &v){_ssl_password=v;};
 
-		virtual bool start();
+		virtual bool run();
 		virtual bool stop();
 
 	private:
@@ -198,6 +198,7 @@ namespace ccms
 	private:
 		void processReadedHeader(ConnectionPtr connection, DDataBuf::iterator end);//full
 		void dumpReadedHeader(ConnectionPtr connection, DDataBuf::iterator end);//full
+		bool getAddresses(ConnectionPtr connection, std::string &localHost, unsigned short &localPort, std::string &remoteHost, unsigned short &remotePort);
 		void processReadedBody(ConnectionPtr connection, std::size_t bytes_transferred);//partial
 		void processWriteStatic(ConnectionPtr connection);
 

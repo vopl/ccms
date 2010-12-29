@@ -79,13 +79,14 @@ namespace ccms
 
 
 	//////////////////////////////////////////////////////////////////////////
-	bool TransportAsio::start()
+	bool TransportAsio::run()
 	{
-		if(!TransportBase<ConnectionPtr>::start()) return false;
+		if(!TransportBase<ConnectionPtr>::run()) return false;
 
 
 		try
 		{
+			std::cerr<<"TransportAsio::run begin"<<std::endl;
 
 			if(_port)
 			{
@@ -164,6 +165,7 @@ namespace ccms
 
 
 			_io_service.run();
+			std::cerr<<"TransportAsio::run end"<<std::endl;
 
 			//если стоп был до запуска то форсировать вновь
 			//stop();
@@ -176,7 +178,7 @@ namespace ccms
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << e.what() << std::endl;
+			std::cerr<<"TransportAsio::run exception: "<<e.what()<<std::endl;
 			stop();
 			return false;
 		}
@@ -191,6 +193,7 @@ namespace ccms
 
 	bool TransportAsio::stop()
 	{
+		std::cerr<<"TransportAsio::stop trigged"<<std::endl;
 		makeStop();
 		return true;
 	}
@@ -869,20 +872,18 @@ namespace ccms
 
 		}
 
-		{
-			ip::tcp::endpoint rend = connection->_socket->remote_endpoint();
-			env["REMOTE_ADDR"] = rend.address().to_string();
-			char port[32];
-			sprintf(port, "%u", unsigned(rend.port()));
-			env["REMOTE_PORT"] = port;
-		}
 
 		{
-			ip::tcp::endpoint rlocal = connection->_socket->local_endpoint();
-			env["LOCAL_ADDR"] = rlocal.address().to_string();
-			char port[32];
-			sprintf(port, "%u", unsigned(rlocal.port()));
-			env["LOCAL_PORT"] = port;
+			unsigned short localPort;
+			unsigned short remotePort;
+			if(!getAddresses(connection, env["LOCAL_ADDR"], localPort, env["REMOTE_ADDR"], remotePort))
+			{
+				dumpReadedHeader(connection, end);
+				return;
+			}
+
+			env["LOCAL_PORT"] = _ntoa(localPort);
+			env["REMOTE_PORT"] = _ntoa(remotePort);
 		}
 
 		TEnvMap::iterator iter;
@@ -1008,10 +1009,44 @@ namespace ccms
 
 		time_t t;time(&t);
 		std::cerr<<"=========== TransportAsio::dumpReadedHeader =========== at "<<ctime(&t);
-		std::cerr<<"remote: "<<connection->_socket->remote_endpoint().address().to_string()<<":"<<connection->_socket->remote_endpoint().port()<<std::endl;
-		std::cerr<<"local: "<<connection->_socket->local_endpoint().address().to_string()<<":"<<connection->_socket->local_endpoint().port()<<std::endl;
+
+		std::string localHost; unsigned short localPort;
+		std::string remoteHost; unsigned short remotePort;
+		getAddresses(connection, localHost, localPort, remoteHost, remotePort);
+		std::cerr<<"remote: "<<remoteHost<<":"<<remotePort<<std::endl;
+		std::cerr<<"local: "<<localHost<<":"<<localPort<<std::endl;
 		std::cerr<<"all headers are: ["<<std::string(begin, end)<<"]"<<std::endl;
 	}
+
+	bool TransportAsio::getAddresses(ConnectionPtr connection, 
+		std::string &localHost, unsigned short &localPort, 
+		std::string &remoteHost, unsigned short &remotePort)
+	{
+		try
+		{
+
+			ip::tcp::endpoint ep = connection->_socket->local_endpoint();
+			localHost = ep.address().to_string();
+			localPort = ep.port();
+
+			ep = connection->_socket->remote_endpoint();
+			remoteHost = ep.address().to_string();
+			remotePort = ep.port();
+		}
+		catch(std::exception &e)
+		{
+			std::cerr<<"std::exception in TransportAsio::getAddresses: "<<e.what()<<std::endl;
+			return false;
+		}
+		catch(...)
+		{
+			std::cerr<<"unknown exception in TransportAsio::getAddresses"<<std::endl;
+			return false;
+		}
+
+		return true;
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
