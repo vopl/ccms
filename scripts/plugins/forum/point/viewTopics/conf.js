@@ -8,8 +8,6 @@ var res=
 		render:{file:'./render.js'},
 
 		renderRow:{file:'./renderRow.js'},
-
-		title:{value:absFile(), executable:false},
 	},
 
 	childs:

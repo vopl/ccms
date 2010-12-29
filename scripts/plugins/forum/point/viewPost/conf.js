@@ -12,7 +12,7 @@ var res=
 		renderTreeMan:{file:'./renderTreeMan.js'},
 		renderRow:{file:'./renderRow.js'},
 
-		title:{value:absFile(), executable:false},
+		title:{file:'./title.js'},
 
 		mkPath:{file:'./mkPath.js'},
 

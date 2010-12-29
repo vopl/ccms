@@ -40,7 +40,7 @@ orm.addCategory({
 			let trans = arguments.callee.trans;
 			if(!trans)
 			{
-				trans =  new Icu.Transliterator('Any-Latin; any-NFD; Any-Publishing; [:^ascii:]Any-Remove');
+				trans =  new Icu.Transliterator('Any-Latin; Any-NFD; Any-Publishing; [:^ascii:]Any-Remove');
 				arguments.callee.trans = trans;
 			}
 			this.map_path = trans.transliterate(this.map_path);

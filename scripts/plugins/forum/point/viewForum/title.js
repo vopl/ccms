@@ -1,4 +1,4 @@
-let mostForum = request.planData.forums.back;
-let res = mostForum.map_title?mostForum.map_title:('forum #'+mostForum.id);
+let mostForum = request.planData.forum;
+let res = 'Форум: '+mostForum.title;
 
 return res;
