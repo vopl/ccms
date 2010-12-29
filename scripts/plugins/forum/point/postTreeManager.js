@@ -96,7 +96,7 @@
 				{
 					elements.push(el);
 
-					var l = el.getAttribute('level');
+					var l = Number(el.getAttribute('level'));
 					if(level>l)
 					{
 						level = l;
