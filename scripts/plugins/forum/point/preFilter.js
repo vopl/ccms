@@ -1,6 +1,6 @@
 ﻿
 ui.blocks.breadcrumbs.front = this.parent.properties.breadcrumbs();
-ui.blocks.title.front = request.plan.back.point.properties.title?request.plan.back.point.properties.title():request.plan.back.title;
+ui.blocks.title.front = request.plan.back.point.properties.title?request.plan.back.point.properties.title:request.plan.back.title;
 
 
 {
