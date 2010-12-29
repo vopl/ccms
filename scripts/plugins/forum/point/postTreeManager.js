@@ -155,7 +155,7 @@
 				el.stop();
 
 				var c = {}; 
-				if(level > cl)	c[man.aproperty] = String(man.apropertyMin*(cl))+man.apropertyUnit;
+				if(cl < level)	c[man.aproperty] = '0'+man.apropertyUnit;
 				else		c[man.aproperty] = String(man.apropertyMax*(cl-level) + man.apropertyMin*(level))+man.apropertyUnit;
 
 				el.animate(c, man.aduration, 'swing');
