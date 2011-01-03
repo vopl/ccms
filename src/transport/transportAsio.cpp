@@ -818,6 +818,44 @@ namespace ccms
 				connection->_requestPath.erase(pos);
 			}
 			dropInvalidUtf8(hexdecode(connection->_requestPath));
+
+			if(connection->_requestPath.empty())
+			{
+				dumpReadedHeader(connection, end);
+				std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
+				return;
+			}
+
+			pos = connection->_requestPath.find('\\');
+			while(std::string::npos != pos)
+			{
+				connection->_requestPath[pos] = '/';
+				pos = connection->_requestPath.find('\\', pos);
+			}
+
+			if(connection->_requestPath[0] != '/')
+			{
+				dumpReadedHeader(connection, end);
+				std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
+				return;
+			}
+
+			pos = connection->_requestPath.find("/../");
+			if(std::string::npos != pos)
+			{
+				dumpReadedHeader(connection, end);
+				std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
+				return;
+			}
+
+			pos = connection->_requestPath.find("/..");
+			if(pos == connection->_requestPath.size()-3)
+			{
+				dumpReadedHeader(connection, end);
+				std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
+				return;
+			}
+
 		}
 
 		static const char SPACES[] = " \t";

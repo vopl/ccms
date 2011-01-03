@@ -1581,12 +1581,15 @@ if(	JS_HasProperty(cx, obj, #vname "_hidden", &b) && b &&	\
 			ScripterScopedStackLimit sssl(_stackLimit);
 
 			//сначала отсмотреть статику
-			boost::filesystem::path path = (_documentRoot / connection->_requestPath);
-			if(boost::filesystem::is_regular_file(path))
+			if(!_documentRoot.empty())
 			{
-				path = boost::filesystem::complete(path).normalize();
-				connection->_staticPath = path.string();
-				return true;
+				boost::filesystem::path path = (_documentRoot / connection->_requestPath);
+				if(boost::filesystem::is_regular_file(path))
+				{
+					path = boost::filesystem::complete(path).normalize();
+					connection->_staticPath = path.string();
+					return true;
+				}
 			}
 
 			//////////////////////////////////////////////////////////////////////////
