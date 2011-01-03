@@ -1169,6 +1169,11 @@ namespace ccms
 	//////////////////////////////////////////////////////////////////////////
 	void TransportAsio::processWriteStatic(ConnectionPtr connection)
 	{
+		static std::ofstream SLOG("../logs/slog", std::ios::app);
+		time_t t = time(NULL);
+		SLOG<<connection->_staticPath<<", "<<asctime(localtime(&t));
+		SLOG.flush();
+
 		/////////////////////
 		//время последнего изменения
 		time_t mtime = -1;
