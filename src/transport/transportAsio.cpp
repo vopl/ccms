@@ -840,22 +840,27 @@ namespace ccms
 				return;
 			}
 
-			pos = connection->_requestPath.find("/../");
-			if(std::string::npos != pos)
+			if(connection->_requestPath.size()>=4)
 			{
-				dumpReadedHeader(connection, end);
-				std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
-				return;
+				pos = connection->_requestPath.find("/../");
+				if(std::string::npos != pos)
+				{
+					dumpReadedHeader(connection, end);
+					std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
+					return;
+				}
 			}
 
-			pos = connection->_requestPath.find("/..");
-			if(pos == connection->_requestPath.size()-3)
+			if(connection->_requestPath.size()>=3)
 			{
-				dumpReadedHeader(connection, end);
-				std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
-				return;
+				pos = connection->_requestPath.find("/..");
+				if(pos == connection->_requestPath.size()-3)
+				{
+					dumpReadedHeader(connection, end);
+					std::cerr<<"TransportAsio::processReadedHeader: bad path: "<<connection->_requestPath<<std::endl;
+					return;
+				}
 			}
-
 		}
 
 		static const char SPACES[] = " \t";
