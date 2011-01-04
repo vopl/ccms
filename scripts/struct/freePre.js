@@ -1,4 +1,4 @@
-if(request.cookie && request.cookie.PHPSESSID && request.cookie.marker)
+if(request.cookies && request.cookies.PHPSESSID && request.cookies.marker)
 //if(request.cookies.sid && request.cookies.vc)
 {
 	print('WTF? robot?');
