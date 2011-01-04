@@ -14,7 +14,7 @@ function mkMap(map, path)
 		
 		for(let cname in map.childs)
 		{
-			childs += mkMap(map.childs[cname], path+cname+'/');
+			childs += mkMap(map.childs[cname], path=='/'?(path+cname):(path+'/'+cname));
 		}
 		
 		res += <ul>{childs}</ul>;
