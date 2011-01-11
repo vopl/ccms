@@ -28,7 +28,7 @@ t.pid = target.tree_pid?target.tree_pid:'';
 t.fid = target.forum_id;
 t.revision = target.revision;
 t.class = 'forum-post';
-if(!target.tree_pid) t.class += '; forum-topic';
+if(!target.tree_pid) t.class += ' forum-topic';
 t.level = target.tree_level;
 
 t.user = target.user.login;

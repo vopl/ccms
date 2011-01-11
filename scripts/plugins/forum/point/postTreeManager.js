@@ -64,6 +64,7 @@
 			var man = this;
 			
 			man.revision = 0;
+			var kk = $('.forum-post');
 			$('.forum-post').each(function(idx, el){
 
 				var l = Number(el.getAttribute('rev'));
