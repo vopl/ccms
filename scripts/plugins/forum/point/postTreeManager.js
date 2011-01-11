@@ -21,6 +21,8 @@
 		lastTopElement:null,
 		lastBottomElement:null,
 		lastlevel:-1,
+		zeroLevel:0,
+		revision:0,
 
 		init:function(updateUrl, options)
 		{
@@ -37,12 +39,39 @@
 			man.lastTopElement = null;
 			man.lastBottomElement = null;
 			man.lastlevel = -1;
+			
+			man.zeroLevel = 1e10;
+			$('.forum-post-structor').each(function(idx, el){
 
+				var l = Number(el.getAttribute('level'));
+				if(man.zeroLevel>l)
+				{
+					man.zeroLevel = l;
+				}
+			});
+
+			man.evalLastRevision();
+			
 			$('#forum-tree-man-h'+man.hmode).attr('checked', true);
 
 			man.trigger(true);
 			$(document).ready(function(){man.onViewChanged(true)});
 			$(window).scroll(function(){man.onViewChanged()});
+		},
+		
+		evalLastRevision:function()
+		{
+			var man = this;
+			
+			man.revision = 0;
+			$('.forum-post').each(function(idx, el){
+
+				var l = Number(el.getAttribute('rev'));
+				if(man.revision<l)
+				{
+					man.revision = l;
+				}
+			});
 		},
 
 		onViewChanged:function(force)
@@ -50,7 +79,7 @@
 			var man = this;
 
 			var delta = (new Date()).getTime() - man.lastTriggerTime.getTime();
-			if(delta >= man.triggerInterval) man.trigger();
+			if(delta >= man.triggerInterval) man.trigger(force);
 			else setTimeout(function(){window.ccms.postTreeManager.trigger(force)}, man.triggerInterval-delta);
 		},
 
@@ -80,18 +109,19 @@
 
 			var top = window.scrollY;
 			var bottom = top + $(window).height();
-			var bottom2 = top + Math.floor($(window).height()*1.1);
+			var bottom2 = top + Math.floor($(window).height()*1.5);
 
-		        var min = 1e10;
-		        var minEl;
-		        var level = 1e10;
-		        var max = 0;
-		        var maxEl;
-
-		        var elements = [];
+			var min = 1e10;
+			var minEl;
+			var level = 1e10;
+			var max = 0;
+			var maxEl;
+			
+			var elements = [];
 			$('.forum-post-structor').each(function(idx, el){
+
 				var t = $(el).offset().top;
-				var b = $(el).offset().top+el.clientHeight;
+				var b = t + el.clientHeight;
 				if(b>=top && t<=bottom)
 				{
 					elements.push(el);
@@ -112,7 +142,6 @@
 						min=t;
 						minEl = el;
 					}
-
 				}
 				else if(b>=top && t<=bottom2)
 				{
@@ -145,11 +174,12 @@
 			var man = this;
 			if(!elements) elements = $('.forum-post-structor');
 
+			level -= man.zeroLevel;
 			for(var idx=0; idx<elements.length; idx++)
 			{
 				el = $(elements[idx]);
 
-				var cl = Number(el.attr('level'));
+				var cl = Number(el.attr('level')) - man.zeroLevel;
 
 				//el.clearQueue();
 				el.stop();
@@ -213,7 +243,8 @@
 			var man = this;
 			$.ajax({
 				url: man.updateUrl, 
-				data: {mode:'update'},
+				data: {mode:'update', revision:man.revision},
+				//data: {mode:'update', revision:0},
 				dataType: 'xml',
 				context: man, 
 				success: man.updateSuccess,
@@ -223,7 +254,53 @@
 		updateSuccess:function(data, textStatus, req)
 		{
 			var man = this;
-			alert(data);
+
+			var posts = $(data).find( "post").children();
+			if(posts.length)
+			{
+				$('.forum-post-new').removeClass('forum-post-new');
+				posts.each(function(idx, el)
+				{
+					var old = $('#'+$(el).attr('id'));
+					
+					if(old.length)
+					{
+						//replace
+						old.after((new XMLSerializer()).serializeToString(el)).remove();
+					}
+					else
+					{
+						//insert
+						var parent = $('#forum-post-'+$(el).attr('pid') + ' > .forum-post-childs');
+						if(parent.length)
+						{
+							parent.append((new XMLSerializer()).serializeToString(el));
+						}
+						else
+						{
+							alert('page corrupted');
+							
+							parent = $('#forum-posts');
+							if(parent.length)
+							{
+								parent.append((new XMLSerializer()).serializeToString(el));
+							}
+							else
+							{
+								alert('page corrupted absolutely');
+							}
+						}
+					}
+
+					$('#'+$(el).attr('id')).addClass('forum-post-new');
+				});
+				man.evalLastRevision();
+				man.onViewChanged(true);
+			}
+			else
+			{
+				//nothing to update
+			}
 		},
 
 	};

@@ -8,13 +8,16 @@ let t = arguments.callee.t;
 if(!t)
 {
 	t = router.createTemplate();
-	t.compile(<div id={t.id} pid={t.pid} fid={t.fid} class={t.class}>
+	t.compile(
+	<div id={'forum-post-'+t.id} pid={t.pid} fid={t.fid} rev={t.revision} class={t.class}>
 		<div level={t.level} class='forum-post-structor'>
 			{t.user}: <b>{t.title}</b>
 			{t.go} {t.edit} {t.del} {t.add}
 			<div id={'forum-post-content-'+t.id} class='forum-post-content'>{t.content}</div>
 		</div>
-		{t.childs}
+		<div class='forum-post-childs'>
+			{t.childs}
+		</div>
 	</div>);
 	arguments.callee.t = t;
 }
@@ -23,6 +26,7 @@ t = t.clone();
 t.id = target.id;
 t.pid = target.tree_pid?target.tree_pid:'';
 t.fid = target.forum_id;
+t.revision = target.revision;
 t.class = 'forum-post';
 if(!target.tree_pid) t.class += '; forum-topic';
 t.level = target.tree_level;

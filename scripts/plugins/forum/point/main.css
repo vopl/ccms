@@ -75,5 +75,10 @@ textarea
 
 .forum-post-content
 {
-	border: 1px solid #0ff;
+	//border: 1px solid #0ff;
+}
+
+.forum-post-new
+{
+	background: #0ff;
 }

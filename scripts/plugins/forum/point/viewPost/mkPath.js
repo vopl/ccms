@@ -5,6 +5,7 @@ if(!post.path)
 	post.childsById = {};
 	post.childsByPath = {};
 	post.title = post.map_title?post.map_title:'post #'+post.id;
+	post.revision = post.id;
 
 	if(!post.tree_pid)
 	{
