@@ -82,7 +82,7 @@ if(request.params.save)
 	post.save();
 
 	cache.fire('forum.'+request.planData.forum.id+'.post');
-	if(request.planData.post && request.planData.post == request.planData.topic)
+	if(!post.tree_pid)
 	{
 		cache.fire('forum.'+request.planData.forum.id+'.topic');
 	}

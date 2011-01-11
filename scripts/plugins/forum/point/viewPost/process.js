@@ -3,7 +3,6 @@
 if(request.params.mode && request.params.mode=='update')
 {
 	let revision = Number(request.params.revision) || 0;
-	warn(revision);
 	
 	let res = [];
 
