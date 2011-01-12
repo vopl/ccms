@@ -3,6 +3,7 @@
 	window.ccms.postTreeManager = 
 	{
 		updateUrl:undefined,
+		addUrl:undefined,
 		editUrl:undefined,
 		
 		defaultOptions:
@@ -31,6 +32,7 @@
 
 			if(!updateUrl) updateUrl = window.location.href;
 			man.updateUrl = updateUrl;
+			man.addUrl = updateUrl+'/add';
 			man.editUrl = updateUrl+'/edit';
 			
 			if(!options) options = {};
@@ -328,7 +330,7 @@
 				//area.append($('<b>sdfg</b>'));
 				
 				$.ajax({
-					url: man.editUrl, 
+					url: id?man.editUrl:man.addUrl, 
 					data: {mode:'answerForm', id:id, pid:pid},
 					dataType: 'xml',
 					success: function(data, textStatus, req) {man.injectAnswerFormSuccess(id, pid, data, textStatus, req);},
@@ -355,7 +357,7 @@
 			{
 				var form = $('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer > form');
 				form.ajaxSubmit({
-					url: man.editUrl, 
+					url: id?man.editUrl:man.addUrl, 
 					data: {mode:'answer', id:id, pid:pid},
 					dataType: 'xml',
 					success: function(data, textStatus, req) {man.answerFormSuccess(id, pid, data, textStatus, req);},
