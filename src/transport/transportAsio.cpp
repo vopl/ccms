@@ -1218,6 +1218,7 @@ namespace ccms
 				{
 					connection->_outStatus = 304;
 					onCompleteProcess_own(connection, true);
+					SLOG<<"304 lm"<<std::endl;
 					return;
 				}
 			}
@@ -1241,6 +1242,7 @@ namespace ccms
 				{
 					connection->_outStatus = 304;
 					onCompleteProcess_own(connection, true);
+					SLOG<<"304 et"<<std::endl;
 					return;
 				}
 			}
