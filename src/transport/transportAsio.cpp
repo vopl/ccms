@@ -1201,6 +1201,7 @@ namespace ccms
 				connection->_outBody = "404 Not Found";
 
 				onCompleteProcess_own(connection, true);
+				SLOG<<"404 stat"<<std::endl;
 				return;
 			}
 
@@ -1258,6 +1259,7 @@ namespace ccms
 			connection->_outBody = "404 Not Found";
 
 			onCompleteProcess_own(connection, true);
+			SLOG<<"404 file"<<std::endl;
 			return;
 		}
 
@@ -1289,11 +1291,13 @@ namespace ccms
 		if(_enableLastModified)
 		{
 			connection->_outHeaders += "Last-Modified: " + httpDate::make(mtime) + "\r\n";
+			SLOG<<"last modified "<<httpDate::make(mtime)<<std::endl;
 		}
 
 		if(_enableETag)
 		{
 			connection->_outHeaders += "ETag: \"" + _ntoa(etag) + "\"\r\n";
+			SLOG<<"etag "<<_ntoa(etag)<<std::endl;
 		}
 
 		////////////////////////////
@@ -1313,10 +1317,12 @@ namespace ccms
 					if(eceGzip == connection->_outContentEncoding)
 					{
 						connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamGzip(connection->_outCompression));
+						SLOG<<"gzip"<<std::endl;
 					}
 					else if(eceDeflate == connection->_outContentEncoding)
 					{
 						connection->_outCompressorStream.reset((CompressorStream*)new CompressorStreamDeflate(connection->_outCompression));
+						SLOG<<"deflate"<<std::endl;
 					}
 					else
 					{
@@ -1330,10 +1336,12 @@ namespace ccms
 				connection->_outBody.resize(size);
 				connection->_staticFile->read((char *)connection->_outBody.data(), size);
 				connection->_staticFile.reset();
+				SLOG<<"in body"<<std::endl;
 			}
 		}
 
 		onCompleteProcess_own(connection, true);
+		SLOG<<"send"<<std::endl;
 	}
 
 
