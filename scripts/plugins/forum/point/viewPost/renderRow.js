@@ -47,7 +47,7 @@ let postPathId = parentPath+'/'+target.id;
 if(this.parent.childs.editPost.properties.access(target))
 {
 	t.edit = ui.skin.link(target.path+'/edit?backUrl='+postPathId, 'править');
-	t.editInPlace = ui.skin.link('javascript:window.ccms.postTreeManager.addAnswerForm('+target.id+', undefined)', 'править на месте');
+	t.editInPlace = ui.skin.link('javascript:window.ccms.postTreeManager.addAnswerForm('+target.id+',undefined)', 'править на месте');
 }
 if(this.parent.childs.delPost.properties.access(target))
 {
@@ -65,5 +65,13 @@ t.content = {print:function()print(target.content), toString:function()target.co
 
 t.childs = target.childs?target.childs.map(function(v)point.properties.renderRow(v)):'';
 	
+
+
+
+
+
+
+ui.blocks.scripts.tmce = "/tinymce/jscripts/tiny_mce/tiny_mce_src.js";
+
 
 return t;

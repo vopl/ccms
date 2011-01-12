@@ -324,6 +324,7 @@
 			if(area.children().length)
 			{
 				area.empty();
+				man.delTmceMissedEditors();
 			}
 			else
 			{
@@ -355,6 +356,7 @@
 
 			if(send)
 			{
+				tinyMCE.triggerSave();
 				var form = $('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer > form');
 				form.ajaxSubmit({
 					url: id?man.editUrl:man.addUrl, 
@@ -366,14 +368,32 @@
 			else
 			{
 				$('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer').empty();
+				man.delTmceMissedEditors();
 			}
 		},
+		
+		delTmceMissedEditors: function()//не чистит за собой паразит
+		{
+			var missed = {};
+			for(var eidx in tinyMCE.editors)
+			{
+				var e = tinyMCE.editors[eidx];
+				if(!document.getElementById(e.editorId)) missed[e.editorId]=e;
+			}
+			for(var id in missed)
+			{
+				tinyMCE.remove(missed[id]);
+			}
+		},
+		
 		
 		answerFormSuccess: function(id, pid, data, textStatus, req)
 		{
 			var man = this;
 
 			$('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer').empty();
+			man.delTmceMissedEditors();
+
 			man.update(id);
 		}
 

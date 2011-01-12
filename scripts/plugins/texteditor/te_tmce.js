@@ -265,6 +265,8 @@ tmce.render = function render(isid, doc)
 	t.scriptBody.push('theme_advanced_buttons6 : "",\n');
 	t.scriptBody.push('remove_linebreaks : false,\n');
 	t.scriptBody.push('plugins : "'+plugins.join(',')+'",\n');
+	
+	
 
 
 

@@ -20,7 +20,7 @@ let mode = request.params.mode || '';
 		mostPost = orm.ForumPost.load({id:request.params.id || request.params.pid});
 		break;
 	default:
-		return;
+		break;
 	}
 }
 
@@ -59,7 +59,7 @@ if(request.params.save)
 		post.map_path = request.params.map_path;
 	}
 
-	if(!post.map_title) post.map_title = mostPost.map_title;
+	if(!post.map_title) post.map_title = mostPost?mostPost.map_title:'штука без названия';
 	if(!post.map_path) post.map_path = post.map_title;
 
 	if(!post.content) post.content = " ";

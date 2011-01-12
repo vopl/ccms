@@ -12,8 +12,8 @@ return router.plugins.texteditor.manager.getTe(
 
 		facilities:
 		{
-			allow:['source','preview','save','cancel'],
-			disallow:[],
+			allow:['source','preview'],
+			disallow:['save', 'cancel'],
                 },
 	}
 );

@@ -40,7 +40,7 @@ if(!t)
 t = t.clone();
 
 
-t.content = this.properties.te().renderNew('answerForm-'+pid, post?post.content:'');
+t.content = this.properties.te().renderNew('answerForm-'+id+'-'+pid, post?post.content:'');
 t.id = id || "''";
 t.pid = pid || "''";
 t.map_title = post?post.map_title:'';
