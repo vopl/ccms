@@ -5,8 +5,8 @@ if(request.params.mode && request.params.mode=='update')
 	switch(request.params.mode)
 	{
 	case 'update':
-		let revision = Number(request.params.revision) || 0;
-		let id = Number(request.params.id) || 0;
+		let revision = Number(request.params.revision || 0);
+		let id = Number(request.params.id || 0);
 		
 		let res = [];
 
