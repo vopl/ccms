@@ -1,6 +1,30 @@
-﻿
-let mostForum = request.planData.forum;
+﻿let mostForum = request.planData.forum;
 let mostPost = request.planData.post;
+
+let mode = request.params.mode || '';
+{
+	switch(mode)
+	{
+	case 'answerForm':
+		request.pushHeader('Content-Type', "text/xml; charset=utf-8");
+		print('<?xml version="1.0" encoding="utf-8"?>\n');
+		print('<div class="forum-post-answer-form">');
+			this.properties.renderAnswerForm(request.params.id||undefined, request.params.pid||undefined).print();
+		print('</div>');
+		return;
+	case 'answer':
+		if(request.params.pid)
+		{
+			request.planData.mode = 'add';
+		}
+		mostPost = orm.ForumPost.load({id:request.params.id || request.params.pid});
+		break;
+	default:
+		return;
+	}
+}
+
+////////////////////////////////////////////////////////
 if(request.params.save)
 {
 	let post;
@@ -32,9 +56,10 @@ if(request.params.save)
 
 		post.id = mostPost.id;
 		post.tree_pid = mostPost.tree_pid;
+		post.map_path = request.params.map_path;
 	}
 
-	if(!post.map_title) post.map_title = "штука без названия";
+	if(!post.map_title) post.map_title = mostPost.map_title;
 	if(!post.map_path) post.map_path = post.map_title;
 
 	if(!post.content) post.content = " ";
@@ -85,6 +110,18 @@ if(request.params.save)
 	if(!post.tree_pid)
 	{
 		cache.fire('forum.'+request.planData.forum.id+'.topic');
+	}
+
+
+	switch(mode)
+	{
+	case 'answer':
+		request.pushHeader('Content-Type', "text/xml; charset=utf-8");
+		print('<?xml version="1.0" encoding="utf-8"?>\n');
+		print('<ok/>');
+		return;
+	default:
+		break;
 	}
 
 

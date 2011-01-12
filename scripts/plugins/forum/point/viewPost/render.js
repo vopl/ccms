@@ -1,4 +1,5 @@
 ﻿ui.blocks.scripts.jquery144='/js/jquery-1.4.4.js';
+ui.blocks.scripts.jqueryForm='/js/jquery.form.js';
 
 let t = arguments.callee.t;
 if(!t)

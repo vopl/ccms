@@ -14,6 +14,9 @@ if(!t)
 			{t.user}: <b>{t.title}</b>
 			{t.go} {t.edit} {t.del} {t.add}
 			<div id={'forum-post-content-'+t.id} class='forum-post-content'>{t.content}</div>
+			{t.addInPlace}
+			{t.editInPlace}
+			<div class='forum-post-answer'/>
 		</div>
 		<div class='forum-post-childs'>
 			{t.childs}
@@ -44,6 +47,7 @@ let postPathId = parentPath+'/'+target.id;
 if(this.parent.childs.editPost.properties.access(target))
 {
 	t.edit = ui.skin.link(target.path+'/edit?backUrl='+postPathId, 'править');
+	t.editInPlace = ui.skin.link('javascript:window.ccms.postTreeManager.addAnswerForm('+target.id+', undefined)', 'править на месте');
 }
 if(this.parent.childs.delPost.properties.access(target))
 {
@@ -53,6 +57,7 @@ if(this.parent.childs.delPost.properties.access(target))
 if(acl.hasRight('forum', 'writePost'))
 {
 	t.add = ui.skin.link(target.path+'/add?backUrl='+request.path, 'ответить');
+	t.addInPlace = ui.skin.link('javascript:window.ccms.postTreeManager.addAnswerForm(undefined, '+target.id+')', 'ответить на месте');
 }
 
 

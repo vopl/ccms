@@ -3,6 +3,7 @@
 	window.ccms.postTreeManager = 
 	{
 		updateUrl:undefined,
+		editUrl:undefined,
 		
 		defaultOptions:
 		{
@@ -30,7 +31,8 @@
 
 			if(!updateUrl) updateUrl = window.location.href;
 			man.updateUrl = updateUrl;
-
+			man.editUrl = updateUrl+'/edit';
+			
 			if(!options) options = {};
 			options.__proto__ = man.defaultOptions;
 			man.__proto__ = options;
@@ -239,12 +241,12 @@
 
 
 		///////////////////////////////////
-		update:function()
+		update:function(id)
 		{
 			var man = this;
 			$.ajax({
 				url: man.updateUrl, 
-				data: {mode:'update', revision:man.revision},
+				data: {mode:'update', revision:man.revision, id:id},
 				//data: {mode:'update', revision:0},
 				dataType: 'xml',
 				context: man, 
@@ -303,5 +305,74 @@
 				//nothing to update
 			}
 		},
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		addAnswerForm: function(id, pid)
+		{
+			var man = this;
+
+			var area = $('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer');
+			if(area.children().length)
+			{
+				area.empty();
+			}
+			else
+			{
+				//area.append($('<b>sdfg</b>'));
+				
+				$.ajax({
+					url: man.editUrl, 
+					data: {mode:'answerForm', id:id, pid:pid},
+					dataType: 'xml',
+					success: function(data, textStatus, req) {man.injectAnswerFormSuccess(id, pid, data, textStatus, req);},
+				});
+				
+			}
+		},
+		
+		injectAnswerFormSuccess: function(id, pid, data, textStatus, req)
+		{
+			var man = this;
+			
+			var area = $('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer');
+			var form = $(data).find( "form").get(0);
+			form = (new XMLSerializer()).serializeToString(form);
+			area.append(form);
+		},
+		
+		doAnswer: function(id, pid, send)
+		{
+			var man = this;
+
+			if(send)
+			{
+				var form = $('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer > form');
+				form.ajaxSubmit({
+					url: man.editUrl, 
+					data: {mode:'answer', id:id, pid:pid},
+					dataType: 'xml',
+					success: function(data, textStatus, req) {man.answerFormSuccess(id, pid, data, textStatus, req);},
+				});
+			}
+			else
+			{
+				$('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer').empty();
+			}
+		},
+		
+		answerFormSuccess: function(id, pid, data, textStatus, req)
+		{
+			var man = this;
+
+			$('#forum-post-'+(id||pid) + ' >.forum-post-structor > .forum-post-answer').empty();
+			man.update(id);
+		}
 
 	};
