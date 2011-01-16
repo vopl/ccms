@@ -5,6 +5,25 @@ e.kind = 'container';
 e.childs = [];
 
 ///////////////////////////////////////////////
+e.parser = 
+{
+	kind:'element',
+	tags:{'container':0},
+	parse: function parse(xml, manager)
+	{
+		let res = {childs:[]};
+		res.__proto__ = e;
+
+		for each(let c in xml)
+		{
+			res.childs.push(manager.parse(c));
+		}
+
+		return res;
+	},
+};
+
+///////////////////////////////////////////////
 e.render = function render(mode)
 {
 	if('childs' in this)

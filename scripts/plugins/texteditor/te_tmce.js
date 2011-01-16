@@ -71,6 +71,8 @@ tmce.e2i_walkerElement = function e2i_walkerElement(e)
 	case 'underline':	e.setName('u');		break;
 
 	case 'span':
+		let ejectChilds = false;
+
 		let style = String(e.@style);
 		let styles=[];
 		let spair = /([^\s\:]+)\s*\:\s*([^\;]+)/.exec(style);
@@ -100,7 +102,18 @@ tmce.e2i_walkerElement = function e2i_walkerElement(e)
 				case 'bold':		e.setName('b');		break;
 				}
 				break;
+			default:
+				ejectChilds = true;
 			}
+		}
+		else
+		{
+			ejectChilds = true;
+		}
+
+		if(ejectChilds)
+		{
+			e.setName('container');
 		}
 		break;
 	}
